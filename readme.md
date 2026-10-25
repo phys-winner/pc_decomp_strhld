@@ -14,7 +14,7 @@ respective owners.
 
 ## Status and features
 
-Current application version: **0.21-dev**. All three editions are packaged into
+Current application version: **0.22-dev**. All three editions are packaged into
 one APK, with separate Android processes, settings and save directories.
 
 - The original game logic is translated ahead of time with
@@ -68,9 +68,10 @@ Supported game distributions are available on GOG:
 - [Stronghold Crusader HD / Extreme HD](https://www.gog.com/en/game/stronghold_crusader)
 
 Use your own legally obtained installations. The current address hooks and
-function seeds require the exact Russian-version inputs listed below; a different
-executable is rejected. This includes differences caused by a patch, another
-localization or a modified executable.
+function seeds are built for the exact Russian-version inputs listed below.
+The launcher warns about a different EXE and offers **Launch anyway**; patches,
+other localizations and modified executables may still fail in the native engine.
+Missing files and incompatible Miles or Bink DLLs still block launch.
 
 | File | SHA-256 |
 | --- | --- |

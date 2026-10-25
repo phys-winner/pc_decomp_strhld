@@ -52,12 +52,33 @@ public final class GameFilesSelfcheck {
         for (String edition : new String[] {"classic", "extreme"}) {
             assert GameFiles.images(game, edition).equals(lifted.toFile());
             assert GameFiles.validate(game, edition, true) == null;
+            assert GameFiles.check(game, edition, true).warning == null;
         }
         for (File file : lifted.toFile().listFiles()) Files.copy(file.toPath(), game.toPath().resolve(file.getName()));
         assert GameFiles.images(game, "classic").equals(game);
         assert GameFiles.validate(game, "classic", true) == null;
+        for (String edition : new String[] {"classic", "extreme"}) {
+            Path exe = game.toPath().resolve(GameFiles.executable(edition));
+            Files.write(exe, Files.readAllBytes(new File(args[1]).toPath()));
+            GameFiles.Check check = GameFiles.check(game, edition, true);
+            assert check.error == null && check.warning.contains(GameFiles.executable(edition));
+            assert GameFiles.validate(game, edition, true) == null : "An unrecognized EXE must allow launch";
+            assert GameFiles.check(game, edition, false).warning == null;
+            Files.delete(exe);
+            Path fallback = lifted.resolve(GameFiles.executable(edition)), backup = lifted.resolve(GameFiles.executable(edition) + ".saved");
+            Files.move(fallback, backup);
+            assert GameFiles.check(game, edition, true).error.contains("Не найден") : "A missing EXE must still block launch";
+            Files.move(backup, fallback);
+            Files.copy(lifted.resolve(GameFiles.executable(edition)), exe);
+        }
+        Path bink = game.toPath().resolve("binkw32.dll");
+        Files.write(bink, new byte[] {1});
+        assert GameFiles.check(game, "classic", true).error.contains("binkw32.dll");
+        Files.copy(lifted.resolve("binkw32.dll"), bink, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        Files.write(game.toPath().resolve("Stronghold Crusader.exe"), new byte[] {1});
         Files.write(new File(game, "Mss32.dll").toPath(), new byte[] {1, 2, 3});
         assert GameFiles.validate(game, "classic", true).contains("Mss32.dll");
+        assert GameFiles.check(game, "classic", true).warning == null : "EXE warnings must not hide DLL errors";
         Files.delete(new File(game, "Mss32.dll").toPath());
         assert GameFiles.validate(game, "classic", false).contains("Не найден");
         assert !GameFiles.pending(fixture.toFile(), "classic").equals(GameFiles.pending(fixture.toFile(), "extreme"));
@@ -76,7 +97,8 @@ public final class GameFilesSelfcheck {
         assert GameFiles.validate(original, "stronghold", true) == null;
         assert GameFiles.validate(game, "stronghold", false) != null : "Crusader assets are not the original";
         Files.write(liftedOriginal.resolve("Stronghold.exe"), new byte[] {1});
-        assert GameFiles.validate(original, "stronghold", true).contains("Stronghold.exe");
+        assert GameFiles.validate(original, "stronghold", true) == null;
+        assert GameFiles.check(original, "stronghold", true).warning.contains("Stronghold.exe");
         assert GameFiles.library("stronghold").equals("stronghold_sh") && GameFiles.userdata("stronghold").equals("userdata-stronghold");
         assert GameFiles.library("classic").equals("stronghold_classic") && GameFiles.library("extreme").equals("stronghold");
         assert GameFiles.userdata("classic").equals("userdata-classic") && GameFiles.userdata("extreme").equals("userdata");
@@ -84,6 +106,6 @@ public final class GameFilesSelfcheck {
         try (java.util.stream.Stream<Path> paths = Files.walk(fixture)) {
             paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> { try { Files.delete(path); } catch (Exception error) { throw new RuntimeException(error); } });
         }
-        System.out.println("GameFiles: atomic successful-start record, collision-safe map recovery, paths, assets, edition separation, SHA-256 rejection PASS");
+        System.out.println("GameFiles: successful-start record, map recovery, paths, assets, edition separation, EXE warnings, missing EXE and DLL SHA-256 rejection PASS");
     }
 }

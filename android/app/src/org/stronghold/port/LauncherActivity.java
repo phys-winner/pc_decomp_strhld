@@ -221,12 +221,12 @@ public final class LauncherActivity extends Activity {
                 SharedPreferences.Editor settings = preferences.edit();
                 StringBuilder missing = new StringBuilder();
                 for (int i = 0; i < EDITIONS.length; i++) {
-                    String edition = EDITIONS[i], problem = result.problems[i];
+                    String edition = EDITIONS[i], problem = result.problems[i], warning = result.warnings[i];
                     boolean valid = problem == null;
                     if (valid) settings.putString(pathKey(edition), result.paths[i]);
                     else { if (missing.length() > 0) missing.append(", "); missing.append(GameFiles.title(edition)); }
-                    gameStatus[i].setText(valid ? "Готов к запуску" : problem);
-                    gameStatus[i].setTextColor(valid ? Theme.GOOD : Theme.BAD);
+                    gameStatus[i].setText(valid ? warning == null ? "Готов к запуску" : warning : problem);
+                    gameStatus[i].setTextColor(valid ? warning == null ? Theme.GOOD : Theme.ACCENT : Theme.BAD);
                     Theme.enable(play[i], valid);
                 }
                 settings.apply();
@@ -506,28 +506,39 @@ public final class LauncherActivity extends Activity {
         checking = true;
         setStatus("Проверка файлов…", false);
         new Thread(() -> {
-            String error = GameFiles.validate(new File(directory), item, true);
+            GameFiles.Check check = GameFiles.check(new File(directory), item, true);
             runOnUiThread(() -> {
                 checking = false;
                 if (isFinishing() || isDestroyed()) return;
-                if (error != null) { showLauncher(error); return; }
-                try {
-                    if (!running(item)) {
-                        File marker = GameFiles.pending(getFilesDir(), item);
-                        if (marker.exists() && !marker.delete()) throw new IOException("Не удалось обновить состояние запуска");
-                        if (!marker.createNewFile()) throw new IOException("Не удалось сохранить состояние запуска");
-                    }
-                    showingLauncher = false; selectingFiles = false; ++scanVersion;
-                    startActivity(new Intent(this, gameClass(item)).putExtra("game", directory).putExtra("skipMovies", skipMovies)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION),
-                            android.app.ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle());
-                    overridePendingTransition(0, 0);
-                    for (ActivityManager.AppTask task : ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).getAppTasks())
-                        if (task.getTaskInfo().baseActivity == null) task.finishAndRemoveTask();
-                    finishAndRemoveTask();
-                } catch (IOException | RuntimeException failure) { showLauncher("Не удалось запустить игру: " + failure.getMessage()); }
+                if (check.error != null) { showLauncher(check.error); return; }
+                if (check.warning != null) {
+                    checking = true;
+                    new AlertDialog.Builder(this).setTitle("Предупреждение о совместимости")
+                            .setMessage(check.warning)
+                            .setPositiveButton("Запустить всё равно", (dialog, which) -> launch(item, directory, skipMovies))
+                            .setNegativeButton("Отмена", null)
+                            .setOnDismissListener(dialog -> { checking = false; if (!isFinishing() && !showingLauncher) showLauncher(null); })
+                            .show();
+                } else launch(item, directory, skipMovies);
             });
         }, "game-preflight").start();
+    }
+    private void launch(String item, String directory, boolean skipMovies) {
+        try {
+            if (!running(item)) {
+                File marker = GameFiles.pending(getFilesDir(), item);
+                if (marker.exists() && !marker.delete()) throw new IOException("Не удалось обновить состояние запуска");
+                if (!marker.createNewFile()) throw new IOException("Не удалось сохранить состояние запуска");
+            }
+            showingLauncher = false; selectingFiles = false; ++scanVersion;
+            startActivity(new Intent(this, gameClass(item)).putExtra("game", directory).putExtra("skipMovies", skipMovies)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION),
+                    android.app.ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle());
+            overridePendingTransition(0, 0);
+            for (ActivityManager.AppTask task : ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).getAppTasks())
+                if (task.getTaskInfo().baseActivity == null) task.finishAndRemoveTask();
+            finishAndRemoveTask();
+        } catch (IOException | RuntimeException failure) { showLauncher("Не удалось запустить игру: " + failure.getMessage()); }
     }
     private void handleIntent(Intent intent) {
         selectingFiles = false; ++scanVersion;

@@ -31,11 +31,14 @@ final class GameFiles {
         return new String[] {game, extreme == null ? game : extreme.trim(), stronghold == null ? DEFAULT_STRONGHOLD : stronghold.trim()};
     }
     static final class Scan {
-        final String[] paths, problems;
+        final String[] paths, problems, warnings;
         String discoveryProblem;
         Scan(String[] saved, boolean hashes) {
-            paths = saved.clone(); problems = new String[EDITIONS.length];
-            for (int i = 0; i < EDITIONS.length; i++) problems[i] = validate(new File(paths[i]), EDITIONS[i], hashes);
+            paths = saved.clone(); problems = new String[EDITIONS.length]; warnings = new String[EDITIONS.length];
+            for (int i = 0; i < EDITIONS.length; i++) {
+                Check check = check(new File(paths[i]), EDITIONS[i], hashes);
+                problems[i] = check.error; warnings[i] = check.warning;
+            }
         }
         boolean complete() { for (String problem : problems) if (problem != null) return false; return true; }
     }
@@ -62,7 +65,8 @@ final class GameFiles {
             boolean gfx = new File(folder, "gfx").isDirectory();
             for (int i = 0; gfx && i < EDITIONS.length; i++) {
                 if (found[i] || !new File(folder, original(EDITIONS[i]) ? "sh.tex" : "cr.tex").isFile()) continue;
-                String problem = validate(folder, EDITIONS[i], hashes);
+                Check check = check(folder, EDITIONS[i], hashes);
+                String problem = check.error;
                 if (problem != null) {
                     if (result.discoveryProblem == null) result.discoveryProblem = title(EDITIONS[i]) + ": " + problem;
                     continue;
@@ -74,6 +78,7 @@ final class GameFiles {
                             result.paths[i] = folder.getAbsolutePath();
                     } catch (IOException ignored) { result.paths[i] = folder.getAbsolutePath(); }
                     result.problems[i] = null;
+                    result.warnings[i] = check.warning;
                 }
             }
             if (found[0] && found[1] && found[2]) break;
@@ -145,20 +150,25 @@ final class GameFiles {
                 || (basename.indexOf('?') < 0 && basename.indexOf('\ufffd') < 0)) return name;
         return name.substring(0, slash + 1) + String.format(java.util.Locale.ROOT, "Карта %08X.map", crc);
     }
-    static String validate(File game, String edition, boolean hashes) {
+    static final class Check {
+        final String error, warning;
+        Check(String error, String warning) { this.error = error; this.warning = warning; }
+    }
+    static String validate(File game, String edition, boolean hashes) { return check(game, edition, hashes).error; }
+    static Check check(File game, String edition, boolean hashes) {
         if (!game.isAbsolute() || game.getPath().getBytes(StandardCharsets.UTF_8).length >= 512)
-            return "Укажите абсолютный путь к папке игры (короче 512 байт).";
-        if (!game.isDirectory() || !game.canRead()) return "Папка игры недоступна: " + game;
+            return new Check("Укажите абсолютный путь к папке игры (короче 512 байт).", null);
+        if (!game.isDirectory() || !game.canRead()) return new Check("Папка игры недоступна: " + game, null);
         String tex = original(edition) ? "sh.tex" : "cr.tex";
         String[] required = original(edition) ? new String[] {"fx", "gfx", "gm", "maps", tex}
                 : new String[] {"aiv", "fx", "gfx", "gm", "maps", tex};
         for (String name : required) {
             File item = new File(game, name);
             if (!item.canRead() || (name.equals(tex) ? !item.isFile() : !item.isDirectory()))
-                return "В папке игры отсутствует или недоступен: " + name;
+                return new Check("В папке игры отсутствует или недоступен: " + name, null);
         }
         if ("extreme".equals(edition) && !new File(game, "mapsExtreme").isDirectory())
-            return "Для Extreme требуется папка mapsExtreme.";
+            return new Check("Для Extreme требуется папка mapsExtreme.", null);
         File images = images(game, edition);
         String[] names = {executable(edition), "Mss32.dll", "binkw32.dll"};
         String[] expected = {"classic".equals(edition)
@@ -167,9 +177,10 @@ final class GameFiles {
                 : "0c90204f7bf622b768cc1fd9ebc0ec5c6cf8e60ea84911c0fdc7ffcbb2119ba8",
                 "2a515199cc7a2e1ccd8d756efdaab07cedd5c3052309ef1c7499c2560e2097bd",
                 "ee68dcf51e8e3b482f9fb5ef617f44a2d9e970d03f3ed21fe26d40cd63c57a48"};
+        String warning = null;
         for (int i = 0; i < names.length; i++) {
             File image = new File(images, names[i]);
-            if (!image.isFile() || !image.canRead()) return "Не найден " + image + "\nВыберите распакованную игру с EXE и DLL или сохраните соседнюю папку " + lifted(edition) + ".";
+            if (!image.isFile() || !image.canRead()) return new Check("Не найден " + image + "\nВыберите распакованную игру с EXE и DLL или сохраните соседнюю папку " + lifted(edition) + ".", null);
             if (!hashes) continue;
             try (FileInputStream input = new FileInputStream(image)) {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -177,10 +188,14 @@ final class GameFiles {
                 while ((count = input.read(buffer)) != -1) digest.update(buffer, 0, count);
                 StringBuilder actual = new StringBuilder();
                 for (byte value : digest.digest()) actual.append(String.format(java.util.Locale.ROOT, "%02x", value & 255));
-                if (!actual.toString().equals(expected[i])) return "Неподдерживаемая версия файла: " + names[i] + ". Требуются оригинальные файлы "
-                        + (original(edition) ? "Stronghold HD (GOG)" : "Crusader HD") + ", использованные при сборке порта.";
-            } catch (IOException | NoSuchAlgorithmException error) { return "Не удалось проверить " + image + ": " + error.getMessage(); }
+                if (!actual.toString().equals(expected[i])) {
+                    if (i == 0) warning = "Версия EXE отличается от использованной при сборке порта: " + image
+                            + "\nСовместимость не гарантируется: возможны ошибки или вылеты.";
+                    else return new Check("Неподдерживаемая версия файла: " + names[i] + ". Требуются оригинальные файлы "
+                            + (original(edition) ? "Stronghold HD (GOG)" : "Crusader HD") + ", использованные при сборке порта.", null);
+                }
+            } catch (IOException | NoSuchAlgorithmException error) { return new Check("Не удалось проверить " + image + ": " + error.getMessage(), null); }
         }
-        return null;
+        return new Check(null, warning);
     }
 }

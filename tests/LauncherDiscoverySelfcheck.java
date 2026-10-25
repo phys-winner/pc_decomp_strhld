@@ -72,10 +72,18 @@ public final class LauncherDiscoverySelfcheck {
             paths(classic, classicOnly.toString(), working[1], working[2]);
             assert classic.complete() && classic.discoveryProblem == null;
             File extremeOnly = install(root.resolve("extreme-only"), input, false, true);
-            Files.write(new File(extremeOnly, "Stronghold Crusader.exe").toPath(), new byte[] {1});
+            Files.write(new File(extremeOnly, "Stronghold Crusader.exe").toPath(), Files.readAllBytes(new File(args[1]).toPath()));
             GameFiles.Scan extreme = GameFiles.scan(working, extremeOnly, true, true);
-            paths(extreme, working[0], extremeOnly.toString(), working[2]);
-            assert extreme.complete() : "An unsupported Classic executable must not overwrite the working Classic path";
+            paths(extreme, extremeOnly.toString(), extremeOnly.toString(), working[2]);
+            assert extreme.complete() && extreme.warnings[0].contains("Stronghold Crusader.exe");
+            assert extreme.warnings[1] == null && extreme.warnings[2] == null;
+            GameFiles.Scan warned = GameFiles.scan(extreme.paths, null, false, true);
+            assert warned.complete() && warned.warnings[0] != null : "Saved unrecognized EXEs must remain playable with a warning";
+            paths(GameFiles.scan(extreme.paths, replacement, false, true), extreme.paths);
+            GameFiles.Scan supported = GameFiles.scan(extreme.paths, replacement, true, true);
+            assert supported.warnings[0] == null : "Replacing an unrecognized EXE must clear its warning";
+            Files.delete(new File(extremeOnly, "Stronghold Crusader.exe").toPath());
+            paths(GameFiles.scan(working, extremeOnly, true, true), working[0], extremeOnly.toString(), working[2]);
 
             File broken = install(root.resolve("broken"), input, false, true);
             Files.write(new File(broken, "Mss32.dll").toPath(), new byte[] {1, 2, 3});
@@ -107,7 +115,7 @@ public final class LauncherDiscoverySelfcheck {
                 Files.createSymbolicLink(bounded.resolve("cycle"), bounded);
                 missing(GameFiles.scan(empty, bounded.toFile(), true, true));
             }
-            System.out.println("Launcher discovery: legacy preference migration, all three editions, shared Crusader folder, valid path alias retention, independent path replacement, invalid/empty paths, SHA-256 rejection, bounded traversal PASS");
+            System.out.println("Launcher discovery: preferences, three editions, path retention/replacement, EXE warnings, missing EXE/DLL rejection, bounded traversal PASS");
         } finally {
             try (java.util.stream.Stream<Path> paths = Files.walk(root)) {
                 paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {

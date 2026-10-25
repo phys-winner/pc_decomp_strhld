@@ -1,0 +1,23 @@
+{
+  "game_directory": "originals/crusader",
+  "executable": "Stronghold_Crusader_Extreme.exe",
+  "editions": {
+    "extreme": {
+      "executable": "Stronghold_Crusader_Extreme.exe",
+      "library": "stronghold",
+      "userdata": "userdata"
+    },
+    "classic": {
+      "executable": "Stronghold Crusader.exe",
+      "library": "stronghold_classic",
+      "userdata": "userdata-classic"
+    },
+    "stronghold": {
+      "executable": "Stronghold.exe",
+      "library": "stronghold_sh",
+      "userdata": "userdata-stronghold",
+      "game_directory": "originals/stronghold"
+    }
+  },
+  "target": "Android ARM64, native AOT with Win32 HLE"
+}

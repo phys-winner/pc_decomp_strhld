@@ -1,0 +1,19 @@
+{
+  "pcrecomp": {
+    "url": "https://github.com/sp00nznet/pcrecomp.git",
+    "revision": "904ac3129d0c9d05efbeec19a1dce6abbe7f5d26",
+    "directory": "reference/pcrecomp",
+    "license": "MIT"
+  },
+  "android_host": {
+    "directory": "android",
+    "snapshot_date": "2026-10-15",
+    "note": "Adapted Android Win32 HLE host included in this repository; void_* symbols retained. D3D9/PhysX omitted."
+  },
+  "dlmalloc": {
+    "url": "https://gee.cs.oswego.edu/pub/misc/malloc.c",
+    "version": "2.8.6",
+    "directory": "reference/dlmalloc",
+    "license": "MIT-0"
+  }
+}

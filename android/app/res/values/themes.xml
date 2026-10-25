@@ -1,0 +1,39 @@
+<resources>
+    <!-- These screens are designed dark: vendor dark modes (MIUI smart dark) must not recolour them. -->
+    <style name="Stronghold.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:colorAccent">@color/launcher_accent</item>
+        <item name="android:colorBackground">@color/dialog_surface</item>
+        <item name="android:colorBackgroundFloating">@color/dialog_surface</item>
+        <item name="android:textColorPrimary">#EEF2F6</item>
+        <item name="android:textColorSecondary">#A7B3C0</item>
+    </style>
+    <style name="Stronghold.Launcher" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowBackground">@color/launcher_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:colorAccent">@color/launcher_accent</item>
+        <item name="android:alertDialogTheme">@style/Stronghold.Dialog</item>
+    </style>
+    <style name="Stronghold.Settings" parent="@android:style/Theme.Material">
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowBackground">@color/launcher_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:colorAccent">@color/launcher_accent</item>
+        <item name="android:alertDialogTheme">@style/Stronghold.Dialog</item>
+    </style>
+    <!-- In-game Android dialogs (switch game, text input, help) use the same dark Material look. -->
+    <style name="Stronghold.Game" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorAccent">@color/launcher_accent</item>
+        <item name="android:alertDialogTheme">@style/Stronghold.Dialog</item>
+    </style>
+</resources>

@@ -59,16 +59,16 @@ int stronghold_perf_stats(float stats[4])
 {
     float sorted[PERF_FRAMES];
     pthread_mutex_lock(&perf_lock);
-    unsigned count = perf_count;
+    unsigned count = perf_count, next = perf_next;
     memcpy(sorted, busy_ms, sizeof sorted);
-    uint64_t newest = ended_ns[(perf_next + PERF_FRAMES - 1) % PERF_FRAMES];
-    uint64_t oldest = ended_ns[(perf_next + PERF_FRAMES - count) % PERF_FRAMES];
+    uint64_t newest = ended_ns[(next + PERF_FRAMES - 1) % PERF_FRAMES];
+    uint64_t oldest = ended_ns[(next + PERF_FRAMES - count) % PERF_FRAMES];
     pthread_mutex_unlock(&perf_lock);
     memset(stats, 0, 4 * sizeof *stats);
     if (count < 30) return 0;
     /* Only the filled entries take part; the ring keeps them contiguous modulo its size. */
     float values[PERF_FRAMES];
-    for (unsigned i = 0; i < count; i++) values[i] = sorted[(perf_next + PERF_FRAMES - count + i) % PERF_FRAMES];
+    for (unsigned i = 0; i < count; i++) values[i] = sorted[(next + PERF_FRAMES - count + i) % PERF_FRAMES];
     double sum = 0;
     for (unsigned i = 0; i < count; i++) sum += values[i];
     qsort(values, count, sizeof *values, compare_float);

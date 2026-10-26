@@ -14,7 +14,7 @@ respective owners.
 
 ## Status and features
 
-Current application version: **0.22-dev**. All three editions are packaged into
+Current application version: **0.3-dev**. All three editions are packaged into
 one APK, with separate Android processes, settings and save directories.
 
 - The original game logic is translated ahead of time with
@@ -23,6 +23,22 @@ one APK, with separate Android processes, settings and save directories.
   are provided by the native host. Presentation uses OpenGL ES 3.0.
 - Touch controls support unit selection, commands, camera movement, construction
   and the original interface. Mouse, keyboard and gamepad input are supported.
+- Each on-screen command can be moved and resized independently in a paused
+  layout preview, using dragging, pinching or sliders. Save commits the draft;
+  Cancel keeps the previous layout. The toolbar moves away from the selection.
+- Commands can be placed on the screen, in a side zone, or hidden individually.
+  The left-click button starts hidden and can be enabled explicitly. Holding the
+  original scribe book opens a vertical command list, initially control layout
+  setup and the pause menu. Its commands are configurable in the same catalog.
+- Two optional side command zones start empty and invisible. Assign commands,
+  tap to open a vertical list, tap the same zone again to hide it, or hold and
+  swipe with haptic selection before releasing. There is no Close button.
+  Move each zone and resize its corner in the control layout editor.
+  Each zone can instead run separate assigned tap and hold actions; an empty
+  assignment does nothing. Holding executes once and suppresses the tap action.
+- All three editions share continuous 50–250% zoom with a movable readout above
+  the radar. Radar swipes begin throughout its active area and move the camera
+  four times faster than in 0.22.
 - The launcher supports selecting a game folder or importing a ZIP, choosing an
   edition, graphics and audio settings, and returning to the last played game.
 - The host supports Android systems with 4 KB or 16 KB memory pages.

@@ -6,6 +6,7 @@ import struct
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EDI, UC_X86_REG_ECX, UC_X86_REG_ESP
 from test_display import Original, ROOT
+from test_game_text import Editor
 
 
 def check(module):
@@ -80,10 +81,50 @@ def check(module):
                 zoom_under_finger_cases=anchor_cases,bounds_cases=bounds,status='PASS')
 
 
+def check_hd():
+    original=Editor('stronghold');camera=0x16E9358
+    original.w(camera,1)
+    for at in (0x1503ADC,0x1503B08,0x1503B14):original.w(at,0)
+    def project(cx,cy,x,y,native):
+        for offset,value in ((0x74,cx),(0x78,cy),(0x8C,native)):
+            original.w(camera+offset,value)
+        # The real main ground picker, stopped before the sub-tile LUT/terrain reads.
+        original.run(0x4B3680,(x,y),camera,lambda pc:original.u.emu_stop() if pc==0x4B3869 else None)
+        return original.u.reg_read(UC_X86_REG_EAX),original.u.reg_read(UC_X86_REG_ECX)
+    pan_cases=anchor_cases=0
+    for native in (0,1):
+        factor=2 if native else 1
+        for delta in (1,3,8,16,31,51):
+            assert project(3000+delta*factor,2000,300,150,native)==project(3000,2000,300+delta,150,native)
+            assert project(3000,2000+delta*factor,300,150,native)==project(3000,2000,300,150+delta,native)
+            pan_cases+=2
+    levels=(.5,.625,.75,1,1.25,1.5,2,2.5)
+    for old in levels:
+        old_native=int(old<1);old_base=.5 if old_native else 1
+        before=project(3000,2000,round(600*old_base/old),round(300*old_base/old),old_native)
+        for new in levels:
+            native=int(new<1);base=.5 if native else 1
+            cx=round(3000+600*(1/old-1/new)+160*old_native-160*native)
+            cy=round(2000+300*(1/old-1/new)+8*native-8*old_native)
+            assert before==project(cx,cy,round(600*base/new),round(300*base/new),native),(old,new)
+            anchor_cases+=1
+    # Original 4B5070 rebuilds all mode-specific geometry, before our anchored camera restore.
+    original.w(0x1503D38,14);original.w(0x1503D3C,10)
+    original.w(0xB18300,1024);original.w(0xB18304,600);original.w(0xB18324,15)
+    original.run(0x4B5070,(1,),camera)
+    assert original.r(camera+0x8C)==1 and original.r(camera+0x84)==74 and original.r(camera+0x88)==126
+    original.run(0x4B5070,(0,),camera)
+    assert original.r(camera+0x8C)==0 and original.r(camera+0x84)==37 and original.r(camera+0x88)==63
+    return dict(module='stronghold',original_sha256=original.sha,pan_cases=pan_cases,
+                zoom_under_finger_cases=anchor_cases,native_mode_rebuild='PASS',
+                native_origin_compensation=dict(x=-160,y=8),status='PASS')
+
+
 if __name__=='__main__':
     result=dict(status='PASS',method='Hash-pinned original x86 executed by Unicorn; real main picker and camera clamp.',
-                editions=[check(module) for module in ('game','classic')])
+                editions=[check(module) for module in ('game','classic')]+[check_hd()])
     (ROOT/'generated/camera-projection-proof.json').write_text(json.dumps(result,indent=2)+'\n')
     for r in result['editions']:
         print(f"{r['module']}: original picker {r['pan_cases']} pan + {r['zoom_under_finger_cases']} pinch-anchor cases; "
-              f"original clamp {len(r['bounds_cases'])} visible-HUD limits: PASS")
+              f"original clamp {len(r.get('bounds_cases',[]))} visible-HUD limits; "
+              f"native mode rebuild {r.get('native_mode_rebuild','covered by display tests')}: PASS")

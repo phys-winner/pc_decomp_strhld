@@ -6,6 +6,7 @@
 #include "edition.h"
 #include "input.h"
 #include "display.h"
+#include "view_controls.h"
 #include "touch.h"
 #include "game_ui.h"
 #include "feedback.h"
@@ -345,6 +346,11 @@ static int hit_match(uint32_t node, int left, int top, const void *context)
     return contains(p[0], p[1], left, top, (int32_t)MEM32(node + 12), (int32_t)MEM32(node + 16));
 }
 
+static int radar_hit_match(uint32_t node, int left, int top, const void *context)
+{
+    return MEM32(node+20)==A(0x434410,0x434620)&&hit_match(node,left,top,context);
+}
+
 static int widget_class(uint32_t owner, int x, int y)
 {
     const int p[2] = {x, y};
@@ -538,8 +544,8 @@ static int hud_class(int cls,int x,int y)
 {
     int ox=(int32_t)MEM32(A(0xF687E8,0xF68C48)),oy=(int32_t)MEM32(A(0xF687EC,0xF68C4C));
     int editor=MEM32(GAMEOBJ+104)==1;
-    if(editor?contains(x,y,ox+78,oy+475,44,50):contains(x,y,ox+686,oy+503,110,97))return SH_TOUCH_BOOK;
     if(ui_node&&MEM32(ui_node+20)==A(0x434410,0x434620))return SH_TOUCH_RADAR;
+    if(editor?contains(x,y,ox+78,oy+475,44,50):contains(x,y,ox+686,oy+503,110,97))return SH_TOUCH_BOOK;
     int section=building_parent((int)MEM32(GAMESTATE+4));
     if(MEM32(GAMESTATE)==14&&contains(x,y,ox,oy+472,510,128)&&
        ((section>=10&&section<=14)||section==20||(section>=25&&section<=30)||section==40)) {
@@ -583,7 +589,10 @@ static int point(float nx, float ny)
     }
     int hx,hy;
     if (stronghold_display_ui_point(0,nx,ny,&hx,&hy)) {
-        int cls=void_vm_readable(UI_ROOT,4)?widget_class(MEM32(UI_ROOT),hx,hy):0;
+        const int p[]={hx,hy};
+        /* Generic HUD records overlap the radar; its entire active rectangle owns a swipe. */
+        ui_node=void_vm_readable(UI_ROOT,4)?find_widget(MEM32(UI_ROOT),radar_hit_match,p,NULL,NULL):0;
+        int cls=ui_node?SH_TOUCH_UI:void_vm_readable(UI_ROOT,4)?widget_class(MEM32(UI_ROOT),hx,hy):0;
         uint32_t state=MEM32(GAMESTATE), substate=MEM32(GAMESTATE+4);
         int full=(state==12||state==14)&&(substate==60||substate==62);
         if (!cls&&((!full && contains(hx,hy,0,(int)stronghold_display_height(720)-128,
@@ -873,8 +882,8 @@ void stronghold_touch_frame(void)
                 (event.action==SH_TOUCH_PAN&&classification==SH_TOUCH_RADAR&&in_game()&&
                  MEM32(A(0x212594C,0x2BB8E2C))==UINT32_MAX&&!world_blocked()))
                 stronghold_display_transform(event.x, event.y,
-                    event.dx * (classification == SH_TOUCH_RADAR ? 2.f : 1.f),
-                    event.dy * (classification == SH_TOUCH_RADAR ? 2.f : 1.f),
+                    event.dx * (classification == SH_TOUCH_RADAR ? SH_RADAR_PAN_GAIN : 1.f),
+                    event.dy * (classification == SH_TOUCH_RADAR ? SH_RADAR_PAN_GAIN : 1.f),
                     event.action == SH_TOUCH_TRANSFORM ? event.scale : 1.0f);
             continue;
         }

@@ -369,6 +369,21 @@ def host_sources():
                   if p.name not in excluded and not p.name.startswith(("d3d9_", "d3dx9")))
 
 
+def ordered_link_objects(jobs, host_only):
+    """Keep the full build's compiled-source order for host-only links too."""
+    inputs = [(source, obj) for source, obj, _, _ in jobs]
+    if host_only:
+        generated = []
+        for source in generated_sources():
+            obj = OUT / "obj" / source.parent.name / (source.stem + ".o")
+            if not obj.is_file():
+                raise SystemExit(f"{EDITION}: --host-only requires a complete prior native build; missing {obj}")
+            patched = OUT / "patched" / source.parent.name / source.name
+            generated.append((patched if patched.is_file() else source, obj))
+        inputs = generated + inputs
+    return [str(obj) for source, obj in sorted(inputs, key=lambda item: -item[0].stat().st_size)]
+
+
 def header_digest(paths):
     digest = hashlib.sha256()
     for path in sorted(paths):
@@ -528,14 +543,7 @@ def main():
     print(f"compiled {compiled}, reused {reused}, failed {len(failures)} in {time.time() - start:.0f}s", flush=True)
     if failures:
         sys.exit(1)
-    if args.host_only:
-        generated_objects = [OUT / "obj" / s.parent.name / (s.stem + ".o") for s in generated_sources()]
-        missing = [str(p) for p in generated_objects if not p.is_file()]
-        if missing:
-            raise SystemExit(f"{EDITION}: --host-only requires a complete prior native build; missing {missing[0]}")
-        objects = [str(p) for p in generated_objects] + [str(o) for _, o, _, _ in jobs]
-    else:
-        objects = [str(o) for _, o, _, _ in jobs]
+    objects = ordered_link_objects(jobs, args.host_only)
     response = OUT / "link.rsp"
     response.write_text("\n".join(o.replace("\\", "/") for o in objects))
     output = OUT / ({"classic": "libstronghold_classic.so", "stronghold": "libstronghold_sh.so"}.get(EDITION, "libstronghold.so")

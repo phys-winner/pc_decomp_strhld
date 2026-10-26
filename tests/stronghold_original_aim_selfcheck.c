@@ -8,6 +8,8 @@
 
 static _Atomic int cursor_x, cursor_y, events;
 static struct { int button, down, x, y; unsigned frame; } event[128];
+static int feedback_bits;
+void stronghold_feedback(int bits) { feedback_bits |= bits; }
 int void_vm_readable(uint32_t address, uint32_t size)
 { return address >= 0x400000u && (uint64_t)address + size <= 0x2000000u; }
 void void_input_screen_size(int *w, int *h) { *w = 1200; *h = 600; }
@@ -88,9 +90,9 @@ static void radar_geometry(void)
             send(SH_TOUCH_QUERY,++sequence,nx,ny);
             assert(current_kind==SH_TOUCH_RADAR&&touch_layer);
             assert(abs(start_x-(int)rx)<=1&&abs(start_y-(int)ry)<=1);
-            pan_x=pan_y=0;
+            pan_x=pan_y=0;zoom_pending_x=zoom_pending_y=0;
             stronghold_touch_enqueue(SH_TOUCH_PAN,sequence,nx,ny,.05f,.02f,1);
-            assert(fabsf(pan_x-.05f*surface_width)<.001f&&fabsf(pan_y-24)<.001f);
+            assert(fabs(zoom_pending_x+.05*surface_width*4)<.001&&fabs(zoom_pending_y+96)<.001);
         }
     }
     MEM16(radar+54)=1;assert(original_hud_kind(825,550)==SH_TOUCH_BOOK);MEM16(radar+54)=0;
@@ -100,10 +102,44 @@ static void radar_geometry(void)
     MEM32(owner+24)=1;assert(original_hud_kind(825,550)==SH_TOUCH_UI);MEM32(owner+24)=0;
     free(layers[0].coverage);layers[0].coverage=NULL;frame_ready=published_used[0]=touch_layer=0;
     MEM32(book+76)=0;surface_width=2400;
-    query(++sequence,0);pan_x=pan_y=0;
+    query(++sequence,0);pan_x=pan_y=0;zoom_pending_x=zoom_pending_y=0;
     stronghold_touch_enqueue(SH_TOUCH_PAN,sequence,.25f,.25f,.05f,.02f,1);
-    assert(fabsf(pan_x-60)<.001f&&fabsf(pan_y-12)<.001f);pan_x=pan_y=0;
-    puts("HD radar: 150 transparent-pixel queries, all edges, book overlap, UI100/120/200, letterbox, 2x radar and unchanged world gain PASS");
+    assert(fabs(zoom_pending_x+60)<.001&&fabs(zoom_pending_y+12)<.001);zoom_pending_x=zoom_pending_y=0;
+    puts("HD radar: 150 transparent-pixel queries, all edges, book overlap, UI100/120/200, letterbox, 8x radar (4x prior gain) and unchanged world gain PASS");
+}
+static void smooth_zoom(void)
+{
+    frame_ready=1;published_width=1200;published_height=600;
+    world_zoom=unsnapped_zoom=published_world_zoom=published_world_scale=1;
+    surface_width=2400;surface_height=1200;
+    stronghold_display_zoom_session();
+    for(int i=0;i<5;i++){stronghold_display_transform(.25f,.25f,0,0,1.01f);assert(world_zoom==1);}
+    stronghold_display_transform(.25f,.25f,0,0,1.01f);
+    assert(world_zoom>1&&world_zoom<1.02f&&snap_state==2);
+    world_zoom=unsnapped_zoom=1;zoom_pending_x=zoom_pending_y=0;snap_state=2;
+    stronghold_display_transform(.25f,.25f,0,0,2);
+    assert(world_zoom==2&&fabs(zoom_pending_x-150)<.001&&fabs(zoom_pending_y-75)<.001);
+    assert(stronghold_display_world_zoom()==1); /* Last completed frame. */
+    published_world_zoom=published_world_scale=2;
+    int x,y;touch_layer=0;
+    assert(stronghold_display_world_point(.25f,.25f,&x,&y)&&x==150&&y==75);
+    assert(stronghold_display_map_point(.25f,.25f,&x,&y)&&x==150&&y==75);
+    frame_point(.25f,.25f,&x,&y);assert(x==150&&y==75);
+    stronghold_display_transform(.25f,.25f,.05f,.02f,1);
+    assert(fabs(zoom_pending_x-120)<.001&&fabs(zoom_pending_y-69)<.001);
+    stronghold_display_zoom_reset();
+    assert(world_zoom==1&&unsnapped_zoom==1&&fabs(zoom_pending_x+180)<.001&&fabs(zoom_pending_y+81)<.001);
+    world_zoom=unsnapped_zoom=.7f;snap_state=2;
+    stronghold_display_transform(.25f,.25f,0,0,.1f);assert(world_zoom==.5f);
+    stronghold_display_transform(.25f,.25f,0,0,20);assert(world_zoom==2.5f);
+    double saved=zoom_pending_x;
+    stronghold_display_transform(.25f,.25f,NAN,0,1);assert(zoom_pending_x==saved);
+    render_world_zoom=.75f;world_zoom=unsnapped_zoom=1.5;zoom_requested=1;
+    stronghold_touch_abort();
+    assert(world_zoom==.75f&&unsnapped_zoom==.75&&!zoom_pending_x&&!zoom_pending_y&&!zoom_requested);
+    world_zoom=render_world_zoom=unsnapped_zoom=published_world_zoom=published_world_scale=1;
+    zoom_pending_x=zoom_pending_y=0;zoom_requested=0;frame_ready=0;
+    puts("HD smooth zoom: shared 100% detent, 50..250% bounds, centroid/letterbox pan, published zoom, world/desktop/touch inverse, reset and pending-pinch abort/resume PASS");
 }
 int main(void)
 {
@@ -116,17 +152,18 @@ int main(void)
     MEM32(0xABB974)=owner;MEM32(radar+76)=owner;MEM32(radar+20)=0x42D590;
     MEM32(radar+4)=700;MEM32(radar+8)=460;MEM32(radar+12)=126;MEM32(radar+16)=126;
     current_sequence=700;current_kind=SH_TOUCH_RADAR;start_x=720;start_y=480;
-    pan_x=pan_y=0;
+    pan_x=pan_y=0;zoom_pending_x=zoom_pending_y=0;
     stronghold_touch_enqueue(SH_TOUCH_PAN,700,.6f,.8f,.05f,.02f,1);
-    assert(fabsf(pan_x-120)<.001f&&fabsf(pan_y-24)<.001f);
+    assert(fabs(zoom_pending_x+480)<.001&&fabs(zoom_pending_y+96)<.001);
     MEM32(DIALOG)=5;
     stronghold_touch_enqueue(SH_TOUCH_PAN,700,.6f,.8f,.05f,.02f,1);
-    assert(fabsf(pan_x-120)<.001f&&fabsf(pan_y-24)<.001f);
+    assert(fabs(zoom_pending_x+480)<.001&&fabs(zoom_pending_y+96)<.001);
     MEM32(DIALOG)=UINT32_MAX;MEM16(radar+54)=1;
     stronghold_touch_enqueue(SH_TOUCH_PAN,700,.6f,.8f,.05f,.02f,1);
-    assert(fabsf(pan_x-120)<.001f&&fabsf(pan_y-24)<.001f);
-    MEM16(radar+54)=0;pan_x=pan_y=0;
+    assert(fabs(zoom_pending_x+480)<.001&&fabs(zoom_pending_y+96)<.001);
+    MEM16(radar+54)=0;pan_x=pan_y=0;zoom_pending_x=zoom_pending_y=0;
     radar_geometry();
+    smooth_zoom();
     puts("HD radar: relative pan, dialog and hidden-control guards PASS");
     query(1, 0); assert(stronghold_touch_status(1) == SH_TOUCH_WORLD);
     query(2, 7); assert(stronghold_touch_status(2) == SH_TOUCH_BUILDING);

@@ -7,12 +7,52 @@
 
 static int calls, stamp = 1234, last_key, last_modifiers;
 static int startup_calls;
+static int native_zoom_calls, clamp_calls;
 int stronghold_original_options_frame(void){return 0;}
 int stronghold_text_frame(uint32_t state,uint32_t modal){(void)state;(void)modal;return 0;}
+void stronghold_original_build_frame(int direct){(void)direct;}
+void void_input_mouse_warp(int x,int y){(void)x;(void)y;}
+void void_input_mouse_button(int button,int down){(void)button;(void)down;}
+uint64_t void_monotonic_ns(void){return 1;}
 uint32_t void_call_guest_this(uint32_t fn,uint32_t self,int count,const uint32_t *args)
 {
+    if(fn==0x4B5070u){
+        assert(self==CAMERA&&count==1&&args[0]<=1);
+        MEM32(CAMERA+0x8C)=args[0];MEM32(CAMERA+0x74)+=777;MEM32(CAMERA+0x78)+=999;
+        ++native_zoom_calls;stamp=0;return 0;
+    }
+    if(fn==CAMERA_CLAMP){assert(self==CAMERA&&!count);++clamp_calls;stronghold_original_view(self);stamp=0;return 0;}
     assert(fn==0x45BEB0u&&self==0x1503D30u&&count==2&&args[0]==48&&args[1]==0);
     ++startup_calls;stamp=0;return 0;
+}
+static void zoom_camera(void)
+{
+    MEM32(STATE)=14;MEM32(STATE+4)=10;MEM32(DIALOG)=UINT32_MAX;
+    MEM32(SCREEN_WIDTH)=1200;MEM32(SCREEN_HEIGHT)=600;
+    MEM32(CAMERA+0x74)=3000;MEM32(CAMERA+0x78)=2000;MEM32(CAMERA+0x8C)=0;
+    custom_width=0;pan_x=pan_y=0;zoom_camera_known=0;zoom_requested=1;
+    world_zoom=unsnapped_zoom=.75;zoom_pending_x=-100;zoom_pending_y=-50;
+    stronghold_display_smooth_camera(1);stronghold_original_frame();
+    assert(native_zoom_calls==1&&clamp_calls==1&&stamp==1234);
+    assert(MEM32(CAMERA+0x8C)==1&&MEM32(CAMERA+0x74)==2740&&MEM32(CAMERA+0x78)==1958);
+    assert(MEM32(CAMERA+0x84)==60&&MEM32(CAMERA+0x88)==86); /* 800 x 315 source, doubled native cells. */
+    assert(render_world_zoom==.75f&&!pan_x&&!pan_y);
+    zoom_pending_x=64;zoom_pending_y=32;world_zoom=unsnapped_zoom=1.5;zoom_requested=1;
+    stronghold_original_frame();
+    assert(native_zoom_calls==2&&MEM32(CAMERA+0x8C)==0);
+    assert(MEM32(CAMERA+0x74)==2964&&MEM32(CAMERA+0x78)==1982&&stamp==1234);
+    assert(MEM32(CAMERA+0x84)==30&&MEM32(CAMERA+0x88)==43);
+    /* Tiny world-pixel pans retain their residue in tile mode at either native zoom. */
+    stronghold_display_smooth_camera(0);zoom_pending_x=7;zoom_pending_y=-5;
+    stronghold_original_frame();assert(MEM32(CAMERA+0x74)==2964&&pan_x==-7&&pan_y==5);
+    zoom_pending_x=25;zoom_pending_y=-11;stronghold_original_frame();
+    assert(MEM32(CAMERA+0x74)==2996&&MEM32(CAMERA+0x78)==1966&&!pan_x&&!pan_y);
+    /* Original keyboard Z changes the total zoom, without a stale GPU residual. */
+    MEM32(CAMERA+0x8C)=1;stronghold_original_frame();assert(world_zoom==.5f&&render_world_zoom==.5f);
+    world_zoom=unsnapped_zoom=render_world_zoom=1;zoom_requested=1;
+    stronghold_original_frame();assert(MEM32(CAMERA+0x84)==43&&MEM32(CAMERA+0x88)==63);
+    stronghold_display_smooth_camera(1);
+    puts("HD zoom camera: original native mode rebuild, 160x8 raster-origin compensation, guest registers, scaled viewport/clamps, tile residues and keyboard parity PASS");
 }
 void void_log(const char *fmt,...){(void)fmt;}
 int stronghold_original_build_panel(int x,int y){(void)x;(void)y;return 0;}
@@ -34,22 +74,23 @@ int main(void)
     assert(mmap(GPTR(0x400000), 0x1C00000, PROT_READ | PROT_WRITE,
         MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE, -1, 0) != MAP_FAILED);
     for (int factor=1; factor<=2; factor++) {
+        MEM32(CAMERA + 0x8C) = factor - 1;
         stronghold_display_smooth_camera(0);
         pan_x=pan_y=0;
         int total_x=0,total_y=0,x,y;
         for (int i=0;i<64;i++) {
-            pan_x+=1;pan_y+=.5f;take_pan(factor,&x,&y);
-            assert((x*factor)%32==0&&(y*factor)%16==0);
+            pan_x+=1;pan_y+=.5f;take_pan(&x,&y);
+            assert(x%32==0&&y%16==0);
             total_x+=x;total_y+=y;
         }
         assert(total_x==64&&total_y==32&&pan_x==0&&pan_y==0);
         for (int i=0;i<64;i++) {
-            pan_x-=1;pan_y-=.5f;take_pan(factor,&x,&y);
+            pan_x-=1;pan_y-=.5f;take_pan(&x,&y);
             total_x+=x;total_y+=y;
         }
         assert(!total_x&&!total_y&&pan_x==0&&pan_y==0);
         pan_x=3.5f;pan_y=-2.5f;
-        stronghold_display_smooth_camera(1);take_pan(factor,&x,&y);
+        stronghold_display_smooth_camera(1);take_pan(&x,&y);
         assert(x==3&&y==-2&&pan_x==.5f&&pan_y==-.5f);
         pan_x=pan_y=0;
     }
@@ -138,6 +179,7 @@ int main(void)
     for (int i = 0; i < 20; ++i) stronghold_game_command('Z', 0);
     original_commands(); assert(calls == 17 && !last_modifiers);
     MEM32(DIALOG) = 7; stronghold_game_command('1', 1); original_commands(); assert(calls == 17);
+    zoom_camera();
     puts("HD controls: live groups/marks/speed, bounded original commands, runtime HUD book/radar bounds+guards, lock-owned actions, team radar colours/neutral/format-independent index, original debug state/registers preserved PASS");
     return 0;
 }

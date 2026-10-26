@@ -383,11 +383,42 @@ static void menu_slider_radar_checks(void)
     MEM32(root+44)=UINT32_MAX;
     MEM32(UI_ROOT)=0;fixture(0);abort_gesture();classification=SH_TOUCH_RADAR;transforms=0;
     stronghold_touch_enqueue(SH_TOUCH_PAN,7,900,650,.1f,.2f,1);stronghold_touch_frame();
-    assert(transforms==1&&transform_dx==.2f&&transform_dy==.4f);
+    assert(transforms==1&&transform_dx==.8f&&transform_dy==1.6f);
     MEM32(root+44)=11;
     stronghold_touch_enqueue(SH_TOUCH_PAN,7,900,650,.1f,.2f,1);stronghold_touch_frame();
     assert(transforms==1);MEM32(root+44)=UINT32_MAX;
     puts("pause outside resumes without world click, active original advantage callbacks/clamped nearest step, relative radar pan PASS");
+}
+
+static void full_radar_checks(void)
+{
+    fixture(0); abort_gesture(); ui_drain=0;
+    uint32_t owner=0x3300000, generic=owner+256, radar=generic+80;
+    memset(GPTR(owner),0,1024);
+    MEM32(UI_ROOT)=owner; MEM32(owner)=generic;
+    MEM32(A(0x2598E60,0x30D6200)+44)=UINT32_MAX;
+    MEM32(A(0x179FB28,0x20D2B50)+44)=UINT32_MAX;
+    MEM32(A(0x2125920,0x2BB8E00)+44)=UINT32_MAX;
+    MEM32(generic)=MEM32(radar)=2;
+    MEM32(generic+4)=610;MEM32(generic+8)=465;MEM32(generic+12)=200;MEM32(generic+16)=135;
+    MEM32(generic+20)=123;MEM32(generic+76)=owner;
+    MEM32(radar+4)=571;MEM32(radar+8)=465;MEM32(radar+12)=126;MEM32(radar+16)=126;
+    MEM32(radar+20)=A(0x434410,0x434620);MEM32(radar+76)=owner;
+    MEM32(radar+80)=102;
+    const int states[]={12,14,16};
+    for(unsigned s=0;s<3;s++)for(int offset=0;offset<=200;offset+=200) {
+        MEM32(GAMESTATE)=states[s];MEM32(owner+4)=offset;
+        for(int y=466;y<591;y+=31)for(int x=572;x<697;x+=31) {
+            assert(point((float)(x+offset),(float)y)==SH_TOUCH_RADAR&&ui_node==radar);
+        }
+        assert(point((float)(696+offset),550)==SH_TOUCH_RADAR); /* Book overlap. */
+        MEM16(radar+54)=1;assert(point((float)(650+offset),500)!=SH_TOUCH_RADAR);MEM16(radar+54)=0;
+        MEM16(radar+56)=1;assert(point((float)(650+offset),500)!=SH_TOUCH_RADAR);MEM16(radar+56)=0;
+    }
+    MEM32(A(0x2125920,0x2BB8E00)+44)=5;
+    assert(point(850,500)!=SH_TOUCH_RADAR);
+    MEM32(A(0x2125920,0x2BB8E00)+44)=UINT32_MAX;MEM32(UI_ROOT)=0;fixture(0);
+    puts("radar: full 150-point grid before overlapping generic HUD/book, active owners, match/editor states and hidden/disabled/modal guards PASS");
 }
 
 int main(void)
@@ -397,6 +428,7 @@ int main(void)
     assert(memory!=MAP_FAILED);
     assert(stronghold_touch_selftest()==0);
     menu_slider_radar_checks();
+    full_radar_checks();
     box_receiver_checks();
     list_checks();
     /* OS abort and world gestures hide the old HUD cursor in direct mode;

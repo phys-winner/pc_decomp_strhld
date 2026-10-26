@@ -56,6 +56,39 @@ class BuildConfigurationTests(unittest.TestCase):
         with patch("sys.stdout"), self.assertRaisesRegex(SystemExit, r"failed \(3\)"):
             apk.run(sys.executable, "-c", "import sys; sys.stdout.buffer.write(bytes([129, 255])); sys.exit(3)")
 
+    def test_host_only_link_matches_full_order_with_patches_and_ties(self):
+        native=load_builder("build_android",{})
+        with tempfile.TemporaryDirectory() as directory:
+            target=Path(directory);native.OUT=target/"build"
+            generated=[];full_jobs=[]
+            for name,original_size,patched_size in (("a",10,300),("b",200,None),("c",200,None),("d",1000,50)):
+                source=target/"generated/game-x86"/(name+".c")
+                source.parent.mkdir(parents=True,exist_ok=True);source.write_bytes(b"x"*original_size)
+                generated.append(source)
+                obj=native.OUT/"obj/game-x86"/(name+".o")
+                obj.parent.mkdir(parents=True,exist_ok=True);obj.touch()
+                if patched_size is not None:
+                    patched=native.OUT/"patched/game-x86"/source.name
+                    patched.parent.mkdir(parents=True,exist_ok=True);patched.write_bytes(b"x"*patched_size)
+                    source=patched
+                full_jobs.append((source,obj,["unchanged-flags"],"unchanged-fingerprint"))
+            host_jobs=[]
+            for name in ("host_a","host_b"):
+                source=target/"android/host"/(name+".c")
+                source.parent.mkdir(parents=True,exist_ok=True);source.write_bytes(b"x"*200)
+                host_jobs.append((source,native.OUT/(name+".o"),[],"host-fingerprint"))
+            # Compile scheduling sorts both modes before the linker receives them.
+            full_jobs=sorted(full_jobs+host_jobs,key=lambda job:-job[0].stat().st_size)
+            host_jobs=sorted(host_jobs,key=lambda job:-job[0].stat().st_size)
+            expected=[str(native.OUT/"obj/game-x86"/(name+".o")) for name in ("a","b","c")]
+            expected += [str(job[1]) for job in host_jobs]+[str(native.OUT/"obj/game-x86/d.o")]
+            with patch.object(native,"generated_sources",return_value=generated):
+                self.assertEqual(native.ordered_link_objects(full_jobs,False),expected)
+                self.assertEqual(native.ordered_link_objects(host_jobs,True),expected)
+                (native.OUT/"obj/game-x86/d.o").unlink()
+                with self.assertRaisesRegex(SystemExit,"requires a complete prior native build; missing"):
+                    native.ordered_link_objects(host_jobs,True)
+
     def test_ignore_rules_keep_private_files_out(self):
         private = ["port.json", "STATE.md", ".env", "originals/game.dat", "generated/game-x86/game.c",
                    "pub/game.zip", "build/android/debug.keystore", "docs/device-report.md",

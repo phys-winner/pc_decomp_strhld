@@ -11,6 +11,7 @@
 #include "edition.h"
 #include "input.h"
 #include "display.h"
+#include "view_controls.h"
 #include "touch.h"
 #include "game_ui.h"
 #include "game_text.h"
@@ -52,6 +53,10 @@
 
 uint32_t void_ddraw_redirect_pixels(uint32_t surface, uint32_t pixels);
 static int notice_margin(void);
+static int in_game(void);
+static int original_hud_kind(int, int);
+static void surface_frame(float, float, int, int, double *, double *);
+static float render_world_zoom = 1;
 
 /* ------------------------------------------------------------ display mode */
 /* The engine's own mode table (45E4A0); index 0 is "not configured yet". */
@@ -137,9 +142,22 @@ void stronghold_original_dimensions(uint32_t screen, uint32_t mode)
 void stronghold_original_view(uint32_t camera)
 {
     static uint32_t pivot_written;
-    if (!custom_width || camera != CAMERA) return;
+    static int zoom_view_modified;
+    if (camera != CAMERA) return;
     int zoomed_out = MEM32(camera + 0x8C) != 0;
-    MEM32(camera + 0x84) = (uint32_t)(((custom_width + 31) / 32 + 5) << zoomed_out);
+    float residual = render_world_zoom * (zoomed_out ? 2.f : 1.f);
+    if (residual > 1.001f || zoom_view_modified) {
+        int w = (int)MEM32(SCREEN_WIDTH), h = (int)MEM32(SCREEN_HEIGHT);
+        uint32_t state = MEM32(STATE), panel = MEM32(STATE + 4);
+        int hud = !((state == 12 || state == 14) && (panel == 60 || panel == 62));
+        if (w > 0 && h > HUD_BAND) {
+            int source_w = (int)ceilf(w / residual), source_h = (int)ceilf((h - (hud ? HUD_BAND : 0)) / residual);
+            MEM32(camera + 0x84) = (uint32_t)(((source_w + 31) / 32 + 5) << zoomed_out);
+            MEM32(camera + 0x88) = (uint32_t)((source_h / 8 + 4) << zoomed_out);
+        }
+        zoom_view_modified = residual > 1.001f;
+    } else if (custom_width) MEM32(camera + 0x84) = (uint32_t)(((custom_width + 31) / 32 + 5) << zoomed_out);
+    if (!custom_width) return;
     uint32_t pivot = MEM32(camera + 0xA0);
     if (pivot != pivot_written) MEM32(camera + 0xA0) = pivot_written = pivot * (uint32_t)custom_width / modes[chosen_mode][0];
 }
@@ -225,6 +243,9 @@ static int frame_ready, frame_taken, published_width, published_height, publishe
 static uint32_t saved_pixels;
 static uint16_t key = 0xF81F;
 static float ui_scale = 1, published_scale = 1, published_anchor[2];
+static float world_zoom = 1, published_world_zoom = 1, published_world_scale = 1;
+static double unsnapped_zoom = 1, zoom_pending_x, zoom_pending_y;
+static int snap_state, zoom_requested, zoom_camera_known, zoom_camera_native;
 static float published_edge_anchor[SH_UI_LAYERS][2];
 static int highlight[4], loupe_active;
 static float loupe_x, loupe_y;
@@ -372,6 +393,13 @@ static void anchor_speed_notice(void)
 void stronghold_original_layers(void)
 {
     stronghold_perf_frame_begin();
+    pthread_mutex_lock(&display_lock);
+    int native = MEM32(CAMERA + 0x8C) != 0;
+    if (zoom_camera_known && native != zoom_camera_native) {
+        world_zoom = render_world_zoom = (float)(unsnapped_zoom = native ? .5 : 1);
+        zoom_camera_native = native;
+    }
+    pthread_mutex_unlock(&display_lock);
     close_layer();
     frame_open = world_frozen = boxes = 0;
     top_fit = (stronghold_rect){0}; resource_animation = 0;
@@ -618,6 +646,8 @@ void stronghold_original_present(void)
     for (int i = 0; i < SH_UI_LAYERS; ++i) publish_layer(i, band);
     for (int i = 0; i < SH_UI_LAYERS; ++i) published_used[i] = layers[i].shown.left < layers[i].shown.right;
     published_width = frame_width; published_height = frame_height; published_band = band;
+    published_world_zoom = render_world_zoom;
+    published_world_scale = render_world_zoom * (MEM32(CAMERA + 0x8C) ? 2.f : 1.f);
     publish_geometry(band);
     frame_ready = 1; frame_taken = 0;
     pthread_mutex_unlock(&display_lock);
@@ -692,10 +722,52 @@ void stronghold_display_set_ui_scale(float scale)
     pthread_mutex_unlock(&display_lock);
 }
 void stronghold_display_set_render_scale(float scale) { (void)scale; }
-float stronghold_display_world_zoom(void) { return 1; }
-void stronghold_display_transform(float nx, float ny, float ndx, float ndy, float factor) { (void)nx; (void)ny; (void)ndx; (void)ndy; (void)factor; }
-void stronghold_display_zoom_session(void) {}
-void stronghold_display_zoom_reset(void) {}
+float stronghold_display_world_zoom(void)
+{
+    pthread_mutex_lock(&display_lock);
+    float zoom = frame_ready ? published_world_zoom : 1;
+    pthread_mutex_unlock(&display_lock); return zoom;
+}
+void stronghold_display_transform(float nx, float ny, float ndx, float ndy, float factor)
+{
+    if (!isfinite(nx) || !isfinite(ny) || !isfinite(ndx) || !isfinite(ndy) || !isfinite(factor) || factor <= 0) return;
+    pthread_mutex_lock(&display_lock);
+    int w = published_width, h = published_height;
+    if (!in_game() || MEM32(DIALOG) != UINT32_MAX || w <= 0 || h <= 0) {
+        pthread_mutex_unlock(&display_lock); return;
+    }
+    double x, y;
+    surface_frame(nx, ny, w, h, &x, &y);
+    if (x < 0 || y < 0 || x >= w || y >= h) { pthread_mutex_unlock(&display_lock); return; }
+    int sw = surface_width > 0 ? surface_width : w, sh = surface_height > 0 ? surface_height : h;
+    double fit = fmin((double)sw / w, (double)sh / h), old = world_zoom;
+    int previous_snap = snap_state;
+    double next = stronghold_zoom_step(old, &unsnapped_zoom, &snap_state, factor);
+    if (!previous_snap && snap_state == 1 && old != 1) stronghold_feedback(SH_FEEDBACK_ZOOM_SNAP);
+    zoom_pending_x += -ndx * sw / fit / old + x * (1 / old - 1 / next);
+    zoom_pending_y += -ndy * sh / fit / old + y * (1 / old - 1 / next);
+    world_zoom = (float)next;
+    if (factor != 1.f) zoom_requested = 1;
+    pthread_mutex_unlock(&display_lock);
+}
+void stronghold_display_zoom_session(void)
+{
+    pthread_mutex_lock(&display_lock);
+    snap_state = 0;
+    if (world_zoom == 1.f) unsnapped_zoom = 1;
+    pthread_mutex_unlock(&display_lock);
+}
+void stronghold_display_zoom_reset(void)
+{
+    pthread_mutex_lock(&display_lock);
+    if (frame_ready && world_zoom != 1.f) {
+        zoom_pending_x += published_width * .5 * (1 / world_zoom - 1);
+        zoom_pending_y += published_height * .5 * (1 / world_zoom - 1);
+        world_zoom = 1; zoom_requested = 1;
+    }
+    unsnapped_zoom = 1; snap_state = 2;
+    pthread_mutex_unlock(&display_lock);
+}
 void stronghold_display_highlight(int left, int top, int width, int height)
 {
     pthread_mutex_lock(&display_lock);
@@ -785,7 +857,7 @@ int stronghold_display_frame(stronghold_frame *frame, int width, int height, int
     memset(frame, 0, sizeof *frame);
     frame->width = width; frame->height = height; frame->world = world_copy;
     frame->raster_width = width; frame->raster_height = height;
-    frame->world_scale_x = frame->world_scale_y = 1;
+    frame->world_scale_x = frame->world_scale_y = published_world_scale;
     frame->ui_scale = published_scale; frame->key = key;
     frame->fresh = 1; frame->hud_opaque = published_band;
     for (int i = 0; i < SH_UI_LAYERS; ++i) {
@@ -908,16 +980,33 @@ int stronghold_display_map_point(float nx, float ny, int *gx, int *gy)
     pthread_mutex_lock(&display_lock);
     int ok = frame_ready;
     if (ok) {
-        double fx, fy, sx, sy;
+        double fx, fy;
         stronghold_part hit;
         surface_frame(nx, ny, published_width, published_height, &fx, &fy);
-        if (pick_part(fx, fy, &hit) >= 0) part_source(&hit, fx, fy, published_scale, &fx, &fy);
+        stronghold_part hud = {0, 0, published_height, published_width * .5f, published_height};
+        double hx, hy;
+        part_source(&hud, fx, fy, published_scale, &hx, &hy);
+        if (published_used[0] && original_hud_kind((int)hx,(int)hy)==SH_TOUCH_RADAR) { fx=hx; fy=hy; }
+        else if (pick_part(fx, fy, &hit) >= 0) part_source(&hit, fx, fy, published_scale, &fx, &fy);
+        else { fx /= published_world_scale; fy /= published_world_scale; }
         *gx = (int)floor(fx); *gy = (int)floor(fy);
     }
     pthread_mutex_unlock(&display_lock);
     return ok;
 }
-int stronghold_display_world_point(float nx, float ny, int *gx, int *gy) { (void)nx; (void)ny; (void)gx; (void)gy; return 0; }
+int stronghold_display_world_point(float nx, float ny, int *gx, int *gy)
+{
+    if (!isfinite(nx) || !isfinite(ny)) return 0;
+    pthread_mutex_lock(&display_lock);
+    int ok = frame_ready;
+    if (ok) {
+        double x, y;
+        surface_frame(nx, ny, published_width, published_height, &x, &y);
+        *gx = (int)floor(x / published_world_scale); *gy = (int)floor(y / published_world_scale);
+        ok = x >= 0 && x < published_width && y >= 0 && y < published_height;
+    }
+    pthread_mutex_unlock(&display_lock); return ok;
+}
 int stronghold_display_ui_point(int group, float nx, float ny, int *gx, int *gy) { (void)group; (void)nx; (void)ny; (void)gx; (void)gy; return 0; }
 float stronghold_display_ui_dy(float normalized_dy) { (void)normalized_dy; return 0; }
 float stronghold_display_ui_dx(float normalized_dx) { (void)normalized_dx; return 0; }
@@ -931,7 +1020,52 @@ void stronghold_display_ui_begin(uint32_t map) { (void)map; }
 void stronghold_display_ui_group(uint32_t root, int enter) { (void)root; (void)enter; }
 void stronghold_display_ui_end(void) {}
 const uint8_t *stronghold_display_compose(const uint8_t *pixels, int width, int height, int *pitch, int bpp)
-{ (void)width; (void)height; (void)pitch; (void)bpp; return pixels; }
+{
+    pthread_mutex_lock(&display_lock);
+    if (!frame_ready || !world_copy || width != published_width || height != published_height || bpp != 16) {
+        pthread_mutex_unlock(&display_lock); return pixels;
+    }
+    static uint16_t *composed;
+    static size_t composed_capacity;
+    size_t count = (size_t)width * height;
+    if (count > composed_capacity) {
+        uint16_t *next = malloc(count * 2);
+        if (!next) { pthread_mutex_unlock(&display_lock); return NULL; }
+        free(composed); composed = next; composed_capacity = count;
+    }
+    int columns[2560];
+    for (int x = 0; x < width; x++) columns[x] = (int)fmin(width - 1, floor(x / published_world_scale));
+    for (int y = 0; y < height; y++) {
+        int sy = (int)fmin(height - 1, floor(y / published_world_scale));
+        const uint16_t *source = world_copy + (size_t)sy * width;
+        uint16_t *target = composed + (size_t)y * width;
+        for (int x = 0; x < width; x++) target[x] = source[columns[x]];
+    }
+    stronghold_part parts[SH_UI_PARTS];
+    int n = layer_parts(parts,width,height);
+    for (int p = 0; p < n; p++) {
+        const stronghold_part *part = &parts[p];
+        const ui_layer *layer = &layers[part->layer];
+        stronghold_rect r = layer->shown;
+        double ax = part->anchor_x, ay = part->anchor_y, scale = published_scale;
+        int left = (int)fmax(0,floor(ax+(r.left-ax)*scale)), right = (int)fmin(width,ceil(ax+(r.right-ax)*scale));
+        int top = (int)fmax(0,floor(ay+(r.top-ay)*scale)), bottom = (int)fmin(height,ceil(ay+(r.bottom-ay)*scale));
+        for (int x = left; x < right; x++) columns[x] = (int)floor(ax+(x-ax)/scale);
+        for (int y = top; y < bottom; y++) {
+            int sy = (int)floor(ay+(y-ay)/scale);
+            if (sy < part->top || sy >= part->bottom) continue;
+            for (int x = left; x < right; x++) {
+                int sx = columns[x];
+                if (sx < 0 || sx >= width) continue;
+                size_t source = (size_t)sy * width + sx, target = (size_t)y * width + x;
+                unsigned alpha = layer->coverage[source];
+                if (alpha) composed[target] = stronghold_composite_pixel(layer->pixels[source],composed[target],alpha,key);
+            }
+        }
+    }
+    *pitch = width * 2;
+    pthread_mutex_unlock(&display_lock); return (const uint8_t *)composed;
+}
 
 /* ------------------------------------------------------ game UI (inert) */
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -1075,7 +1209,7 @@ void stronghold_touch_after_world(void) {}
  * left button, a long press right-clicks. On the map a quick drag moves the
  * camera like the original scroll code, a hold-then-drag drags the left
  * button (selection, walls), a long press or a two-finger tap right-clicks,
- * a pinch toggles the original zoom (Z) and a twist turns the map (C/X).
+ * a pinch shares Crusader's continuous world zoom and a twist turns the map (C/X).
  * JNI calls run on the Android UI thread: they only post input or record a
  * camera delta; the guest is changed on its own thread (stronghold_original_frame).
  *
@@ -1090,7 +1224,7 @@ static int current_kind, held, touch_direct = 1, touch_layer;
 static uint32_t aim_build;
 static stronghold_part touch_part;
 static int start_x, start_y;
-static float start_nx, start_ny, pan_x, pan_y, pinch = 1, touch_scale = 1;
+static float start_nx, start_ny, pan_x, pan_y, touch_scale = 1;
 static int smooth_camera = 1;
 
 void stronghold_display_smooth_camera(int enabled)
@@ -1101,10 +1235,10 @@ void stronghold_display_smooth_camera(int enabled)
 }
 
 /* Retain motion below one tile; camera units stay the same at either zoom. */
-static void take_pan(int factor, int *x, int *y)
+static void take_pan(int *x, int *y)
 {
-    int sx = smooth_camera ? 1 : 32 / factor;
-    int sy = smooth_camera ? 1 : 16 / factor;
+    int sx = smooth_camera ? 1 : 32;
+    int sy = smooth_camera ? 1 : 16;
     *x = (int)(pan_x / sx) * sx;
     *y = (int)(pan_y / sy) * sy;
     pan_x -= *x; pan_y -= *y;
@@ -1125,15 +1259,9 @@ static void frame_point(float nx, float ny, int *x, int *y)
     double fx, fy;
     surface_frame(nx, ny, w, h, &fx, &fy);
     if (touch_layer) part_source(&touch_part, fx, fy, touch_scale, &fx, &fy);
+    else { fx /= published_world_scale; fy /= published_world_scale; }
     *x = (int)fmax(1, fmin(w - 2, fx));
     *y = (int)fmax(1, fmin(h - 2, fy));
-}
-static float frame_scale(void)
-{
-    int w, h;
-    void_input_screen_size(&w, &h);
-    if (surface_width <= 0 || surface_height <= 0) return 1;
-    return fminf((float)surface_width / (float)w, (float)surface_height / (float)h);
 }
 /* Beyond the Android touch slop (8 dp): about 3% of the surface height on phones. */
 static int far_from_start(float nx, float ny)
@@ -1239,7 +1367,7 @@ static int world_at(int y)
 {
     int w, h;
     void_input_screen_size(&w, &h);
-    return !touch_layer && in_game() && MEM32(DIALOG) == UINT32_MAX && y < h - HUD_HEIGHT;
+    return !touch_layer && in_game() && MEM32(DIALOG) == UINT32_MAX && y * published_world_scale < h - HUD_HEIGHT;
 }
 static int original_world_kind(void)
 {
@@ -1315,11 +1443,27 @@ void stronghold_touch_enqueue(int action, unsigned sequence, float x, float y, f
     if (!isfinite(x) || !isfinite(y) || !isfinite(dx) || !isfinite(dy) || !isfinite(scale)) return;
     if (action == SH_TOUCH_MODE) { stronghold_touch_abort(); touch_direct = scale > .5f; return; }
     if (action == SH_TOUCH_UI_SCALE) { stronghold_display_set_ui_scale(scale); return; }
-    /* A mouse wheel keeps the game's own wheel (dx carries WHEEL_DELTA units);
-     * the middle-button map drag needs the Crusader camera and is ignored. */
-    if (action == SH_TOUCH_WHEEL) { if (dx) void_input_mouse_wheel((int)dx); return; }
-    if (action == SH_TOUCH_GRAB) return;
-    if (!touch_direct || action == SH_TOUCH_ZOOM_RESET) return;
+    if (action == SH_TOUCH_ZOOM_RESET) { stronghold_display_zoom_reset(); return; }
+    if (action == SH_TOUCH_WHEEL || action == SH_TOUCH_GRAB) {
+        int gx, gy;
+        if (stronghold_display_world_point(x,y,&gx,&gy) && in_game() && MEM32(DIALOG)==UINT32_MAX) {
+            double fx, fy;
+            pthread_mutex_lock(&display_lock);
+            surface_frame(x,y,published_width,published_height,&fx,&fy);
+            stronghold_part hit;
+            int world = fy < published_height-HUD_HEIGHT && pick_part(fx,fy,&hit)<0;
+            pthread_mutex_unlock(&display_lock);
+            if (world) {
+                if (action==SH_TOUCH_WHEEL && dy) stronghold_display_zoom_session();
+                stronghold_display_transform(x,y,action==SH_TOUCH_GRAB?dx:0,action==SH_TOUCH_GRAB?dy:0,
+                                             action==SH_TOUCH_WHEEL?scale:1);
+                return;
+            }
+        }
+        if (action==SH_TOUCH_WHEEL && dx) void_input_mouse_wheel((int)dx);
+        return;
+    }
+    if (!touch_direct) return;
     pthread_mutex_lock(&lock);
     if (cancelling_aim) {
         if (action == SH_TOUCH_QUERY) { current_sequence = sequence; current_kind = SH_TOUCH_BLOCKED; }
@@ -1339,7 +1483,7 @@ void stronghold_touch_enqueue(int action, unsigned sequence, float x, float y, f
         stronghold_display_magnifier(0, 0, 0);
         /* Map touches outside a dialog and above the bottom panel act on the world. */
         current_kind = world_at(py) ? original_world_kind() : original_hud_kind(px,py);
-        current_sequence = sequence; held = 0; pinch = 1;
+        current_sequence = sequence; held = 0; stronghold_display_zoom_session();
         start_x = px; start_y = py; start_nx = x; start_ny = y;
         if (button < 0) void_input_mouse_warp(px, py);
         break;
@@ -1415,17 +1559,8 @@ void stronghold_touch_enqueue(int action, unsigned sequence, float x, float y, f
             !((current_kind >= SH_TOUCH_WORLD && current_kind <= SH_TOUCH_BUILDING) ||
               (action == SH_TOUCH_PAN && current_kind == SH_TOUCH_RADAR &&
                original_hud_kind(start_x,start_y) == SH_TOUCH_RADAR))) break;
-        float s = frame_scale() / (current_kind == SH_TOUCH_RADAR ? 2.f : 1.f);
-        int w, h;
-        void_input_screen_size(&w, &h);
-        /* Surface-normalized deltas as frame pixels; the map follows the finger. */
-        pan_x += dx * (float)(surface_width > 0 ? surface_width : w) / s;
-        pan_y += dy * (float)(surface_height > 0 ? surface_height : h) / s;
-        if (action == SH_TOUCH_TRANSFORM && scale > 0) {
-            pinch *= scale;
-            int zoomed_out = void_vm_readable(CAMERA + 0x8C, 4) && MEM32(CAMERA + 0x8C);
-            if ((pinch > 1.3f && zoomed_out) || (pinch < .77f && !zoomed_out)) { tap_key('Z', 0); pinch = 1; }
-        }
+        float gain = current_kind == SH_TOUCH_RADAR ? SH_RADAR_PAN_GAIN : 1.f;
+        stronghold_display_transform(x,y,dx*gain,dy*gain,action==SH_TOUCH_TRANSFORM?scale:1);
         break;
     }
     case SH_TOUCH_ROTATE:
@@ -1452,6 +1587,10 @@ void stronghold_touch_abort(void)
     pthread_mutex_lock(&lock);
     cancel_aim(); if (!cancelling_aim) release_now();
     pan_x = pan_y = 0; current_sequence = 0; touch_layer = 0;
+    pthread_mutex_lock(&display_lock);
+    zoom_pending_x = zoom_pending_y = 0; zoom_requested = 0;
+    world_zoom = (float)(unsnapped_zoom = render_world_zoom);
+    pthread_mutex_unlock(&display_lock);
     stronghold_display_magnifier(0, 0, 0);
     pthread_mutex_unlock(&lock);
 }
@@ -1467,16 +1606,35 @@ void stronghold_original_frame(void)
     pthread_mutex_lock(&lock);
     original_cancel_frame();
     if (button >= 0) pthread_cond_signal(&button_cond);
-    int factor = MEM32(CAMERA + 0x8C) ? 2 : 1;
+    if (!in_game() || MEM32(DIALOG) != UINT32_MAX) {
+        if (!in_game()) zoom_camera_known = 0;
+        pthread_mutex_unlock(&lock); return;
+    }
+    int native = MEM32(CAMERA + 0x8C) != 0;
+    pthread_mutex_lock(&display_lock);
+    if ((!zoom_camera_known || native != zoom_camera_native) && !zoom_requested)
+        world_zoom = (float)(unsnapped_zoom = native ? .5 : 1);
+    int next_native = world_zoom < 1;
+    int view_changed = render_world_zoom != world_zoom;
+    render_world_zoom = world_zoom;
+    pan_x -= (float)zoom_pending_x; pan_y -= (float)zoom_pending_y;
+    zoom_pending_x = zoom_pending_y = 0; zoom_requested = 0;
+    zoom_camera_native = next_native; zoom_camera_known = 1;
+    pthread_mutex_unlock(&display_lock);
     int x, y;
-    take_pan(factor, &x, &y);
+    take_pan(&x, &y);
     pthread_mutex_unlock(&lock);
-    if ((!x && !y) || !in_game() || MEM32(DIALOG) != UINT32_MAX) return;
-    /* Camera units are full-zoom pixels; zoomed out, a frame pixel covers two. */
-    MEM32(CAMERA + 0x74) -= (uint32_t)(x * factor);
-    MEM32(CAMERA + 0x78) -= (uint32_t)(y * factor);
+    if (!x && !y && native == next_native && !view_changed) return;
+    int32_t camera_x = (int32_t)MEM32(CAMERA + 0x74), camera_y = (int32_t)MEM32(CAMERA + 0x78);
     void_regs saved;
     void_regs_save(&saved);
+    if (native != next_native) {
+        uint32_t value = (uint32_t)next_native;
+        /* The original rebuilds its mode geometry; our centroid replaces its centre jump. */
+        void_call_guest_this(0x4B5070u, CAMERA, 1, &value);
+    }
+    MEM32(CAMERA + 0x74) = (uint32_t)(camera_x + (native ? 160 : 0) - (next_native ? 160 : 0) - x);
+    MEM32(CAMERA + 0x78) = (uint32_t)(camera_y + (next_native ? 8 : 0) - (native ? 8 : 0) - y);
     void_call_guest_this(CAMERA_CLAMP, CAMERA, 0, NULL);
     void_regs_load(&saved);
 }

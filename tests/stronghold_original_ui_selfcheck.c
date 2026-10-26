@@ -11,6 +11,7 @@
 
 
 void void_log(const char *format, ...) { (void)format; }
+int stronghold_original_build_panel(int x,int y) { (void)x; (void)y; return 0; }
 static int screen_readable;
 int void_vm_readable(uint32_t address, uint32_t size)
 { return screen_readable && address >= 0xB18000u && (uint64_t)address + size <= 0xB19000u; }
@@ -97,6 +98,32 @@ static void reset(int w, int h)
     boxes = 0; top_fit = (stronghold_rect){0}; frame_width = published_width = w; frame_height = published_height = h;
     frame_ready = 1; ui_scale = 2;
     layers[0].shown = (stronghold_rect){0, h - HUD_HEIGHT, w, h};
+}
+static void cpu_zoom(void)
+{
+    int w=800,h=600;reset(w,h);published_scale=1.5f;published_world_scale=2;
+    world_copy=malloc((size_t)w*h*2);assert(world_copy);
+    for(int y=0;y<h;y++)for(int x=0;x<w;x++)world_copy[y*w+x]=(uint16_t)(x+y*7);
+    memset(published_used,0,sizeof(published_used));
+    origin_x=13;origin_y=7;int pitch=123;
+    const uint16_t *out=(const uint16_t *)stronghold_display_compose(NULL,w,h,&pitch,16);
+    assert(out&&pitch==w*2&&out[100*w+400]==world_copy[50*w+200]);
+    assert(out[(h-1)*w+w-1]==world_copy[((h-1)/2)*w+(w-1)/2]);
+    for(int i=0;i<SH_UI_LAYERS;i++){layers[i].pixels=calloc((size_t)w*h,2);assert(layers[i].pixels);}
+    layers[0].shown=(stronghold_rect){410,470,411,471};published_used[0]=1;
+    layers[0].pixels[470*w+410]=0xf800;layers[0].coverage[470*w+410]=128;
+    out=(const uint16_t *)stronghold_display_compose(NULL,w,h,&pitch,16);
+    assert(out[405*w+415]==stronghold_composite_pixel(0xf800,world_copy[202*w+207],128,key));
+    published_anchor[0]=400;published_anchor[1]=300;
+    layers[2].shown=(stronghold_rect){410,370,411,371};published_used[2]=1;
+    layers[2].pixels[370*w+410]=0x07e0;layers[2].coverage[370*w+410]=255;
+    out=(const uint16_t *)stronghold_display_compose(NULL,w,h,&pitch,16);assert(out[405*w+415]==0x07e0);
+    uint8_t fallback[4]={0};pitch=19;
+    assert(stronghold_display_compose(fallback,w,h,&pitch,32)==fallback&&pitch==19);
+    assert(stronghold_display_compose(fallback,w-1,h,&pitch,16)==fallback&&pitch==19);
+    for(int i=0;i<SH_UI_LAYERS;i++){free(layers[i].pixels);layers[i].pixels=NULL;}
+    free(world_copy);world_copy=NULL;origin_x=origin_y=0;published_world_scale=1;
+    puts("HD CPU fallback/dump: smooth world zoom, fixed scaled HUD, alpha/key composition, dialog order, nonzero raster origin and source bounds PASS");
 }
 static void near(double a, double b) { assert(fabs(a - b) < .001); }
 static void inside(float anchor, int low, int high, int limit)
@@ -219,6 +246,7 @@ int main(void)
     assert(stronghold_notice_margin(1280,720,2400,1080,.05f,1)==16);
     assert(stronghold_notice_margin(1600,720,2400,1080,.05f,.75f)==123);
     before_image_commit();
+    cpu_zoom();
     speed_notice();
     translucent();
     const int sizes[][2] = {{800,600},{1064,600},{1280,720},{1560,720},{1664,768},{1944,900},{2336,1080},{2560,1600}};

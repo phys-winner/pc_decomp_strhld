@@ -36,6 +36,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         preferences = getSharedPreferences("controls-" + edition(), MODE_PRIVATE);
         migrate(preferences);
+        cleanRemovedMenu(preferences);
         GameActivity.forgetOtherBuildsPerformance(this, preferences);
         game = GameActivity.gameSettings();
         if (game != null && state == null) {
@@ -120,19 +121,28 @@ public abstract class SettingsActivity extends PreferenceActivity {
     }
     private void controlSettings() {
         PreferenceCategory controls = category(gameplay,"Управление");
-        toggle(controls,"touchpad","Тачпад с курсором и ЛКМ/ПКМ",false);
+        toggle(controls,"touchpad","Тачпад с курсором",false);
         floatChoices(controls,"sensitivity","Чувствительность тачпада",new float[]{.5f,.75f,1,1.25f,1.5f,2,2.5f},1,"×");
         integers(controls,"controlsScale","Размер кнопок",new int[]{75,90,100,110,120,130,140,150,175,200},100,"%",-1);
         floatChoices(controls,"opacity","Видимость кнопок",new float[]{.25f,.5f,.75f,1},.75f,"");
-        toggle(controls,"extra","Панель быстрых команд",false);
+        Preference buttons = new Preference(this); buttons.setTitle("Кнопки сенсорного управления");
+        buttons.setSummary("Отдельные кнопки на экране, в боковых списках и книге писаря. Любую кнопку можно скрыть; ЛКМ по умолчанию скрыта.");
+        controls.addPreference(buttons);
+        buttons.setOnPreferenceClickListener(item -> { controlChoices(this, preferences, () -> {}); return true; });
+        Preference zones = new Preference(this); zones.setTitle("Боковые зоны");
+        zones.setSummary("Список команд или отдельные действия по касанию и удержанию для каждой зоны");
+        controls.addPreference(zones);
+        zones.setOnPreferenceClickListener(item -> {
+            new AlertDialog.Builder(this).setTitle("Боковые зоны").setItems(new String[]{"Левая зона", "Правая зона"},
+                    (dialog, side) -> zoneChoices(this, preferences, side, () -> {})).setNegativeButton("Готово", null).show();
+            return true;
+        });
         toggle(controls,"buildingSwipes","Переключать разделы построек свайпами",true);
         loupeSettings(controls);
         toggle(controls,"vibration","Вибрация",true);
-        toggle(controls,"groupWheel","Радиальное меню групп войск",false);
-        toggle(controls,"markerWheel","Радиальное меню точек карты",false);
         toggle(controls,"touchDiagnostics","Диагностика касания",false);
         Preference arrange = new Preference(this); arrange.setTitle("Изменить расположение кнопок");
-        arrange.setSummary("Панель команд, кнопки «Отряд»/«Точки», ЛКМ/ПКМ и переход между играми перетаскиваются в игре");
+        arrange.setSummary("Предпросмотр поверх паузы: перемещение, размер щипком или ползунком, Сохранить и Отмена");
         controls.addPreference(arrange);
         arrange.setOnPreferenceClickListener(item -> {
             if (!GameActivity.gameRunning()) {
@@ -148,6 +158,81 @@ public abstract class SettingsActivity extends PreferenceActivity {
             for (String key : preferences.getAll().keySet()) if (key.startsWith("pos-")) edit.remove(key);
             edit.apply(); Toast.makeText(this, "Исходное расположение восстановлено", Toast.LENGTH_SHORT).show(); return true;
         });
+    }
+    static int controlPlacement(SharedPreferences preferences, String id) {
+        return ControlLayout.placement(preferences.getAll(), id);
+    }
+    static void zoneChoices(android.content.Context context, SharedPreferences preferences, int side, Runnable changed) {
+        if (side < 0 || side > 1) return;
+        boolean direct = ControlLayout.zoneDirect(preferences.getAll(), side);
+        String prefix = side == 0 ? "zone-left-" : "zone-right-";
+        String[] modes = {"Список команд", "Действия по тапу и удержанию"};
+        String tap = ControlLayout.zoneAction(preferences.getAll(), side, false), hold = ControlLayout.zoneAction(preferences.getAll(), side, true);
+        String[] choices = direct ? new String[]{"Режим: " + modes[1], "Тап: " + (tap.isEmpty() ? "Ничего" : ControlLayout.label(tap)),
+                "Удержание: " + (hold.isEmpty() ? "Ничего" : ControlLayout.label(hold))} : new String[]{"Режим: " + modes[0], "Команды списка"};
+        new AlertDialog.Builder(context).setTitle(side == 0 ? "Левая боковая зона" : "Правая боковая зона")
+                .setItems(choices, (dialog, which) -> {
+                    if (which == 0) {
+                        new AlertDialog.Builder(context).setTitle("Режим боковой зоны")
+                                .setSingleChoiceItems(modes, direct ? 1 : 0, (choice, selected) -> {
+                                    preferences.edit().putString(prefix + "mode", selected == 1 ? "actions" : "list").apply();
+                                    changed.run(); choice.dismiss(); zoneChoices(context, preferences, side, changed);
+                                }).setNegativeButton("Назад", (choice, selected) -> zoneChoices(context, preferences, side, changed)).show();
+                    } else if (!direct) controlChoices(context, preferences, changed);
+                    else zoneActionChoices(context, preferences, side, which == 2, changed);
+                }).setNegativeButton("Готово", null).show();
+    }
+    private static void zoneActionChoices(android.content.Context context, SharedPreferences preferences, int side, boolean hold, Runnable changed) {
+        java.util.ArrayList<String> ids = new java.util.ArrayList<>(), names = new java.util.ArrayList<>();
+        ids.add(""); names.add("Ничего");
+        for (String id : ControlLayout.IDS) if (ControlLayout.inZone(id)) { ids.add(id); names.add(ControlLayout.label(id)); }
+        new AlertDialog.Builder(context).setTitle(hold ? "Действие по удержанию" : "Действие по тапу")
+                .setItems(names.toArray(new String[0]), (dialog, which) -> {
+                    preferences.edit().putString((side == 0 ? "zone-left-" : "zone-right-") + (hold ? "hold" : "tap"), ids.get(which)).apply();
+                    changed.run(); zoneChoices(context, preferences, side, changed);
+                }).setNegativeButton("Назад", (dialog, which) -> zoneChoices(context, preferences, side, changed)).show();
+    }
+    static void cleanRemovedMenu(SharedPreferences preferences) {
+        java.util.Map<String, ?> before = preferences.getAll();
+        java.util.Map<String, Object> values = new java.util.HashMap<>(before);
+        if (!ControlLayout.cleanRemovedMenu(values)) return;
+        SharedPreferences.Editor edit = preferences.edit();
+        for (String key : before.keySet()) {
+            if (!values.containsKey(key)) edit.remove(key);
+            else if (!java.util.Objects.equals(before.get(key), values.get(key))) edit.putInt(key, (Integer)values.get(key));
+        }
+        edit.apply();
+    }
+    static void controlChoices(android.content.Context context, SharedPreferences preferences, Runnable changed) {
+        String[] places = {"На экране", "Скрыта", "В левой зоне", "В правой зоне", "В книге писаря"};
+        int[] placements = {ControlLayout.SCREEN, ControlLayout.HIDDEN, ControlLayout.LEFT_ZONE, ControlLayout.RIGHT_ZONE, ControlLayout.BOOK_ZONE};
+        String[] names = new String[ControlLayout.IDS.length];
+        for (int i = 0; i < names.length; i++) {
+            int current = controlPlacement(preferences, ControlLayout.IDS[i]), selected = 1;
+            for (int j = 0; j < placements.length; j++) if (placements[j] == current) selected = j;
+            names[i] = ControlLayout.LABELS[i] + " · " + places[selected];
+        }
+        new AlertDialog.Builder(context).setTitle("Выберите кнопку")
+                .setItems(names, (dialog, index) -> {
+                    String id = ControlLayout.IDS[index];
+                    String[] choices = ControlLayout.inZone(id) ? places : new String[]{places[0], places[1]};
+                    int[] values = ControlLayout.inZone(id) ? placements : new int[]{ControlLayout.SCREEN, ControlLayout.HIDDEN};
+                    int current = controlPlacement(preferences, id), selected = 1;
+                    for (int i = 0; i < values.length; i++) if (values[i] == current) selected = i;
+                    new AlertDialog.Builder(context).setTitle(ControlLayout.LABELS[index])
+                            .setSingleChoiceItems(choices, selected,
+                                    (choice, which) -> {
+                                        preferences.edit().putInt("control-" + id, values[which]).apply();
+                                        changed.run(); choice.dismiss(); controlChoices(context, preferences, changed);
+                                    }).setNegativeButton("Назад", (choice, which) -> controlChoices(context, preferences, changed)).show();
+                }).setNeutralButton("Исходные кнопки", (dialog, which) -> {
+                    SharedPreferences.Editor edit = preferences.edit();
+                    for (String id : ControlLayout.IDS) edit.remove("control-" + id);
+                    for (String prefix : new String[]{"zone-left-", "zone-right-"})
+                        edit.remove(prefix + "mode").remove(prefix + "tap").remove(prefix + "hold");
+                    edit.remove("extra").remove("groupWheel").remove("markerWheel").apply();
+                    changed.run(); controlChoices(context, preferences, changed);
+                }).setNegativeButton("Готово", null).show();
     }
     /* Stronghold HD uses its own mode table and native option handlers. */
     private void strongholdSettings(PreferenceGroup graphics) {
@@ -317,8 +402,9 @@ public abstract class SettingsActivity extends PreferenceActivity {
                     .setNegativeButton("Отмена", null).setPositiveButton("Сбросить", (dialog, which) -> {
                         SharedPreferences.Editor edit = preferences.edit();
                         clearSettings(graphics, edit); clearSettings(audio, edit); clearSettings(gameplay, edit);
-                        for (String key : preferences.getAll().keySet()) if (key.startsWith("pos-")) edit.remove(key);
-                        edit.remove("imageFilter").remove("layoutEditRequest");
+                        for (String key : preferences.getAll().keySet())
+                            if (key.startsWith("pos-") || key.startsWith("control-") || key.equals("extra")) edit.remove(key);
+                        edit.remove("imageFilter").remove("layoutEditRequest").remove("groupWheel").remove("markerWheel");
                         game = new int[]{40,1,0,2,1,90,80,85,1};
                         for (int i=0;i<(GameFiles.original(edition())?8:9);i++) {
                             edit.putInt("game-"+i,game[i]).putInt("last-game-"+i,game[i]);

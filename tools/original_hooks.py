@@ -49,6 +49,7 @@ level a = (mask & 31) - fade, the mask read just before each store. Its 555
 path sums source and destination in two stores; only the second reports.
 """
 import re
+import display_hooks
 
 seen = set()
 EDGE_NAMES = (0x55804C, 0x55805C, 0x55806C, 0x55807C, 0x55808C, 0x55809C, 0x5580AC, 0x5580BC, 0x5580CC,
@@ -110,7 +111,7 @@ def required(module):
             "layers", "item", "item_end", "items_end", "freeze", "box01503CB8", "box018ECCE8", "present", "raster", "blends",
             "editor_focus", "editor_click004BC0D5", "editor_click004BC160",
             "build_draw", "build_redraw", "build_help", "radar0049574A", "radar0049576E",
-            "save004396E3", "save0047E0AB", "save0047CCD8", "cart", "cart_end"}
+            "save004396E3", "save0047E0AB", "save0047CCD8", "cart", "cart_end", "opaque-batching"}
     keys |= {f"blend{pc:08X}" for pc in BLEND}
     keys |= {f"{kind}{pc:08X}" for pc, _, _ in LAYOUT[module]["panel"] for kind in ("panel", "panel_end")}
     return {f"{module}:{key}" for key in keys}
@@ -268,6 +269,7 @@ def apply(text, module):
     blends = set()
     def raster(line, pc):
         nonlocal stores
+        if display_hooks.raster_stack_store(line,pc,module):return line
         if pc in BLEND and BLEND[pc] is None:
             blends.add(pc)
             return line
@@ -282,6 +284,11 @@ def apply(text, module):
         return re.sub(rb"MEM(16|32)\(([^;]+?)\) = [^;]+;", store, line)
     per_line(layout["raster"], raster)
     note("raster", stores)
+    # HD's capture calls are inserted here, after display_hooks' shared half-size loops.
+    text, spans = display_hooks.batch_opaque_runs(text,module)
+    text, edges = display_hooks.batch_opaque_backedges(text,module)
+    if spans != edges:raise ValueError(f'{module}: opaque copy/capture batching mismatch')
+    note("opaque-batching", spans + edges)
     if blends:
         note("blends", len(blends))
         seen.update(f"{module}:blend{pc:08X}" for pc in blends)

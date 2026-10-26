@@ -3,6 +3,7 @@
 #include "input.h"
 #include "edition.h"
 #include "display.h"
+#include "view_controls.h"
 #include "feedback.h"
 #include <math.h>
 #if defined(__aarch64__)
@@ -64,8 +65,6 @@ static float published_world_zoom=1;
 static float requested_render_scale=1, render_scale=1;
 static double unsnapped_zoom=1;
 /* The 1:1 detent engages once per touch gesture: 0 armed, 1 holding, 2 spent. */
-#define SNAP_LOW .94
-#define SNAP_HIGH 1.06
 static int snap_state;
 static int highlight_left,highlight_top,highlight_width,highlight_height;
 static int filter_mode=2;
@@ -290,24 +289,13 @@ void stronghold_display_transform(float nx,float ny,float ndx,float ndy,float fa
     if(!published_active||!surface_point(nx,ny,&x,&y,&fit)){
         pthread_mutex_unlock(&display_lock);return;
     }
-    double old=world_zoom,next=old;
+    double old=world_zoom;
     /* A dead band makes the original pixel grid reachable by a pinch, once
      * per gesture. Leaving it continues from 1:1 instead of jumping by the
      * band's width. Panning with factor1 must not change the zoom. */
-    if(factor!=1.f){
-        unsnapped_zoom=fmax(.5,fmin(2.5,unsnapped_zoom*factor));
-        next=unsnapped_zoom;
-        int inside=unsnapped_zoom>=SNAP_LOW&&unsnapped_zoom<=SNAP_HIGH;
-        /* Arriving at 1:1 from another zoom is felt as a tick. */
-        if(!snap_state&&inside){snap_state=1;if(old!=1)stronghold_feedback(SH_FEEDBACK_ZOOM_SNAP);}
-        if(snap_state==1){
-            if(inside)next=1;
-            else{
-                unsnapped_zoom/=unsnapped_zoom>1?SNAP_HIGH:SNAP_LOW;
-                next=unsnapped_zoom;snap_state=2;
-            }
-        }
-    }
+    int previous_snap=snap_state;
+    double next=stronghold_zoom_step(old,&unsnapped_zoom,&snap_state,factor);
+    if(!previous_snap&&snap_state==1&&old!=1)stronghold_feedback(SH_FEEDBACK_ZOOM_SNAP);
     int sw=surface_width?surface_width:published_width;
     int sh=surface_height?surface_height:published_height;
     /* Main pick4E9180 adds screenY once (twice in native half-size zoom).
@@ -668,8 +656,8 @@ void stronghold_display_blended(uint32_t address,unsigned bytes,unsigned backgro
     }else if(hp&&address>=hud&&(uint64_t)address+bytes<=(uint64_t)hud+hp*(uint32_t)requested_height){
         uint32_t offset=address-hud;row_byte=offset%hp;pitch=hp;
         x=(int)(row_byte/2);y=(int)(offset/hp);d4=1;
-        /* The persistent UI already contains its complete original background. */
-        background=0;
+        /* Player hover fades against the key; other persistent UI has its complete background. */
+        if(current_group!=7)background=0;
     }else return;
     /* Callers publish whole RGB565 row spans (including ETO_OPAQUE fills).
      * Accept a bounded span, clip its visible intersection, never wrap it
@@ -679,7 +667,13 @@ void stronghold_display_blended(uint32_t address,unsigned bytes,unsigned backgro
     if(right>requested_width)right=requested_width;
     if(left>=right)return;
     address+=2u*(uint32_t)(left-x);bytes=2u*(uint32_t)(right-left);x=left;
-    if(d4)memcpy(GPTR(target+MAP_PITCH*(uint32_t)(origin_y+y)+2u*(uint32_t)(origin_x+x)),GPTR(address),bytes);
+    if(d4){
+        void *destination=GPTR(target+MAP_PITCH*(uint32_t)(origin_y+y)+2u*(uint32_t)(origin_x+x));
+        const void *source=GPTR(address);
+        if(bytes==2)__builtin_memcpy(destination,source,2);
+        else if(bytes==4)__builtin_memcpy(destination,source,4);
+        else memcpy(destination,source,bytes);
+    }
     uint8_t *a=ui[current_group].capture+(size_t)y*requested_width+x;
     /* These writes belong to explicit original HUD-clear call sites. This
      * is operation provenance, not a test of the RGB value being painted. */
@@ -1309,10 +1303,13 @@ static void bulk_rows_selfcheck(void)
 {
     origin_x=3;origin_y=2;
     const uint16_t colors[]={0,0x07ff,0xf81f,0x39e7};
-    for(int d4=0;d4<2;d4++){
-        int y=8+d4,left=12,count=200;
+    const int counts[]={1,2,3,200};
+    for(int d4=0;d4<2;d4++)for(unsigned c=0;c<sizeof(counts)/sizeof(counts[0]);c++){
+        int y=8+d4,left=12,count=counts[c];
         uint32_t destination=ui[2].guest+MAP_PITCH*(uint32_t)(origin_y+y)+2u*(uint32_t)(origin_x+left);
         uint32_t source=d4?hud_pixels+hud_pitch*(uint32_t)y+2u*(uint32_t)left:destination;
+        MEM16(destination-2)=MEM16(destination+2u*(uint32_t)count)=0xa55a;
+        ui[2].capture[(size_t)y*requested_width+left-1]=ui[2].capture[(size_t)y*requested_width+left+count]=77;
         for(int x=0;x<count;x++){
             MEM16(source+2u*(uint32_t)x)=colors[x%4];
             ui[2].capture[(size_t)y*requested_width+left+x]=127;
@@ -1323,6 +1320,8 @@ static void bulk_rows_selfcheck(void)
             assert(MEM16(destination+2u*(uint32_t)x)==colors[x%4]);
             assert(composite_pixel(colors[x%4],0x07e0,255,0xf81f)==colors[x%4]);
         }
+        assert(MEM16(destination-2)==0xa55a&&MEM16(destination+2u*(uint32_t)count)==0xa55a);
+        assert(ui[2].capture[(size_t)y*requested_width+left-1]==77&&ui[2].capture[(size_t)y*requested_width+left+count]==77);
         /* Stale half-alpha would distort the thumbnail toward neon green. */
         assert(composite_pixel(0x39e7,0x07e0,127,0xf81f)!=0x39e7);
     }
@@ -1340,7 +1339,7 @@ static void bulk_rows_selfcheck(void)
     stronghold_display_written(ui[2].guest+MAP_PITCH*(uint32_t)(origin_y+13)+MAP_PITCH-2,4);
     assert(ui[2].capture[14*(size_t)requested_width]==77);
     origin_x=origin_y=0;
-    puts("bulk UI coverage: opaque200-pixel D4/D8 rows, original RGB565/green regression, viewport clips and invalid spans PASS");
+    puts("bulk UI coverage: opaque1/2/3/200-pixel D4/D8 rows, unchanged neighbours, RGB565/green, clips and invalid spans PASS");
 }
 
 /* GPU presenter interface: filter settings, loupe state, changed-row
@@ -1524,6 +1523,46 @@ static void notice_selfcheck(void)
     ui[3].used=0;publish_layer(3);assert(!ui[3].coverage[525*w+12]&&!ui[3].shown.right);
     published_used[3]=0;published_ui_scale=1;ui[0].guest=ui[3].guest=0;
     puts("notices: original left+bottom flags, scoped capture/restoration, first+last columns visible, CPU/inverse/crisp/GPU75..200%, expired coverage clears PASS");
+}
+
+static void hover_fade_selfcheck(void)
+{
+    const int w=1200,h=600,x=100,y=100;const uint32_t item=0x10001000;
+    stronghold_display_configure(w,h);assert(allocate_frames());
+    stronghold_display_surface_size(w,h);origin_x=origin_y=0;ui_scale=world_zoom=1;camera_last_native=0;
+    source_width=raster_width=w;source_height=raster_height=h;original_surface=1;original_pixels=0;
+    ui[0].guest=0x11000000;ui[7].guest=0x18000000;hud_pixels=0x15000000;hud_pitch=w*2;
+    color_key=0xf81f;MEM32(GAME_SCREEN+0x40)=0;
+    MEM32(item+8)=21;MEM32(item+0x18)=0x004B0B10;MEM32(item+0x1c)=2;
+    for(int i=0;i<w*h;i++)world_pixels[i]=0x07e0;
+    for(int amount=0;amount<=32;amount++){
+        stronghold_display_frame_begin();assert(select_group(0));ui_open=stronghold_display_capture_active=1;
+        stronghold_display_resource_overlay(item,1);assert(current_group==7);
+        unsigned background=(unsigned)amount*255/32,alpha=255-background;
+        uint16_t pixel=(uint16_t)(0xf800u|((31u*(unsigned)amount/32u)&31u));
+        uint32_t from=hud_pixels+hud_pitch*(uint32_t)y+2u*(uint32_t)x;
+        MEM16(from)=pixel;stronghold_display_blended(from,2,background);
+        assert(ui[7].capture[y*w+x]==alpha);
+        stronghold_display_resource_overlay(item,0);stronghold_display_ui_end();
+        int pitch=w*2;const uint16_t *out=(const uint16_t *)stronghold_display_compose(NULL,w,h,&pitch,16);
+        assert(out[y*w+x]==composite_pixel(pixel,0x07e0,alpha,color_key));
+        stronghold_frame frame;assert(stronghold_display_frame(&frame,w,h,16));
+        assert(frame.layer[7].used&&frame.layer[7].coverage[y*w+x]==alpha);
+        if(amount==32)assert(out[y*w+x]==0x07e0);
+    }
+    for(int absent=0;absent<3;absent++){
+        stronghold_display_frame_begin();assert(select_group(0));ui_open=stronghold_display_capture_active=1;
+        stronghold_display_ui_end();stronghold_frame frame;assert(stronghold_display_frame(&frame,w,h,16));
+        assert(!frame.layer[7].used&&!frame.layer[7].coverage[y*w+x]);
+        int pitch=w*2;const uint16_t *out=(const uint16_t *)stronghold_display_compose(NULL,w,h,&pitch,16);
+        assert(out[y*w+x]==0x07e0);
+    }
+    stronghold_display_frame_begin();assert(select_group(7));ui_open=stronghold_display_capture_active=1;
+    MEM16(hud_pixels+hud_pitch*(uint32_t)y+2u*(uint32_t)x)=color_key;
+    stronghold_display_written(hud_pixels+hud_pitch*(uint32_t)y+2u*(uint32_t)x,2);
+    assert(ui[7].capture[y*w+x]==255); /* An intentional opaque key-coloured sprite stays opaque. */
+    stronghold_display_ui_end();
+    puts("player hover: persistent HUD fade0..32, CPU/GPU alpha, immediate world reveal, three absent frames and opaque key RGB PASS");
 }
 
 static void overlay_geometry_selfcheck(void)
@@ -1862,6 +1901,7 @@ int main(void)
     notice_selfcheck();
     gpu_frame_selfcheck();
     overlay_geometry_selfcheck();
+    hover_fade_selfcheck();
     /* The powers sidebar has its own scale and inverse, without shrinking the HUD. */
     if(UI_POWERS){
         stronghold_display_configure(1280,720);stronghold_display_surface_size(1280,720);

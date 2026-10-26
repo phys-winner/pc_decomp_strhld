@@ -32,6 +32,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
@@ -67,13 +68,12 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private static native void nativeTouch(int action, int sequence, float x, float y, float dx, float dy, float scale);
     private static native int nativeTouchStatus(int sequence);
     /* Elements the player may drag in the layout editor; positions are view fractions. */
-    private static final String[] MOVABLE = {"tools", "mouse", "switch", "wheel1", "wheel2"};
     /* stronghold_feedback() bits (android/host/feedback.h). */
     private static final int FEEDBACK_ZOOM_SNAP = 1, FEEDBACK_SECTION = 2, FEEDBACK_PLACE = 4;
     /* `setprop log.tag.StrongholdInput DEBUG` traces mouse mode, haptics and the loupe. */
     private static final String TAG = "StrongholdInput";
     private final HashSet<Integer> held = new HashSet<>(), pressed = new HashSet<>(), padKeys = new HashSet<>();
-    private boolean ready, started, touchpad, wide, extra, diagnostics, groupWheel, markerWheel;
+    private boolean ready, started, touchpad, wide, diagnostics, groupWheel, markerWheel;
     private boolean vibration, loupe, deband, crispText, mouseMode, magnifierShown, feedbackPosted, debugInput;
     private int[] controlState = new int[10];
     private int wheel, wheelSector = -1;
@@ -91,7 +91,6 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private GamepadControls gamepad;
     private boolean gamepadMode, gamepadConnected;
     private int gamepadDevice = -1;
-    private TextView gamepadHint;
     private View gamepadClick;
     private AlertDialog gamepadHelp;
     private InputManager inputManager;
@@ -108,11 +107,29 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private boolean skipMovies, rememberedSuccess;
     private SharedPreferences preferences;
     private FrameLayout root;
-    private LinearLayout tools, mouseTools, editorBar;
-    private TextView zoomIndicator, speedValue, switchButton, hint;
+    private LinearLayout editorBar;
+    private final java.util.LinkedHashMap<String, View> commandViews = new java.util.LinkedHashMap<>();
+    private final CommandZoneView[] commandZones = new CommandZoneView[2];
+    private LinearLayout zoneCommands;
+    private CommandZoneView openZone, bookZone;
+    private int touchFinger = -1, bookRequestFinger, bookRequestSequence;
+    private long touchBegan, bookRequestBegan;
+    private float touchStartX, touchStartY, touchX, touchY, bookRequestX, bookRequestY;
+    private boolean bookRequest, bookTakingInput, bookSwallow;
+    private final java.util.ArrayList<TextView> zoneCommandViews = new java.util.ArrayList<>();
+    private TextView zoomIndicator, speedValue, hint;
+    private float zoomAnchorX = Float.NaN, zoomAnchorY = Float.NaN;
+    private int positionedZoom = -1;
+    private boolean zoomPinned;
     private LayoutEditor layoutEditor;
     private int displayedZoom = -1, displayedSpeed = -1;
     private boolean textDialog, layoutEdit;
+    private SharedPreferences layoutDraft;
+    private String selectedControl;
+    private LinearLayout sizeControls;
+    private TextView selectionLabel, widthLabel, heightLabel;
+    private SeekBar widthSlider, heightSlider;
+    private boolean updatingSizes;
     /* Other installed games this one can switch to, found once in the background. */
     private java.util.List<String> otherEditions = new java.util.ArrayList<>();
     private android.net.wifi.WifiManager.MulticastLock lanDiscovery;
@@ -132,7 +149,12 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private final Runnable classification = new Runnable() {
         @Override public void run() {
             if (!started || semantic == null || !semantic.awaitingClassification()) return;
-            semantic.classified(semantic.sequence(), nativeTouchStatus(semantic.sequence()));
+            int kind = nativeTouchStatus(semantic.sequence());
+            if (kind == SemanticTouchControls.BOOK && openZone == bookZone && zoneCommands != null) {
+                bookSwallow = touchFinger >= 0; bookRequest = false; semantic.abort(); dismissZoneCommands();
+                root.removeCallbacks(longPress); return;
+            }
+            semantic.classified(semantic.sequence(), kind);
             semantic.hold(SystemClock.uptimeMillis());
             updateMagnifier();
             touch.invalidate();
@@ -166,7 +188,9 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 int event = nativeUiEvent();
                 if ((event & 1) != 0) settings((event & UI_SETTINGS_GRAPHICS) != 0 ? "graphics" : (event & UI_SETTINGS_AUDIO) != 0 ? "audio" : "game");
                 else if ((event & 2) != 0) showEditor();
-                if((event&4)!=0) { showTools(!extra);rebuildTools(); }
+                else if ((event & 4) != 0 && bookRequest) {
+                    bookRequest = false; showBookCommands(bookRequestX, bookRequestY, true);
+                }
                 if((event&8)!=0) {
                     releaseControls();nativePause(true);
                     new AlertDialog.Builder(GameActivity.this).setTitle("Соединение LAN потеряно")
@@ -262,6 +286,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             }
             migrated.putInt("uiScale", legacy.getInt("uiScale", 120)).commit();
         }
+        SettingsActivity.cleanRemovedMenu(preferences);
         debugInput = Log.isLoggable(TAG, Log.DEBUG);
         readPreferences();
         forgetOtherBuildsPerformance(this, preferences);
@@ -296,6 +321,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             if (!started || touch.getWidth() == 0 || touch.getHeight() == 0) return;
             if (action == SemanticTouchControls.HOLD) haptic(HapticFeedbackConstants.LONG_PRESS);
             else if (action == SemanticTouchControls.ROTATE) haptic(HapticFeedbackConstants.CLOCK_TICK);
+            if (action == SemanticTouchControls.OPEN_TOOLS) {
+                bookRequest = true; bookRequestX = x; bookRequestY = y;
+                bookRequestFinger = touchFinger; bookRequestBegan = touchBegan; bookRequestSequence = sequence;
+            }
             nativeTouch(action, sequence, x / touch.getWidth(), y / touch.getHeight(),
                     dx / touch.getWidth(), dy / touch.getHeight(), scale);
             watchFeedback();
@@ -361,7 +390,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 switch (action) {
                     case GamepadControls.HELP: showGamepadHelp(); break;
                     case GamepadControls.RESET_ZOOM: nativeTouch(SemanticTouchControls.ZOOM_RESET, 0, 0, 0, 0, 0, 1); break;
-                    case GamepadControls.TOOLS: showTools(!extra); rebuildTools(); break;
+                    case GamepadControls.TOOLS:
+                        float[] book = hudPoint(750, 545); showBookCommands(book[0], book[1], false); break;
                     case GamepadControls.KEYBOARD: showTextInput(); break;
                     case GamepadControls.SETTINGS: settings(); break;
                 }
@@ -407,7 +437,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         uiScale = Math.max(original ? 100 : 75, Math.min(200, preferences.getInt("uiScale", original ? 100 : 120)));
         controlsScale = Math.max(75, Math.min(200, preferences.getInt("controlsScale", 100)));
         touchpad = preferences.getBoolean("touchpad", false); wide = preferences.getBoolean("wide", true);
-        extra = preferences.getBoolean("extra", false); sensitivity = preferences.getFloat("sensitivity", 1);
+        sensitivity = preferences.getFloat("sensitivity", 1);
         diagnostics = preferences.getBoolean("touchDiagnostics", false);
         groupWheel=preferences.getBoolean("groupWheel",false);markerWheel=preferences.getBoolean("markerWheel",false);
         opacity = Math.max(.25f, Math.min(1, preferences.getFloat("opacity", .75f)));
@@ -576,7 +606,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         int height = dp(Math.max(34, 44 * controls()));
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-2, height);
         int margin = dp(2 * controls()); p.setMargins(margin, margin, margin, margin); v.setLayoutParams(p);
-        v.setMinWidth(height); int padding = dp(10 * controls()); v.setPadding(padding, 0, padding, 0); return v;
+        v.setMinWidth(height); v.setMinHeight(height); int padding = dp(10 * controls()); v.setPadding(padding, 0, padding, 0); return v;
     }
     private TextView action(LinearLayout row, String title, Runnable action) {
         TextView v = button(title); v.setOnClickListener(ignored -> action.run()); row.addView(v); return v;
@@ -589,30 +619,32 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         String text = zoom + "%";
         zoomIndicator.setText(text);
         zoomIndicator.setContentDescription("Масштаб карты " + text + ". Нажмите, чтобы вернуть 100%");
-        zoomIndicator.setVisibility(zoom==100||(controlState[0]&1)==0?View.GONE:View.VISIBLE);
+        zoomIndicator.setVisibility(placement("zoom_value") != ControlLayout.SCREEN ||
+                (!layoutEdit && (controlState[0] & 1) == 0) ? View.GONE : View.VISIBLE);
         positionZoom();
     }
     private void updateSpeed() {
         if (speedValue == null || controlState[9] == displayedSpeed) return;
         displayedSpeed = controlState[9];
         /* Hide the value until the original simulation has initialized it. */
-        speedValue.setVisibility(displayedSpeed > 0 ? View.VISIBLE : View.GONE);
-        speedValue.setText(Integer.toString(displayedSpeed));
+        speedValue.setVisibility(displayedSpeed > 0 || layoutEdit ? View.VISIBLE : View.GONE);
+        speedValue.setText(displayedSpeed > 0 ? Integer.toString(displayedSpeed) : "Скорость");
         speedValue.setContentDescription("Скорость игры " + displayedSpeed);
     }
     private String switchLabel() { return otherEditions.isEmpty() ? "Лаунчер" : otherEditions.size() == 1 ? title(otherEditions.get(0)) : "Другая игра"; }
     private static String title(String edition) { return GameFiles.title(edition); }
+    private SharedPreferences layoutPreferences() { return layoutEdit && layoutDraft != null ? layoutDraft : preferences; }
     private float[] saved(String key) {
         if (preferences == null) return null;
-        float x = preferences.getFloat("pos-" + key + "-x", Float.NaN), y = preferences.getFloat("pos-" + key + "-y", Float.NaN);
-        return Float.isNaN(x) || Float.isNaN(y) ? null : new float[] {x, y};
+        float x = layoutPreferences().getFloat("pos-" + key + "-x", Float.NaN), y = layoutPreferences().getFloat("pos-" + key + "-y", Float.NaN);
+        return !Float.isFinite(x) || !Float.isFinite(y) ? null : new float[] {x, y};
     }
     private void save(String key, float x, float y) {
-        preferences.edit().putFloat("pos-" + key + "-x", x).putFloat("pos-" + key + "-y", y).apply();
+        layoutPreferences().edit().putFloat("pos-" + key + "-x", x).putFloat("pos-" + key + "-y", y).apply();
     }
     private void resetLayout() {
-        SharedPreferences.Editor edit = preferences.edit();
-        for (String key : MOVABLE) edit.remove("pos-" + key + "-x").remove("pos-" + key + "-y");
+        SharedPreferences.Editor edit = layoutPreferences().edit();
+        for (String key : layoutPreferences().getAll().keySet()) if (ControlLayoutSnapshot.isLayoutKey(key)) edit.remove(key);
         edit.apply(); rebuildTools();
     }
     /* A dragged element keeps its top-left fraction of the view; defaults keep their old anchors. */
@@ -621,56 +653,75 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         FrameLayout.LayoutParams p;
         if (position == null || root.getWidth() == 0) {
             p = new FrameLayout.LayoutParams(-2, -2, gravity);
-            p.setMargins(marginX, marginY, marginX, 0);
+            p.setMargins(marginX, marginY, 0, 0);
         } else {
             p = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.LEFT);
             p.leftMargin = Math.round(position[0] * root.getWidth()); p.topMargin = Math.round(position[1] * root.getHeight());
         }
+        restoreControlSize(view, key, p);
         root.addView(view, p);
         if (position != null) view.post(() -> moveView(view, ((FrameLayout.LayoutParams)view.getLayoutParams()).leftMargin,
                 ((FrameLayout.LayoutParams)view.getLayoutParams()).topMargin));
     }
+    private void restoreControlSize(View view, String key, FrameLayout.LayoutParams p) {
+        float width = layoutPreferences().getFloat("pos-" + key + "-w", Float.NaN);
+        float height = layoutPreferences().getFloat("pos-" + key + "-h", Float.NaN);
+        if (Float.isFinite(width) && Float.isFinite(height) && width > 0 && height > 0 && root.getWidth() > 0) {
+            p.width = Math.round(Math.max(dp(36), Math.min(root.getWidth(), width * root.getWidth())));
+            p.height = Math.round(Math.max(dp(36), Math.min(root.getHeight(), height * root.getHeight())));
+            fitControlText(view,key,p.height);
+        }
+    }
+    private void fitControlText(View view,String key,int height) {
+        if(!(view instanceof TextView))return;
+        TextView text=(TextView)view;text.setMinWidth(0);text.setMinHeight(0);text.setSingleLine(true);
+        text.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        boolean zoom="zoom_value".equals(key);
+        float base=zoom?17*controls():13*controls(),baseHeight=dp(zoom?32*controls():Math.max(34,44*controls()));
+        int max=Math.max(8,Math.min(72,Math.round(base*height/Math.max(1,baseHeight))));
+        text.setAutoSizeTextTypeUniformWithConfiguration(8,max,1,TypedValue.COMPLEX_UNIT_SP);
+    }
     private void moveView(View view, float left, float top) {
         if (view.getParent() != root) return;
-        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.LEFT);
+        view.setTranslationX(0); view.setTranslationY(0);
+        FrameLayout.LayoutParams old = (FrameLayout.LayoutParams)view.getLayoutParams();
+        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(old.width, old.height, Gravity.TOP | Gravity.LEFT);
         p.leftMargin = Math.round(Math.max(0, Math.min(root.getWidth() - view.getWidth(), left)));
         p.topMargin = Math.round(Math.max(0, Math.min(root.getHeight() - view.getHeight(), top)));
         view.setLayoutParams(p);
     }
     private void rebuildTools() {
         if (root == null || mouseGate == null) return;
+        dismissZoneCommands();
+        for (int i = 0; i < commandZones.length; i++) {
+            if (commandZones[i] != null) { commandZones[i].cancelGesture(); root.removeView(commandZones[i]); }
+            commandZones[i] = null;
+        }
         for (int scan : new HashSet<Integer>(held)) if (scan != 0x1d && scan != 0x2a) setKey(scan, false);
         mouseGate.cancel();
-        for (View old : new View[] {tools, mouseTools, zoomIndicator, switchButton, layoutEditor, editorBar, gamepadHint})
+        for (View old : commandViews.values()) root.removeView(old);
+        commandViews.clear();
+        for (View old : new View[] {zoomIndicator, layoutEditor, editorBar})
             if (old != null) root.removeView(old);
-        tools = column(); speedValue = null; displayedSpeed = -1;
-        if (extra || layoutEdit) {
-            LinearLayout bar = row(); tools.addView(bar);
-            action(bar,"×",()->{showTools(false);editLayout(false);rebuildTools();});
-            action(bar, "Меню", () -> tapKey(0x01)); action(bar, "Пауза", () -> tapKey(0x19));
-            action(bar, "Ввод", this::showTextInput); action(bar, "Настройки", this::settings);
-            action(bar, "Расположение", () -> editLayout(true)).setContentDescription("Изменить расположение кнопок");
-            action(bar, "?", this::help);
-            action(bar, "⇄", this::switchEdition).setContentDescription("Другая игра или лаунчер");
-            LinearLayout keys = row(); tools.addView(keys);
-            modifier(keys, "Ctrl", 0x1d); modifier(keys, "Shift", 0x2a);
-            holdKey(keys, "⌫", 0x0e); holdKey(keys, "Enter", 0x1c); holdKey(keys, "F5", 0x3f); holdKey(keys, "F1 · замок", 0x3b);
-            holdKey(keys, "−", 0x4a).setContentDescription("Медленнее");
-            /* The speed is a value between its buttons, drawn as a darker chip so it stays readable over the map. */
-            speedValue = button(""); speedValue.setBackground(panel(0xf0101820)); speedValue.setTextColor(0xffffe08a);
-            speedValue.setTypeface(android.graphics.Typeface.DEFAULT_BOLD); speedValue.setMinWidth(dp(40 * controls()));
-            speedValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15 * controls());
-            speedValue.setPadding(dp(6 * controls()), 0, dp(6 * controls()), 0); keys.addView(speedValue);
-            holdKey(keys, "+", 0x4e).setContentDescription("Быстрее");
-            LinearLayout view=row();tools.addView(view);
-            action(view,"Рельеф",()->nativeCommand(0x20,0));action(view,"Масштаб",()->nativeCommand('Z',0));
-            TextView left=action(view,"↺",()->nativeCommand('X',0)),right=action(view,"↻",()->nativeCommand('C',0));
-            left.setContentDescription("Повернуть карту против часовой стрелки");
-            right.setContentDescription("Повернуть карту по часовой стрелке");
-            for(TextView turn:new TextView[]{left,right})turn.setTextSize(TypedValue.COMPLEX_UNIT_SP,21*controls());
-            if((controlState[0]&2)!=0)action(view,"Редактор…",this::editorCommands);
-            updateSpeed();
+        speedValue = null; displayedSpeed = -1;
+        groupWheel = placement("groups") == ControlLayout.SCREEN;
+        markerWheel = placement("markers") == ControlLayout.SCREEN;
+        int x = dp(12), y = dp(8), lineHeight = 0;
+        android.view.WindowInsets safeInsets = root.getRootWindowInsets();
+        if (safeInsets != null && safeInsets.getDisplayCutout() != null) x += safeInsets.getDisplayCutout().getSafeInsetLeft();
+        int startX = x;
+        for (String id : ControlLayout.IDS) {
+            boolean menuSwitch = "switch".equals(id) && (controlState[0] & 8) != 0 && !layoutPreferences().contains("control-switch");
+            if ((placement(id) != ControlLayout.SCREEN && !menuSwitch) || !availableCommand(id) ||
+                    "groups".equals(id) || "markers".equals(id) || "zoom_value".equals(id)) continue;
+            LinearLayout holder = row(); TextView view = command(holder, id); holder.removeView(view);
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            if (x > startX && x + view.getMeasuredWidth() > root.getWidth() - dp(12)) { x = startX; y += lineHeight + dp(4); lineHeight = 0; }
+            place(view, id, Gravity.TOP | Gravity.LEFT, x, y);
+            commandViews.put(id, view);
+            x += view.getMeasuredWidth() + dp(4); lineHeight = Math.max(lineHeight, view.getMeasuredHeight());
         }
+        updateSpeed();
         zoomIndicator = arrow(new TextView(this)); zoomIndicator.setTextColor(0xffffe08a);
         zoomIndicator.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17 * controls()); zoomIndicator.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         zoomIndicator.setGravity(Gravity.CENTER); zoomIndicator.setBackground(panel(0xd8101820)); zoomIndicator.setAlpha(Math.max(.5f, opacity));
@@ -681,54 +732,349 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             nativeTouch(SemanticTouchControls.ZOOM_RESET, 0, 0, 0, 0, 0, 1);
             haptic(HapticFeedbackConstants.VIRTUAL_KEY);
         });
-        root.addView(zoomIndicator,new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.LEFT));
-        displayedZoom = -1; updateZoomIndicator(); positionZoom();
-        place(tools, "tools", Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, dp(4));
-        mouseTools = row();
-        if (touchpad) {
-            mouseButton(mouseTools, "ЛКМ", 0); mouseButton(mouseTools, "ПКМ", 1);
-            place(mouseTools, "mouse", Gravity.TOP | Gravity.RIGHT, dp(4), dp(4));
+        FrameLayout.LayoutParams zoomBounds = new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.LEFT);
+        restoreControlSize(zoomIndicator, "zoom_value", zoomBounds); root.addView(zoomIndicator, zoomBounds);
+        commandViews.put("zoom_value", zoomIndicator);
+        displayedZoom = positionedZoom = -1; zoomAnchorX = zoomAnchorY = Float.NaN;
+        updateZoomIndicator(); positionZoom();
+        for (int i = 0; i < commandZones.length; i++) if (layoutEdit ||
+                ((controlState[0] & 1) != 0 && zoneEnabled(i))) {
+            CommandZoneView zone = new CommandZoneView(i); commandZones[i] = zone;
+            root.addView(zone,root.indexOfChild(touch)+1); zone.restoreBounds();
         }
-        switchButton = button("⇄  " + switchLabel());
-        switchButton.setContentDescription("Другая игра или лаунчер");
-        switchButton.setOnClickListener(v -> switchEdition());
-        switchButton.setVisibility((controlState[0] & 8) != 0 || layoutEdit ? View.VISIBLE : View.GONE);
-        place(switchButton, "switch", Gravity.TOP | Gravity.RIGHT, dp(12), dp(touchpad ? 60 : 12));
-        gamepadHint = button("Геймпад · раскладка\nSelect / Back");
-        gamepadHint.setContentDescription("Раскладка геймпада. Нажмите Select или Back на геймпаде");
-        gamepadHint.setOnClickListener(v -> showGamepadHelp());
-        gamepadHint.setVisibility(gamepadConnected && (controlState[0] & 8) != 0 ? View.VISIBLE : View.GONE);
-        FrameLayout.LayoutParams padHint = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.LEFT);
-        padHint.leftMargin = dp(12); padHint.topMargin = dp(12);
-        android.view.WindowInsets insets = root.getRootWindowInsets();
-        if (insets != null && insets.getDisplayCutout() != null) padHint.leftMargin += insets.getDisplayCutout().getSafeInsetLeft();
-        root.addView(gamepadHint, padHint);
         if (layoutEdit) {
             layoutEditor = new LayoutEditor(); root.addView(layoutEditor, new FrameLayout.LayoutParams(-1, -1));
-            editorBar = row(); editorBar.setBackground(panel(0xf0182029)); editorBar.setGravity(Gravity.CENTER_VERTICAL);
+            editorBar = column(); editorBar.setBackground(panel(0xf0182029));
             int padding = dp(8); editorBar.setPadding(padding, padding / 2, padding, padding / 2);
-            TextView label = new TextView(this); label.setText("Перетащите кнопки"); label.setTextColor(0xffffe08a);
-            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14); label.setPadding(dp(8), 0, dp(12), 0); editorBar.addView(label);
-            action(editorBar, "Сбросить", this::resetLayout); action(editorBar, "Готово", () -> editLayout(false));
-            /* Just above the HUD: the movable controls normally sit higher, over the map. */
-            FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-            p.bottomMargin = Math.max(dp(8), Math.round(root.getHeight() - hudPoint(0, 452)[1]) + dp(8));
-            root.addView(editorBar, p);
+            selectionLabel = new TextView(this); selectionLabel.setTextColor(0xffffe08a);
+            selectionLabel.setTextSize(13); selectionLabel.setPadding(dp(4),0,dp(4),dp(4)); editorBar.addView(selectionLabel);
+            sizeControls = column(); widthLabel = editorSizeLabel(sizeControls); widthSlider = editorSizeSlider(sizeControls, true);
+            heightLabel = editorSizeLabel(sizeControls); heightSlider = editorSizeSlider(sizeControls, false); editorBar.addView(sizeControls);
+            LinearLayout actions = row();
+            action(actions, "Кнопки", () -> SettingsActivity.controlChoices(this, layoutPreferences(), this::rebuildTools));
+            action(actions, "Действия зон", () -> new AlertDialog.Builder(this).setTitle("Боковые зоны")
+                    .setItems(new String[]{"Левая зона", "Правая зона"}, (dialog, side) ->
+                            SettingsActivity.zoneChoices(this, layoutPreferences(), side, this::rebuildTools))
+                    .setNegativeButton("Назад", null).show());
+            action(actions, "Сброс", this::confirmLayoutReset); action(actions, "Отмена", () -> finishLayout(false));
+            action(actions, "Сохранить", () -> finishLayout(true));
+            android.widget.HorizontalScrollView strip = new android.widget.HorizontalScrollView(this); strip.addView(actions); editorBar.addView(strip);
+            FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(Math.min(root.getWidth()-dp(16),dp(560)), -2, Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+            root.addView(editorBar, p); layoutEditor.post(layoutEditor::restoreSelection);
         }
         if (hint != null) hint.bringToFront();
         touch.invalidate();
     }
     private void editLayout(boolean enabled) {
         if (layoutEdit == enabled) return;
-        releaseControls(); layoutEdit = enabled;
-        if (enabled) showTools(true);
+        if (!enabled) { finishLayout(true); return; }
+        releaseControls(); selectedControl = null;
+        layoutDraft = getSharedPreferences("layout-draft-" + edition, MODE_PRIVATE);
+        copyPreferences(layoutDraft.edit().clear(), preferences.getAll()).commit();
+        layoutEdit = true; if (ready) nativePause(true);
         rebuildTools();
     }
-    /* The quick-command panel state is stored at once: the original "Quit"
-     * ends the process without an Android pause. */
-    private void showTools(boolean shown) {
-        extra = shown;
-        if (preferences != null) preferences.edit().putBoolean("extra", extra).apply();
+    private void finishLayout(boolean save) {
+        if (!layoutEdit) return;
+        if (save) {
+            SharedPreferences.Editor edit = preferences.edit();
+            for (String key : preferences.getAll().keySet()) if (ControlLayoutSnapshot.isLayoutKey(key)) edit.remove(key);
+            copyPreferences(edit, ControlLayoutSnapshot.capture(layoutDraft.getAll())).commit();
+        }
+        layoutEdit = false; layoutDraft.edit().clear().apply(); layoutDraft = null; selectedControl = null;
+        if (ready) {
+            nativePause(false); applyFilters();
+            nativeTouch(SemanticTouchControls.UI_SCALE,0,0,0,0,0,uiScale/100f);
+            nativeTouch(SemanticTouchControls.MODE,0,0,0,0,0,touchpad||mouseMode?0:1);
+        }
+        rebuildTools();
+    }
+    @SuppressWarnings("unchecked")
+    private static SharedPreferences.Editor copyPreferences(SharedPreferences.Editor edit, java.util.Map<String, ?> values) {
+        for (java.util.Map.Entry<String, ?> entry : values.entrySet()) {
+            String key = entry.getKey(); Object value = entry.getValue();
+            if (value instanceof Boolean) edit.putBoolean(key,(Boolean)value);
+            else if (value instanceof Integer) edit.putInt(key,(Integer)value);
+            else if (value instanceof Long) edit.putLong(key,(Long)value);
+            else if (value instanceof Float) edit.putFloat(key,(Float)value);
+            else if (value instanceof String) edit.putString(key,(String)value);
+            else if (value instanceof java.util.Set) edit.putStringSet(key,new java.util.HashSet<>((java.util.Set<String>)value));
+        }
+        return edit;
+    }
+    private void confirmLayoutReset() {
+        String[] choices = selectedControl == null ? new String[]{"Все кнопки и зоны"} : new String[]{"Выбранный элемент", "Все кнопки и зоны"};
+        new AlertDialog.Builder(this).setTitle("Сбросить в предпросмотре")
+                .setItems(choices,(dialog,index)->{
+                    if (selectedControl != null && index == 0) {
+                        SharedPreferences.Editor edit=layoutPreferences().edit();
+                        for(String key:layoutPreferences().getAll().keySet()) if(key.startsWith("pos-"+selectedControl+"-"))edit.remove(key);
+                        edit.apply(); rebuildTools();
+                    } else resetLayout();
+                }).setNegativeButton("Отмена",null).show();
+    }
+    private TextView editorSizeLabel(LinearLayout parent) {
+        TextView label = new TextView(this); label.setTextColor(0xffeeeeee); label.setTextSize(12); parent.addView(label); return label;
+    }
+    private SeekBar editorSizeSlider(LinearLayout parent, boolean width) {
+        SeekBar slider = new SeekBar(this); slider.setMax(100);
+        slider.setContentDescription(width?"Размер или ширина выбранного элемента":"Высота выбранной зоны");
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onStartTrackingTouch(SeekBar bar){}
+            public void onStopTrackingTouch(SeekBar bar){}
+            public void onProgressChanged(SeekBar bar,int progress,boolean user){
+                if(user&&!updatingSizes&&layoutEditor!=null)layoutEditor.sliderSize(width,progress);
+            }
+        });
+        parent.addView(slider,new LinearLayout.LayoutParams(-1,dp(30))); return slider;
+    }
+    private int placement(String id) { return SettingsActivity.controlPlacement(layoutPreferences(), id); }
+    private boolean availableCommand(String id) {
+        if ("gamepad_help".equals(id)) return gamepadConnected && ((controlState[0] & 8) != 0 || layoutEdit);
+        return !("editor".equals(id) || id.startsWith("editor_")) || (controlState[0] & 2) != 0;
+    }
+    private TextView command(LinearLayout row, String id) {
+        String label = ControlLayout.label(id); int scan = ControlLayout.scan(id);
+        if (scan != 0) {
+            if ("ctrl".equals(id) || "shift".equals(id)) return modifier(row, label, scan);
+            TextView view = holdKey(row, label, scan);
+            if ("slower".equals(id)) view.setContentDescription("Медленнее");
+            if ("faster".equals(id)) view.setContentDescription("Быстрее");
+            return view;
+        }
+        if ("lmb".equals(id) || "rmb".equals(id)) return mouseButton(row, label, "lmb".equals(id) ? 0 : 1);
+        if ("speed".equals(id)) {
+            speedValue = button(""); speedValue.setBackground(panel(0xf0101820)); speedValue.setTextColor(0xffffe08a);
+            speedValue.setTypeface(android.graphics.Typeface.DEFAULT_BOLD); row.addView(speedValue); return speedValue;
+        }
+        TextView view = action(row, "switch".equals(id) ? "⇄  " + switchLabel() : label, () -> {
+            dismissZoneCommands();
+            runCommand(id);
+        });
+        if ("rotate_left".equals(id)) view.setContentDescription("Повернуть карту против часовой стрелки");
+        if ("rotate_right".equals(id)) view.setContentDescription("Повернуть карту по часовой стрелке");
+        if ("groups".equals(id) || "markers".equals(id)) view.setOnLongClickListener(v -> {
+            dismissZoneCommands(); runCommand(id); wheelAssign = "markers".equals(id); touch.invalidate(); return true;
+        });
+        return view;
+    }
+    private void runCommand(String id) {
+        switch (id) {
+            case "menu": tapKey(0x01); break;
+            case "pause": tapKey(0x19); break;
+            case "text": showTextInput(); break;
+            case "settings": settings(); break;
+            case "layout": editLayout(true); break;
+            case "help": help(); break;
+            case "gamepad_help": showGamepadHelp(); break;
+            case "switch": switchEdition(); break;
+            case "relief": nativeCommand(0x20, 0); break;
+            case "zoom": nativeCommand('Z', 0); break;
+            case "rotate_left": nativeCommand('X', 0); break;
+            case "rotate_right": nativeCommand('C', 0); break;
+            case "editor": editorCommands(); break;
+            case "groups": case "markers":
+                openWheel("groups".equals(id) ? 1 : 2, touch.getWidth() / 2f, touch.getHeight() / 2f);
+                wheelPinned = true; root.removeCallbacks(wheelHold); break;
+            case "editor_pause": nativeCommand('H', 2); break;
+            case "editor_resources": nativeCommand(0xDE, 2); break;
+            case "editor_lord": nativeCommand('V', 2); break;
+            case "editor_type": nativeCommand(0xBC, 2); break;
+            case "editor_animals": nativeCommand('E', 2); break;
+            case "editor_seams": nativeCommand('D', 2); break;
+        }
+    }
+    private java.util.ArrayList<String> zoneIds(int side) {
+        java.util.ArrayList<String> ids = new java.util.ArrayList<>();
+        int place = side == 0 ? ControlLayout.LEFT_ZONE : side == 1 ? ControlLayout.RIGHT_ZONE : ControlLayout.BOOK_ZONE;
+        if (side == 2 && placement("layout") == place) ids.add("layout");
+        for (String id : ControlLayout.IDS) if (placement(id) == place && availableCommand(id) && !ids.contains(id)) ids.add(id);
+        return ids;
+    }
+    private boolean zoneEnabled(int side) {
+        java.util.Map<String, ?> values = layoutPreferences().getAll();
+        if (side < 2 && ControlLayout.zoneDirect(values, side)) {
+            String tap = ControlLayout.zoneAction(values, side, false), hold = ControlLayout.zoneAction(values, side, true);
+            return (!tap.isEmpty() && availableCommand(tap)) || (!hold.isEmpty() && availableCommand(hold));
+        }
+        return !zoneIds(side).isEmpty();
+    }
+    private void showBookCommands(float x, float y, boolean fromTouch) {
+        if (layoutEdit) return;
+        if (fromTouch && bookRequestSequence != semantic.sequence()) return;
+        if (bookZone == null) bookZone = new CommandZoneView(2);
+        int half = dp(24), left = Math.round(Math.max(0, Math.min(root.getWidth() - half * 2, x - half)));
+        int top = Math.round(Math.max(0, Math.min(root.getHeight() - half * 2, y - half)));
+        bookZone.layout(left, top, left + half * 2, top + half * 2);
+        stopGamepad(); gestures.cancel(); semantic.abort(); mouseGate.cancel();
+        root.removeCallbacks(longPress); root.removeCallbacks(classification);
+        showZoneCommands(bookZone);
+        if (fromTouch && touchFinger >= 0 && touchFinger == bookRequestFinger && touchBegan == bookRequestBegan && semantic.sequence() == bookRequestSequence) {
+            bookTakingInput = true;
+            if (openZone == bookZone) bookZone.beginSelection(touchFinger, touchBegan, touchStartX, touchStartY, touchX, touchY);
+        }
+    }
+    private void dismissZoneCommands() {
+        if (openZone != null) openZone.cancelGesture();
+        openZone = null;
+        if (zoneCommands == null) return;
+        root.removeView(zoneCommands); zoneCommands = null; zoneCommandViews.clear(); mouseGate.cancel();
+        for (int scan : new HashSet<Integer>(held)) if (scan != 0x1d && scan != 0x2a) setKey(scan, false);
+    }
+    private void showZoneCommands(CommandZoneView zone) {
+        if (openZone == zone && zoneCommands != null) { dismissZoneCommands(); return; }
+        dismissZoneCommands();
+        java.util.ArrayList<String> ids = zoneIds(zone.side);
+        if (ids.isEmpty()) return;
+        openZone = zone; zoneCommands = column(); zoneCommands.setBackground(panel(0xf0182029));
+        LinearLayout content = column();
+        int width = Math.max(dp(80), Math.min(root.getWidth() - dp(16), Math.round(root.getWidth() * .65f)));
+        for (String id : ids) {
+            TextView item = command(content, id);
+            if (zone.side == 2 && "layout".equals(id)) item.setText("Настроить управление");
+            if (zone.side == 2 && "menu".equals(id)) item.setText("Меню паузы");
+            LinearLayout.LayoutParams margins = (LinearLayout.LayoutParams)item.getLayoutParams();
+            margins.width = LinearLayout.LayoutParams.MATCH_PARENT; item.setLayoutParams(margins);
+            item.setMaxWidth(width - margins.leftMargin - margins.rightMargin);
+            zoneCommandViews.add(item);
+        }
+        content.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED);
+        TextView first = zoneCommandViews.get(0);
+        LinearLayout.LayoutParams firstMargins = (LinearLayout.LayoutParams)first.getLayoutParams();
+        float[] band = TouchLayoutGeometry.commandPopupBand(zone.getY(), zone.getY() + zone.getHeight(),
+                content.getMeasuredHeight(), first.getMeasuredHeight() + firstMargins.topMargin + firstMargins.bottomMargin,
+                root.getHeight(), dp(4));
+        ScrollView scroll = new ScrollView(this); scroll.addView(content);
+        zoneCommands.addView(scroll, new LinearLayout.LayoutParams(-2, (int)band[1]));
+        zoneCommands.measure(View.MeasureSpec.makeMeasureSpec(root.getWidth() - dp(16), View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(Math.max(0, root.getHeight() - dp(8)), View.MeasureSpec.AT_MOST));
+        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.LEFT);
+        p.leftMargin = Math.round(Math.max(dp(4), Math.min(root.getWidth() - zoneCommands.getMeasuredWidth() - dp(4),
+                zone.side == 0 ? zone.getX() : zone.getX() + zone.getWidth() - zoneCommands.getMeasuredWidth())));
+        p.topMargin = Math.round(band[0]);
+        root.addView(zoneCommands, p);
+    }
+    private int zoneCommandAt(float x, float y) {
+        int[] location = new int[2]; root.getLocationOnScreen(location);
+        android.graphics.Rect visible = new android.graphics.Rect();
+        for (int i = 0; i < zoneCommandViews.size(); i++)
+            if (zoneCommandViews.get(i).getGlobalVisibleRect(visible) && visible.contains(Math.round(x) + location[0], Math.round(y) + location[1])) return i;
+        return -1;
+    }
+    private void selectZoneCommand(int selected) {
+        for (int i = 0; i < zoneCommandViews.size(); i++) {
+            TextView item = zoneCommandViews.get(i); item.setPressed(i == selected);
+            item.setForeground(i == selected ? panel(0x88ffd45b) : null);
+        }
+    }
+    private final class CommandZoneView extends View {
+        final int side; final String key;
+        final CommandZoneGesture selection = new CommandZoneGesture();
+        final CommandZoneDirectGesture direct = new CommandZoneDirectGesture(ViewConfiguration.get(GameActivity.this).getScaledTouchSlop());
+        float fingerX, fingerY, downX, downY; int finger; boolean dragged, directMode;
+        final Runnable hold = () -> {
+            if (directMode) { if (direct.hold(SystemClock.uptimeMillis())) fireDirectAction(true); }
+            else updateSelection(SystemClock.uptimeMillis());
+        };
+        CommandZoneView(int side) {
+            super(GameActivity.this); this.side = side; key = side == 0 ? "zone_left" : "zone_right"; arrow(this);
+            setContentDescription((side == 0 ? "Левая" : "Правая") + " зона команд: нажмите, чтобы показать или скрыть; удерживайте и выберите жестом");
+            if (side < 2 && ControlLayout.zoneDirect(layoutPreferences().getAll(), side)) {
+                String tap = ControlLayout.zoneAction(layoutPreferences().getAll(), side, false), hold = ControlLayout.zoneAction(layoutPreferences().getAll(), side, true);
+                setContentDescription((side == 0 ? "Левая" : "Правая") + " зона команд. Тап: " + (tap.isEmpty() ? "Ничего" : ControlLayout.label(tap)) +
+                        "; удержание: " + (hold.isEmpty() ? "Ничего" : ControlLayout.label(hold)));
+            }
+            setOnClickListener(view -> {
+                if (side < 2 && ControlLayout.zoneDirect(layoutPreferences().getAll(), side)) fireDirectAction(false);
+                else showZoneCommands(this);
+            });
+        }
+        void restoreBounds() {
+            float[] position = saved(key), left = hudPoint(-80, 452), right = hudPoint(880, 452);
+            float width = Math.max(dp(24), side == 0 ? left[0] : root.getWidth() - right[0]);
+            float height = Math.max(dp(24), root.getHeight() - left[1]);
+            width = layoutPreferences().getFloat("pos-" + key + "-w", width / Math.max(1, root.getWidth())) * root.getWidth();
+            height = layoutPreferences().getFloat("pos-" + key + "-h", height / Math.max(1, root.getHeight())) * root.getHeight();
+            bounds(position == null ? side == 0 ? 0 : root.getWidth() - width : position[0] * root.getWidth(),
+                    position == null ? left[1] : position[1] * root.getHeight(), width, height);
+        }
+        void bounds(float x, float y, float width, float height) {
+            int w = Math.round(Math.max(dp(24), Math.min(root.getWidth(), Float.isFinite(width) ? width : dp(24))));
+            int h = Math.round(Math.max(dp(24), Math.min(root.getHeight(), Float.isFinite(height) ? height : dp(24))));
+            FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(w, h, Gravity.TOP | Gravity.LEFT);
+            p.leftMargin = Math.round(Math.max(0, Math.min(root.getWidth() - w, x)));
+            p.topMargin = Math.round(Math.max(0, Math.min(root.getHeight() - h, y))); setLayoutParams(p);
+        }
+        void persistBounds() {
+            if (root.getWidth() <= 0 || root.getHeight() <= 0) return;
+            FrameLayout.LayoutParams p = (FrameLayout.LayoutParams)getLayoutParams();
+            layoutPreferences().edit().putFloat("pos-" + key + "-x", (float)p.leftMargin / root.getWidth())
+                    .putFloat("pos-" + key + "-y", (float)p.topMargin / root.getHeight())
+                    .putFloat("pos-" + key + "-w", (float)p.width / root.getWidth())
+                    .putFloat("pos-" + key + "-h", (float)p.height / root.getHeight()).apply();
+        }
+        void cancelGesture() { root.removeCallbacks(hold); selection.cancel(); direct.cancel(); selectZoneCommand(-1); }
+        void beginSelection(int pointer, long time, float startX, float startY, float x, float y) {
+            directMode = false; finger = pointer; selection.begin(pointer, time);
+            downX = startX; downY = startY; fingerX = x; fingerY = y; dragged = false;
+        }
+        void fireDirectAction(boolean heldAction) {
+            String id = ControlLayout.zoneAction(layoutPreferences().getAll(), side, heldAction);
+            if (id.isEmpty() || !availableCommand(id)) return;
+            haptic(heldAction ? HapticFeedbackConstants.LONG_PRESS : HapticFeedbackConstants.VIRTUAL_KEY);
+            command(row(), id).performClick();
+        }
+        void updateSelection(long time) {
+            if (selection.move(finger, time, dragged ? zoneCommandAt(fingerX, fingerY) : -1)) {
+                selectZoneCommand(selection.selected()); haptic(HapticFeedbackConstants.CLOCK_TICK);
+            }
+        }
+        @Override public boolean onTouchEvent(MotionEvent event) {
+            return handleGesture(event, getX() + event.getX(), getY() + event.getY());
+        }
+        boolean handleGesture(MotionEvent event, float x, float y) {
+            int action = event.getActionMasked();
+            fingerX = x; fingerY = y;
+            if (action == MotionEvent.ACTION_DOWN) {
+                if (!zoneEnabled(side)) return false;
+                stopGamepad();
+                if (!HardwareInput.isMouse(event.getSource(), event.getToolType(0))) useMouse(false);
+                directMode = side < 2 && ControlLayout.zoneDirect(layoutPreferences().getAll(), side);
+                if (directMode) {
+                    dismissZoneCommands();
+                    finger = event.getPointerId(0); direct.begin(finger, x, y, event.getEventTime());
+                } else {
+                    showZoneCommands(this);
+                    if (openZone != this || zoneCommands == null) return true;
+                    beginSelection(event.getPointerId(0), event.getEventTime(), x, y, x, y);
+                }
+                root.postDelayed(hold, CommandZoneGesture.HOLD_MS); return true;
+            }
+            if (action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_CANCEL) {
+                cancelGesture(); dismissZoneCommands(); return true;
+            }
+            if (directMode) {
+                if (action == MotionEvent.ACTION_MOVE) {
+                    direct.move(finger, x, y); if (!direct.active()) root.removeCallbacks(hold);
+                } else if (action == MotionEvent.ACTION_UP) {
+                    root.removeCallbacks(hold);
+                    int chosen = direct.end(event.getPointerId(0), x, y, event.getEventTime());
+                    if (chosen != CommandZoneDirectGesture.NONE) fireDirectAction(chosen == CommandZoneDirectGesture.HOLD);
+                }
+                return true;
+            }
+            if (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP)
+                dragged |= Math.hypot(fingerX - downX, fingerY - downY) > ViewConfiguration.get(GameActivity.this).getScaledTouchSlop();
+            if (action == MotionEvent.ACTION_MOVE) updateSelection(event.getEventTime());
+            if (action == MotionEvent.ACTION_UP) {
+                root.removeCallbacks(hold); boolean held = selection.held(event.getEventTime());
+                int chosen = selection.end(event.getPointerId(0), event.getEventTime(), dragged ? zoneCommandAt(fingerX, fingerY) : -1);
+                TextView item = chosen >= 0 && chosen < zoneCommandViews.size() ? zoneCommandViews.get(chosen) : null;
+                if (held && (side != 2 || dragged)) dismissZoneCommands();
+                if (item != null) item.performClick();
+            }
+            return true;
+        }
     }
     private void hint(String text) {
         if (hint == null) {
@@ -757,7 +1103,6 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 .setNegativeButton("Остаться", null).setOnDismissListener(dialog -> immersive()).show();
     }
     private void launchEdition(String other) {
-        if (preferences != null) preferences.edit().putBoolean("extra", extra).commit();
         GameFiles.pending(getFilesDir(), edition).delete();
         startActivity(new Intent(this, LauncherActivity.class).putExtra("edition", other).putExtra("launchGame", true)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
@@ -778,21 +1123,36 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     /* The value sits over the radar's top-right corner; its right edge stays there for any width. */
     private void positionZoom() {
         if(zoomIndicator==null||touch==null)return;
-        float[] point=hudPoint((controlState[0]&2)!=0?791:697,465);
-        zoomIndicator.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        zoomIndicator.setX(Math.max(0,point[0]-zoomIndicator.getMeasuredWidth()));
-        zoomIndicator.setY(Math.max(0,point[1]-zoomIndicator.getMeasuredHeight()-dp(4)));
+        if (zoomIndicator.getVisibility() != View.VISIBLE) return;
+        if (layoutEdit && layoutEditor != null && layoutEditor.dragged == zoomIndicator) return;
+        float[] position = saved("zoom_value");
+        boolean pinned = position != null;
+        float[] point = pinned ? new float[]{position[0] * root.getWidth(), position[1] * root.getHeight()} :
+                hudPoint((controlState[0]&2)!=0?791:697,465);
+        if (zoomPinned == pinned && zoomAnchorX == point[0] && zoomAnchorY == point[1] && positionedZoom == displayedZoom) return;
+        zoomPinned = pinned; zoomAnchorX = point[0]; zoomAnchorY = point[1]; positionedZoom = displayedZoom;
+        FrameLayout.LayoutParams bounds=(FrameLayout.LayoutParams)zoomIndicator.getLayoutParams();
+        zoomIndicator.measure(bounds.width>0?View.MeasureSpec.makeMeasureSpec(bounds.width,View.MeasureSpec.EXACTLY):View.MeasureSpec.UNSPECIFIED,
+                bounds.height>0?View.MeasureSpec.makeMeasureSpec(bounds.height,View.MeasureSpec.EXACTLY):View.MeasureSpec.UNSPECIFIED);
+        float left = Math.max(0, pinned ? Math.min(root.getWidth() - zoomIndicator.getMeasuredWidth(), point[0]) : point[0] - zoomIndicator.getMeasuredWidth());
+        float top = Math.max(0, pinned ? Math.min(root.getHeight() - zoomIndicator.getMeasuredHeight(), point[1]) : point[1] - zoomIndicator.getMeasuredHeight() - dp(4));
+        if (zoomIndicator.getX() != left) zoomIndicator.setX(left);
+        if (zoomIndicator.getY() != top) zoomIndicator.setY(top);
     }
     private void editorCommands() {
         String[] names={"Пауза / продолжить","Налоги, деньги и рацион","Восстановить лорда","Тип карты","Удалить животных","Швы местности"};
         int[] keys={'H',0xDE,'V',0xBC,'E','D'};
         new AlertDialog.Builder(this).setTitle("Редактор карты").setItems(names,(d,n)->nativeCommand(keys[n],2)).setNegativeButton("Закрыть",null).show();
     }
-    private void modifier(LinearLayout row, String label, int scan) {
+    private TextView modifier(LinearLayout row, String label, int scan) {
         TextView v = action(row, label, () -> {});
         v.setSelected(held.contains(scan)); ((GradientDrawable)v.getBackground()).setColor(held.contains(scan) ? 0xf080552a : 0xf029333e);
-        v.setOnClickListener(ignored -> { setKey(scan, !held.contains(scan)); rebuildTools(); });
+        v.setOnClickListener(ignored -> {
+            setKey(scan, !held.contains(scan)); v.setSelected(held.contains(scan));
+            ((GradientDrawable)v.getBackground()).setColor(held.contains(scan) ? 0xf080552a : 0xf029333e);
+        });
         v.setContentDescription(label + ": нажмите для удержания, повторно для отпускания");
+        return v;
     }
     private TextView holdKey(LinearLayout row, String title, int scan) {
         TextView v = action(row, title, () -> tapKey(scan));
@@ -809,7 +1169,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         });
         return v;
     }
-    private void mouseButton(LinearLayout row, String title, int button) {
+    private TextView mouseButton(LinearLayout row, String title, int button) {
         TextView v = action(row, title, () -> { gestures.syncCursor(); clickMouse(button); });
         v.setContentDescription(title + ": удерживайте и двигайте курсор другим пальцем");
         v.setOnTouchListener((view, event) -> {
@@ -818,6 +1178,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             else if (a == MotionEvent.ACTION_UP || a == MotionEvent.ACTION_CANCEL) { mouseGate.hold(button, false); v.setAlpha(opacity); }
             return true;
         });
+        return v;
     }
     private void setKey(int scan, boolean down) {
         if (ready && (down ? held.add(scan) : held.remove(scan)))
@@ -825,8 +1186,12 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     private void tapKey(int scan) { setKey(scan, true); root.postDelayed(() -> setKey(scan, false), 90); }
     private void clickMouse(int button) { mouseGate.click(button); }
-    /* Touch gestures, the touchpad cursor's buttons and the radial menus. */
+    /* Touch gestures, touchpad buttons and the group/marker wheels. */
     private void releaseTouch() {
+        bookRequest = bookTakingInput = bookSwallow = false; touchFinger = -1;
+        dismissZoneCommands();
+        for (CommandZoneView zone : commandZones) if (zone != null) zone.cancelGesture();
+        if (bookZone != null) bookZone.cancelGesture();
         root.removeCallbacks(longPress); if (gestures != null) gestures.cancel(); mouseGate.cancel();
         root.removeCallbacks(classification); if (semantic != null) semantic.abort();
         root.removeCallbacks(wheelHold);wheel=0;wheelSector=-1;
@@ -905,6 +1270,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         return range == null ? 0 : GamepadControls.axis(event.getAxisValue(axis), range.getFlat());
     }
     @Override public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if (layoutEdit) return super.dispatchGenericMotionEvent(event);
         if (!started || !event.isFromSource(InputDevice.SOURCE_JOYSTICK) || event.getActionMasked() != MotionEvent.ACTION_MOVE ||
                 !controller(event.getDevice()) || !hasWindowFocus()) return super.dispatchGenericMotionEvent(event);
         if (!claimGamepad(event.getDeviceId())) return true;
@@ -941,7 +1307,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         LinearLayout columns = row(); columns.setPadding(dp(20), dp(4), dp(20), dp(4));
         String[] text = {
             "Левый стик — курсор\nПравый стик — камера\nA / B — ЛКМ / ПКМ (можно удерживать)\nX — рельеф · Y — пауза\nLB / RB — масштаб / прокрутка списка\nLT — точное наведение · RT — Shift\nКрестовина ↑ / ↓ — скорость\nКрестовина ← / → — поворот карты\nL3 — масштаб 100% · R3 — замок (F1)\nStart — меню · Select / Back — раскладка",
-            "Удерживайте Select для комбинаций:\n↑ → ↓ ← — отряды 1–4\nA B X Y — отряды 5–8 · LB — отряд 9\nДобавьте RT — записать отряд\nДобавьте LT — точки карты 1–9\nLT + RT — записать точку карты\nRB — цвета радара · L3 — панель команд\nR3 — клавиатура · Start — настройки\n\nКурсор скрывается через 30 с бездействия.\nЗакрыть: A, B, Start или Select."
+            "Удерживайте Select для комбинаций:\n↑ → ↓ ← — отряды 1–4\nA B X Y — отряды 5–8 · LB — отряд 9\nДобавьте RT — записать отряд\nДобавьте LT — точки карты 1–9\nLT + RT — записать точку карты\nRB — цвета радара · L3 — команды книги\nR3 — клавиатура · Start — настройки\n\nКурсор скрывается через 30 с бездействия.\nЗакрыть: A, B, Start или Select."
         };
         for (String value : text) {
             TextView column = Theme.text(this, value, 13, Theme.TEXT, false);
@@ -1048,7 +1414,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (action == MotionEvent.ACTION_HOVER_ENTER && !mouseMode) return true;
         stopGamepad();
         useMouse(true);
-        /* The radial menus keep working with left clicks; any other button closes them. */
+        /* Group and marker wheels accept left clicks; any other button closes them. */
         if (wheel != 0 || (action == MotionEvent.ACTION_DOWN && (state & HardwareInput.LEFT) != 0 && overWheelButton(x, y))) {
             if ((state & ~HardwareInput.LEFT & 7) != 0) { wheel = 0; root.removeCallbacks(wheelHold); touch.invalidate(); }
             else if (action != MotionEvent.ACTION_HOVER_MOVE && action != MotionEvent.ACTION_HOVER_ENTER &&
@@ -1095,21 +1461,28 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     /* An Android control of ours under a view point (the pointer moved onto it). */
     private boolean overControl(float x, float y) {
-        for (View v : new View[] {tools, mouseTools, switchButton, zoomIndicator, editorBar, hint, layoutEditor, gamepadHint})
-            if (v != null && v.getParent() == root && v.getVisibility() == View.VISIBLE && v.getWidth() > 0 &&
-                x >= v.getX() && x < v.getX() + v.getWidth() && y >= v.getY() && y < v.getY() + v.getHeight()) return true;
+        for (View v : commandViews.values()) if (overControl(v, x, y)) return true;
+        for (CommandZoneView zone : commandZones) if (zone != null && CommandZoneGesture.contains(zoneEnabled(zone.side),
+                zone.getX(), zone.getY(), zone.getWidth(), zone.getHeight(), x, y)) return true;
+        if (overControl(editorBar, x, y) || overControl(hint, x, y) || overControl(layoutEditor, x, y) ||
+                overControl(zoneCommands, x, y)) return true;
         return false;
+    }
+    private boolean overControl(View view, float x, float y) {
+        return view != null && view.getParent() == root && view.getVisibility() == View.VISIBLE && view.getWidth() > 0 &&
+                x >= view.getX() && x < view.getX() + view.getWidth() && y >= view.getY() && y < view.getY() + view.getHeight();
     }
     private boolean overWheelButton(float x, float y) {
         if ((controlState[0] & 1) == 0) return false;
         for (int kind = 1; kind <= 2; kind++) if ((kind == 1 ? groupWheel : markerWheel) &&
-                Math.hypot(x - wheelButtonX(kind), y - wheelButtonY(kind)) <= wheelButtonRadius() + dp(2)) return true;
+                Math.hypot(x - wheelButtonX(kind), y - wheelButtonY(kind)) <= wheelButtonRadius(kind) + dp(2)) return true;
         return false;
     }
     /* Physical keys enter the game as its own DirectInput keys, with Android's
      * auto-repeat like Windows'. Volume and other system keys stay with Android;
      * a BACK key (remote, gamepad) still opens the game menu through onBackPressed. */
     @Override public boolean dispatchKeyEvent(KeyEvent e) {
+        if (layoutEdit) return super.dispatchKeyEvent(e);
         int code = e.getKeyCode();
         if (started && hasWindowFocus() && controller(e.getDevice()) && GamepadControls.handles(code)) {
             if (!claimGamepad(e.getDeviceId())) return true;
@@ -1130,13 +1503,29 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private boolean pointer(MotionEvent e) {
         int action = e.getActionMasked(); long time = e.getEventTime();
         if (HardwareInput.isMouse(e.getSource(), e.getToolType(0))) return mouseEvent(e);
-        if (action == MotionEvent.ACTION_DOWN) stopGamepad();
         if (mouseMode && action == MotionEvent.ACTION_DOWN) useMouse(false);
+        if (action == MotionEvent.ACTION_DOWN) {
+            stopGamepad(); bookRequest = false; bookSwallow = false; bookTakingInput = false;
+            touchFinger = e.getPointerId(0); touchBegan = time;
+            touchStartX = e.getX(); touchStartY = e.getY();
+        }
+        touchX = e.getX(); touchY = e.getY();
+        if (action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_CANCEL) bookRequest = false;
         boolean handled = touchPointer(e, action, time);
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) touchFinger = -1;
         updateMagnifier();
         return handled;
     }
     private boolean touchPointer(MotionEvent e, int action, long time) {
+        if (bookTakingInput) {
+            bookZone.handleGesture(e, e.getX(), e.getY());
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL ||
+                    action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_POINTER_UP) {
+                bookTakingInput = false; bookSwallow = action != MotionEvent.ACTION_UP;
+            }
+            return true;
+        }
+        if (bookSwallow) return true;
         if(wheelPointer(e))return true;
         if (!touchpad) {
             if (action == MotionEvent.ACTION_DOWN) {
@@ -1177,7 +1566,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         } else if (action == MotionEvent.ACTION_CANCEL) { root.removeCallbacks(longPress); gestures.cancel(); mouseGate.cancel(); }
         return true;
     }
-    private float wheelButtonRadius() { return dp(25 * controls()); }
+    private float wheelButtonRadius(int kind) {
+        float size=layoutPreferences().getFloat("pos-wheel"+kind+"-h",Float.NaN);
+        return Float.isFinite(size)&&size>0?Math.max(dp(18),Math.min(touch.getHeight()/2f,size*touch.getHeight()/2f)):dp(25*controls());
+    }
     private float wheelButtonX(int kind) {
         float[] position = saved("wheel" + kind);
         return position != null ? position[0] * touch.getWidth() : dp((kind == 1 ? 34 : 96) * controls());
@@ -1208,7 +1600,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if(wheel==0) {
             if(action!=MotionEvent.ACTION_DOWN||(controlState[0]&1)==0)return false;
             for(int kind=1;kind<=2;kind++)if((kind==1?groupWheel:markerWheel)&&
-                    Math.hypot(x-wheelButtonX(kind),y-wheelButtonY(kind))<=wheelButtonRadius()+dp(2)) {openWheel(kind,x,y);return true;}
+                    Math.hypot(x-wheelButtonX(kind),y-wheelButtonY(kind))<=wheelButtonRadius(kind)+dp(2)) {openWheel(kind,x,y);return true;}
             return false;
         }
         if(action==MotionEvent.ACTION_CANCEL||action==MotionEvent.ACTION_POINTER_DOWN) {
@@ -1232,65 +1624,199 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         }
         touch.invalidate();return true;
     }
-    /* Drag mode for the Android controls: the game receives no touches meanwhile. */
+    /* The game is paused; only the draft receives layout changes until Save. */
     private final class LayoutEditor extends View {
         private final Paint pen = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private View dragged; private String draggedKey; private int draggedWheel;
-        private float grabX, grabY, lastLeft, lastTop;
-        LayoutEditor() { super(GameActivity.this); setContentDescription("Расположение кнопок: перетащите элементы"); arrow(this); }
-        private View[] views() { return new View[] {tools, mouseTools, switchButton}; }
-        private String key(View view) { return view == tools ? "tools" : view == mouseTools ? "mouse" : "switch"; }
-        private boolean shown(View view) { return view != null && view.getParent() == root && view.getVisibility() == VISIBLE && view.getWidth() > 0; }
+        private View dragged;
+        private int pointer=-1, second=-1;
+        private float grabX,grabY,pinchX,pinchY,pinchDistance;
+        private boolean resizing,changedGesture;
+        private float downX,downY;
+        private String gestureKey;
+        private java.util.Map<String,Object> gesturePositions;
+        private TouchLayoutGeometry.Rect gestureBefore,pinchBefore;
+        LayoutEditor() { super(GameActivity.this); setContentDescription("Редактор расположения: выберите и перетащите элемент, размер — двумя пальцами"); arrow(this); }
+        private View selectedView() {
+            if("zone_left".equals(selectedControl))return commandZones[0];
+            if("zone_right".equals(selectedControl))return commandZones[1];
+            return commandViews.get(selectedControl);
+        }
+        private int selectedWheel() { return "wheel1".equals(selectedControl)?1:"wheel2".equals(selectedControl)?2:0; }
+        private boolean zone() { return "zone_left".equals(selectedControl)||"zone_right".equals(selectedControl); }
+        private boolean shown(View v) { return v!=null&&v.getParent()==root&&v.getVisibility()==VISIBLE&&v.getWidth()>0; }
+        private TouchLayoutGeometry.Rect rect(View v) {
+            FrameLayout.LayoutParams p=(FrameLayout.LayoutParams)v.getLayoutParams();
+            boolean absolute=p.gravity==(Gravity.TOP|Gravity.LEFT);
+            return new TouchLayoutGeometry.Rect(absolute?p.leftMargin+v.getTranslationX():v.getX(),
+                    absolute?p.topMargin+v.getTranslationY():v.getY(),p.width>0?p.width:v.getWidth(),p.height>0?p.height:v.getHeight());
+        }
+        private TouchLayoutGeometry.Rect selectionRect() {
+            int kind=selectedWheel();
+            if(kind!=0){float r=wheelButtonRadius(kind);return new TouchLayoutGeometry.Rect(wheelButtonX(kind)-r,wheelButtonY(kind)-r,r*2,r*2);}
+            View v=selectedView();return shown(v)?rect(v):null;
+        }
+        private boolean contains(TouchLayoutGeometry.Rect r,float x,float y,float margin) {
+            return r!=null&&x>=r.left-margin&&y>=r.top-margin&&x<r.left+r.width+margin&&y<r.top+r.height+margin;
+        }
+        private void applyRect(TouchLayoutGeometry.Rect value) {
+            if(selectedControl==null)return;
+            TouchLayoutGeometry.Rect r=TouchLayoutGeometry.fit(value.left,value.top,value.width,value.height,getWidth(),getHeight(),dp(zone()?24:36));
+            int kind=selectedWheel();
+            if(kind!=0){
+                float diameter=Math.min(r.width,r.height),cx=r.left+r.width/2,cy=r.top+r.height/2;
+                save(selectedControl,cx/getWidth(),cy/getHeight());
+                layoutPreferences().edit().putFloat("pos-"+selectedControl+"-h",diameter/getHeight()).apply();touch.invalidate();
+            }else{
+                View view=selectedView();if(view==null)return;
+                if(view instanceof CommandZoneView){((CommandZoneView)view).bounds(r.left,r.top,r.width,r.height);((CommandZoneView)view).persistBounds();}
+                else{
+                    view.setTranslationX(0);view.setTranslationY(0);
+                    FrameLayout.LayoutParams p=new FrameLayout.LayoutParams(Math.round(r.width),Math.round(r.height),Gravity.TOP|Gravity.LEFT);
+                    p.leftMargin=Math.round(r.left);p.topMargin=Math.round(r.top);view.setLayoutParams(p);
+                    fitControlText(view,selectedControl,Math.round(r.height));
+                    save(selectedControl,r.left/getWidth(),r.top/getHeight());
+                    layoutPreferences().edit().putFloat("pos-"+selectedControl+"-w",r.width/getWidth())
+                            .putFloat("pos-"+selectedControl+"-h",r.height/getHeight()).apply();
+                }
+            }
+            invalidate();
+        }
+        void restoreSelection() {
+            if(selectionRect()==null)selectedControl=null;
+            updateSizes();positionTools();invalidate();
+        }
+        private void updateSizes() {
+            TouchLayoutGeometry.Rect r=selectionRect();updatingSizes=true;
+            selectionLabel.setText(r==null?"Выберите элемент. Перетаскивайте; размер — щипком или ползунком.":
+                    zone()?("zone_left".equals(selectedControl)?"Левая зона":"Правая зона"):
+                    selectedWheel()!=0?(selectedWheel()==1?"Отряд":"Точки"):ControlLayout.label(selectedControl));
+            sizeControls.setVisibility(r==null?GONE:VISIBLE);
+            if(r!=null){
+                float density=getResources().getDisplayMetrics().density;
+                widthLabel.setText(zone()?"Ширина: "+Math.round(r.width/getWidth()*100)+"%":"Размер: "+Math.round(r.height/density)+" dp");
+                widthSlider.setProgress(Math.round(zone()?(r.width-dp(24))/Math.max(1,getWidth()-dp(24))*100:
+                        (r.height/density-36)/92*100));
+                heightLabel.setVisibility(zone()?VISIBLE:GONE);heightSlider.setVisibility(zone()?VISIBLE:GONE);
+                heightLabel.setText("Высота: "+Math.round(r.height/getHeight()*100)+"%");
+                heightSlider.setProgress(Math.round((r.height-dp(24))/Math.max(1,getHeight()-dp(24))*100));
+            }
+            updatingSizes=false;
+        }
+        void sliderSize(boolean width,int progress) {
+            TouchLayoutGeometry.Rect r=selectionRect();if(r==null)return;
+            float w=r.width,h=r.height;
+            if(zone()){if(width)w=dp(24)+(getWidth()-dp(24))*progress/100f;else h=dp(24)+(getHeight()-dp(24))*progress/100f;}
+            else{h=dp(36+92*progress/100f);w=r.width*h/r.height;}
+            applyRect(TouchLayoutGeometry.scaleAboutCenter(r,w/r.width,h/r.height,getWidth(),getHeight(),dp(zone()?24:36)));
+            updateSizes();positionTools();
+        }
+        private void positionTools() {
+            if(editorBar==null)return;
+            editorBar.post(()->{
+                if(!layoutEdit||editorBar==null||layoutEditor!=this)return;
+                TouchLayoutGeometry.Rect r=selectionRect();float top=r==null?getHeight():r.top,bottom=r==null?getHeight():r.top+r.height;
+                FrameLayout.LayoutParams p=(FrameLayout.LayoutParams)editorBar.getLayoutParams();
+                int next=Math.round(TouchLayoutGeometry.chooseToolbarTop(top,bottom,editorBar.getHeight(),getHeight(),dp(8)));
+                if(p.topMargin!=next){p.topMargin=next;editorBar.setLayoutParams(p);}
+            });
+        }
         @Override protected void onDraw(Canvas canvas) {
-            canvas.drawColor(0x66000000);
-            pen.setStyle(Paint.Style.STROKE); pen.setStrokeWidth(dp(2)); pen.setColor(0xffffd45b);
-            pen.setPathEffect(new DashPathEffect(new float[] {dp(7), dp(5)}, 0));
-            for (View view : views()) if (shown(view))
-                canvas.drawRect(view.getLeft() - dp(3), view.getTop() - dp(3), view.getRight() + dp(3), view.getBottom() + dp(3), pen);
-            for (int kind = 1; kind <= 2; kind++) if (kind == 1 ? groupWheel : markerWheel)
-                canvas.drawCircle(wheelButtonX(kind), wheelButtonY(kind), wheelButtonRadius() + dp(4), pen);
+            canvas.drawColor(0x66000000);pen.setStyle(Paint.Style.STROKE);pen.setStrokeWidth(dp(1));pen.setColor(0xffbd9f67);
+            pen.setPathEffect(new DashPathEffect(new float[]{dp(6),dp(4)},0));
+            for(View v:commandViews.values())if(shown(v))canvas.drawRect(v.getX(),v.getY(),v.getX()+v.getWidth(),v.getY()+v.getHeight(),pen);
+            for(int kind=1;kind<=2;kind++)if(kind==1?groupWheel:markerWheel)canvas.drawCircle(wheelButtonX(kind),wheelButtonY(kind),wheelButtonRadius(kind),pen);
             pen.setPathEffect(null);
+            for(CommandZoneView v:commandZones)if(v!=null){
+                pen.setStyle(Paint.Style.FILL);pen.setColor(0x3342a5f5);canvas.drawRect(v.getX(),v.getY(),v.getX()+v.getWidth(),v.getY()+v.getHeight(),pen);
+                pen.setStyle(Paint.Style.STROKE);pen.setColor(0xffbd9f67);canvas.drawRect(v.getX(),v.getY(),v.getX()+v.getWidth(),v.getY()+v.getHeight(),pen);
+                pen.setStyle(Paint.Style.FILL);pen.setTextSize(dp(12));pen.setTextAlign(Paint.Align.LEFT);
+                canvas.drawText(v.side==0?"Левая зона":"Правая зона",v.getX()+dp(4),v.getY()+dp(16),pen);
+            }
+            TouchLayoutGeometry.Rect r=selectionRect();if(r!=null){
+                pen.setStyle(Paint.Style.STROKE);pen.setStrokeWidth(dp(3));pen.setColor(0xffffd45b);
+                canvas.drawRect(r.left-dp(2),r.top-dp(2),r.left+r.width+dp(2),r.top+r.height+dp(2),pen);
+                pen.setStyle(Paint.Style.FILL);canvas.drawRect(r.left+r.width-dp(22),r.top+r.height-dp(22),r.left+r.width,r.top+r.height,pen);
+            }
+        }
+        private String hit(float x,float y) {
+            if(!zone()&&contains(selectionRect(),x,y,dp(5)))return selectedControl;
+            String found=null;
+            for(java.util.Map.Entry<String,View> e:commandViews.entrySet())if(shown(e.getValue())&&contains(rect(e.getValue()),x,y,dp(5)))found=e.getKey();
+            if(found!=null)return found;
+            for(int kind=1;kind<=2;kind++)if((kind==1?groupWheel:markerWheel)&&Math.hypot(x-wheelButtonX(kind),y-wheelButtonY(kind))<=wheelButtonRadius(kind)+dp(8))return "wheel"+kind;
+            for(CommandZoneView v:commandZones)if(v!=null&&contains(rect(v),x,y,0))return v.key;
+            return null;
+        }
+        private void endGesture(boolean cancel) {
+            if(cancel&&changedGesture&&gestureBefore!=null&&layoutEdit&&layoutEditor==this){
+                applyRect(gestureBefore);
+                SharedPreferences.Editor edit=layoutPreferences().edit();
+                for(String key:layoutPreferences().getAll().keySet())if(key.startsWith("pos-"+gestureKey+"-"))edit.remove(key);
+                copyPreferences(edit,gesturePositions).apply();
+                root.post(()->{if(layoutEdit&&layoutEditor==this)rebuildTools();});
+            }
+            pointer=second=-1;dragged=null;gestureBefore=pinchBefore=null;updateSizes();positionTools();invalidate();
         }
         @Override public boolean onTouchEvent(MotionEvent event) {
-            float x = event.getX(), y = event.getY();
-            int action = event.getActionMasked();
-            if (action == MotionEvent.ACTION_DOWN) {
-                dragged = null; draggedWheel = 0;
-                for (int kind = 1; kind <= 2; kind++) if ((kind == 1 ? groupWheel : markerWheel) &&
-                        Math.hypot(x - wheelButtonX(kind), y - wheelButtonY(kind)) <= wheelButtonRadius() + dp(10)) {
-                    draggedWheel = kind; grabX = x - wheelButtonX(kind); grabY = y - wheelButtonY(kind);
-                }
-                if (draggedWheel == 0) for (View view : views()) if (shown(view) && x >= view.getLeft() && x <= view.getRight() &&
-                        y >= view.getTop() && y <= view.getBottom()) {
-                    dragged = view; draggedKey = key(view); grabX = x - view.getLeft(); grabY = y - view.getTop();
-                    lastLeft = view.getLeft(); lastTop = view.getTop();
-                }
-                if (dragged != null || draggedWheel != 0) haptic(HapticFeedbackConstants.VIRTUAL_KEY);
-            } else if (action == MotionEvent.ACTION_MOVE) {
-                if (dragged != null) {
-                    lastLeft = Math.max(0, Math.min(root.getWidth() - dragged.getWidth(), x - grabX));
-                    lastTop = Math.max(0, Math.min(root.getHeight() - dragged.getHeight(), y - grabY));
-                    moveView(dragged, lastLeft, lastTop);
-                } else if (draggedWheel != 0) {
-                    float r = wheelButtonRadius();
-                    float cx = Math.max(r, Math.min(touch.getWidth() - r, x - grabX)), cy = Math.max(r, Math.min(touch.getHeight() - r, y - grabY));
-                    save("wheel" + draggedWheel, cx / touch.getWidth(), cy / touch.getHeight());
-                    touch.invalidate();
-                }
-            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-                if (dragged != null && root.getWidth() > 0) save(draggedKey, lastLeft / root.getWidth(), lastTop / root.getHeight());
-                dragged = null; draggedWheel = 0;
+            int action=event.getActionMasked();
+            if(action==MotionEvent.ACTION_DOWN){
+                String previous=selectedControl;
+                selectedControl=hit(event.getX(),event.getY());pointer=event.getPointerId(0);second=-1;
+                changedGesture=false;downX=event.getX();downY=event.getY();gestureKey=selectedControl;gesturePositions=new java.util.HashMap<>();
+                for(java.util.Map.Entry<String,?> e:layoutPreferences().getAll().entrySet())
+                    if(e.getKey().startsWith("pos-"+gestureKey+"-"))gesturePositions.put(e.getKey(),e.getValue());
+                gestureBefore=selectionRect();dragged=selectedView();
+                if(gestureBefore!=null){grabX=event.getX()-gestureBefore.left;grabY=event.getY()-gestureBefore.top;
+                    resizing=selectedControl.equals(previous)&&grabX>=gestureBefore.width-dp(26)&&grabY>=gestureBefore.height-dp(26);haptic(HapticFeedbackConstants.VIRTUAL_KEY);}
+                updateSizes();positionTools();invalidate();return true;
             }
-            invalidate(); return true;
+            if(action==MotionEvent.ACTION_CANCEL){endGesture(true);return true;}
+            if(action==MotionEvent.ACTION_POINTER_DOWN){
+                int first=event.findPointerIndex(pointer),other=event.getActionIndex();
+                if(event.getPointerCount()!=2||first<0||gestureBefore==null){endGesture(true);return true;}
+                second=event.getPointerId(other);pinchBefore=selectionRect();
+                pinchX=Math.abs(event.getX(first)-event.getX(other));pinchY=Math.abs(event.getY(first)-event.getY(other));
+                pinchDistance=Math.max(1,(float)Math.hypot(pinchX,pinchY));return true;
+            }
+            if(action==MotionEvent.ACTION_POINTER_UP){endGesture(false);return true;}
+            int first=event.findPointerIndex(pointer);if(first<0||gestureBefore==null)return true;
+            if(action==MotionEvent.ACTION_MOVE){
+                float x=event.getX(first),y=event.getY(first);
+                if(second>=0){
+                    int other=event.findPointerIndex(second);if(other<0){endGesture(true);return true;}
+                    float dx=Math.abs(x-event.getX(other)),dy=Math.abs(y-event.getY(other));
+                    if(!changedGesture&&Math.max(Math.abs(dx-pinchX),Math.abs(dy-pinchY))<=ViewConfiguration.get(GameActivity.this).getScaledTouchSlop())return true;
+                    changedGesture=true;
+                    float uniform=Math.max(.001f,(float)Math.hypot(dx,dy)/pinchDistance);
+                    float sx=zone()&&pinchX>dp(12)?Math.max(.001f,dx/pinchX):uniform,sy=zone()&&pinchY>dp(12)?Math.max(.001f,dy/pinchY):uniform;
+                    applyRect(TouchLayoutGeometry.scaleAboutCenter(pinchBefore,sx,sy,getWidth(),getHeight(),dp(zone()?24:36)));
+                }else if(!changedGesture&&Math.hypot(x-downX,y-downY)<=ViewConfiguration.get(GameActivity.this).getScaledTouchSlop())return true;
+                else if(resizing){
+                    changedGesture=true;
+                    float w=Math.max(dp(zone()?24:36),gestureBefore.width+x-gestureBefore.left-grabX);
+                    float h=Math.max(dp(zone()?24:36),gestureBefore.height+y-gestureBefore.top-grabY);
+                    if(!zone()){float factor=Math.max(w/gestureBefore.width,h/gestureBefore.height);w=gestureBefore.width*factor;h=gestureBefore.height*factor;}
+                    applyRect(new TouchLayoutGeometry.Rect(gestureBefore.left,gestureBefore.top,w,h));
+                }else{changedGesture=true;applyRect(new TouchLayoutGeometry.Rect(x-grabX,y-grabY,gestureBefore.width,gestureBefore.height));}
+                updateSizes();positionTools();
+            }else if(action==MotionEvent.ACTION_UP)endGesture(false);
+            return true;
         }
     }
     private final class PointerView extends View {
         float x, y; private final Paint pen = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final PointerRedraw redraw = new PointerRedraw();
         android.graphics.Bitmap cursorImage;
         float hotX, hotY;
         PointerView() {
             super(GameActivity.this); setContentDescription("Игровое поле: касание, выделение перетаскиванием, два пальца для карты");
             setPointerIcon(PointerIcon.getSystemIcon(GameActivity.this, PointerIcon.TYPE_ARROW)); /* until the game's cursor is read */
+        }
+        @Override public void invalidate() {
+            boolean visible = wheel != 0 || diagnostics || magnifierShown || (touchpad && !mouseMode) ||
+                    (gamepadMode && gamepad != null && gamepad.cursorVisible(SystemClock.uptimeMillis())) ||
+                    (((controlState[0] & 1) != 0 || layoutEdit) && (groupWheel || markerWheel));
+            if (redraw == null || redraw.needed(visible)) super.invalidate();
         }
         @Override public void onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo info) {
             super.onInitializeAccessibilityNodeInfo(info);
@@ -1316,7 +1842,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         @Override protected void onDraw(Canvas canvas) {
             int alpha=Math.round(255*opacity);
             if((controlState[0]&1)!=0||layoutEdit)for(int kind=1;kind<=2;kind++)if(kind==1?groupWheel:markerWheel) {
-                float bx=wheelButtonX(kind),by=wheelButtonY(kind),r=wheelButtonRadius(),s=controls();
+                float bx=wheelButtonX(kind),by=wheelButtonY(kind),r=wheelButtonRadius(kind),s=r/dp(25);
                 pen.setStyle(Paint.Style.FILL);pen.setColor(0xf029333e);pen.setAlpha(alpha);canvas.drawCircle(bx,by,r,pen);
                 pen.setColor(0xffffe08a);pen.setAlpha(alpha);pen.setTextSize(dp(11*s));pen.setTextAlign(Paint.Align.CENTER);
                 canvas.drawText(kind==1?"Отряд":"Точки",bx,by+dp(4*s),pen);
@@ -1394,15 +1920,16 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         startActivity(new Intent(this, SettingsActivity.settingsClass(edition)).putExtra("section", section));
     }
     private void help() {
+        String zonesHelp = "\n\nКнига писаря: удерживайте, чтобы открыть список, затем нажмите команду или выберите её свайпом и отпустите. Повторный тап по книге скрывает список. Назначения меняются через каталог кнопок.\n\nБоковые зоны по умолчанию пусты. Назначьте команды в левую или правую зону: тап открывает вертикальный список, повторный тап по той же зоне скрывает его. Удерживайте около трети секунды и ведите палец к команде, отпустите для выполнения.\n\nРедактор расположения показывает паузу: выберите и перетащите кнопку или зону, меняйте размер двумя пальцами, ползунком или за угол. «Кнопки» задаёт размещение команд на экране, в книге и в боковых зонах. «Действия зон» переключает список либо отдельные назначения тапа и удержания. Изменения применяются только через «Сохранить»; «Отмена» или Android «Назад» возвращает прежнюю раскладку.";
         releaseControls();
         if (GameFiles.original(edition)) {
             new AlertDialog.Builder(this).setTitle("Управление · Stronghold HD")
-                    .setMessage("На карте тап выбирает войска или отдаёт приказ, сдвиг пальца двигает камеру. Чтобы выделить войска рамкой или провести стену, удерживайте палец около трети секунды, затем тяните. Удержание отменяет постройку или выделение.\n\nДва пальца: сдвиг — камера, сведение или разведение — оригинальное переключение приближения (Z), поворот примерно на четверть оборота — поворот карты (C / X), короткий тап — отмена. Удержание радара переключает рельеф, короткий тап двумя пальцами над ним — окраску «свои / чужие».\n\nВ меню и окнах тап нажимает кнопку или открывает клавиатуру для текстового поля; перетаскивание тянет ползунки и списки. Удержание книги писаря открывает быстрые команды и настройки. Android «Назад» открывает меню игры (Esc).\n\nСвайп по панели построек переключает доступные разделы. Выбранная постройка подсвечивается, рядом показываются её название и стоимость. Лупа при выборе места выключена по умолчанию; её размер и приближение меняются в настройках.\n\nГруппы и точки карты включаются в настройках. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nВ настройках доступны скорость игры, звук, прокрутка, размер интерфейса, чёткий текст, тачпад и расположение кнопок. «Во весь экран» выбирает пропорции устройства. Кнопка «⇄» открывает переход между играми и лаунчером.")
+                    .setMessage("На карте тап выбирает войска или отдаёт приказ, сдвиг пальца двигает камеру. Чтобы выделить войска рамкой или провести стену, удерживайте палец около трети секунды, затем тяните. Удержание отменяет постройку или выделение.\n\nДва пальца: сдвиг — камера, сведение или разведение — плавное приближение вокруг середины жеста. Тап по процентам над радаром возвращает 100%, поворот примерно на четверть оборота — поворот карты (C / X), короткий тап — отмена. Удержание радара переключает рельеф, короткий тап двумя пальцами над ним — окраску «свои / чужие».\n\nВ меню и окнах тап нажимает кнопку или открывает клавиатуру для текстового поля; перетаскивание тянет ползунки и списки. Удержание книги писаря открывает вертикальный список команд. По умолчанию в нём настройка управления и меню паузы. Android «Назад» открывает меню игры (Esc).\n\nСвайп по панели построек переключает доступные разделы. Выбранная постройка подсвечивается, рядом показываются её название и стоимость. Лупа при выборе места выключена по умолчанию; её размер и приближение меняются в настройках.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nВ настройках доступны скорость игры, звук, прокрутка, размер интерфейса, чёткий текст, тачпад и расположение кнопок. «Во весь экран» выбирает пропорции устройства. Кнопка «⇄» открывает переход между играми и лаунчером." + zonesHelp)
                     .setPositiveButton("Понятно", null).show();
             return;
         }
         new AlertDialog.Builder(this).setTitle("Управление")
-                .setMessage("На карте: тап — выбор или приказ, двойной тап — отряд одного типа. Сдвиг пальца двигает камеру; для рамки сначала удерживайте палец около трети секунды, затем тяните.\n\nУдержание на карте отменяет выделение, постройку или способность; если отменять нечего — выравнивает рельеф. Удержание радара тоже переключает рельеф.\n\nДва пальца двигают камеру и меняют приближение. Поворот двумя пальцами примерно на четверть оборота поворачивает карту на 90°. Короткий тап двумя пальцами — отмена; над радаром — окраска «свои / чужие». Тап по значению масштаба над радаром возвращает 100%.\n\nВ меню тап нажимает кнопку, удержание показывает описание; слайдеры и списки можно тянуть. Удержание книги писаря открывает дополнительные команды и настройки; в редакторе удерживайте перо слева от панели. Кнопка «Расположение» позволяет перетащить панели и кнопки. Android «Назад» открывает игровое меню.\n\nГруппы и точки карты включаются в настройках. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nСвайп по панели построек листает доступные разделы: влево — следующий, вправо — предыдущий; из подраздела свайп в любую сторону открывает следующий раздел. Выбранная постройка подсвечивается на своей кнопке.\n\nЛупа: пока палец выбирает место для постройки, стены, сноса или способности, рядом показывается увеличенный участок карты. Короткий тап ставит сразу, без лупы.\n\nВибрация отмечает привязку масштаба к 100%, смену раздела построек, удержание, поворот и секторы радиального меню. Лупу и вибрацию можно выключить в настройках.\n\nМышь и клавиатура (USB или Bluetooth): с мышью игра работает как на ПК — наведение, ЛКМ и ПКМ, прокрутка камеры у края экрана. Колесо в матче меняет масштаб вокруг курсора, в меню и списках прокручивает их. Перетаскивание средней кнопкой двигает карту, щелчок средней кнопкой возвращает 100%. Клавиши — как в оригинале: Esc — меню, пробел — рельеф, +/− цифрового блока — скорость, X/C — поворот. Касание экрана снова включает сенсорное управление.\n\nТачпад — дополнительный режим курсора с ЛКМ/ПКМ.")
+                .setMessage("На карте: тап — выбор или приказ, двойной тап — отряд одного типа. Сдвиг пальца двигает камеру; для рамки сначала удерживайте палец около трети секунды, затем тяните.\n\nУдержание на карте отменяет выделение, постройку или способность; если отменять нечего — выравнивает рельеф. Удержание радара тоже переключает рельеф.\n\nДва пальца двигают камеру и меняют приближение. Поворот двумя пальцами примерно на четверть оборота поворачивает карту на 90°. Короткий тап двумя пальцами — отмена; над радаром — окраска «свои / чужие». Тап по значению масштаба над радаром возвращает 100%.\n\nВ меню тап нажимает кнопку, удержание показывает описание; слайдеры и списки можно тянуть. Удержание книги писаря открывает вертикальный список команд; в редакторе удерживайте перо слева от панели. Кнопка «Расположение» позволяет перетащить каждую кнопку отдельно. Android «Назад» открывает игровое меню.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nСвайп по панели построек листает доступные разделы: влево — следующий, вправо — предыдущий; из подраздела свайп в любую сторону открывает следующий раздел. Выбранная постройка подсвечивается на своей кнопке.\n\nЛупа: пока палец выбирает место для постройки, стены, сноса или способности, рядом показывается увеличенный участок карты. Короткий тап ставит сразу, без лупы.\n\nВибрация отмечает привязку масштаба к 100%, смену раздела построек, удержание, поворот и выбор отрядов и точек карты. Лупу и вибрацию можно выключить в настройках.\n\nМышь и клавиатура (USB или Bluetooth): с мышью игра работает как на ПК — наведение, ЛКМ и ПКМ, прокрутка камеры у края экрана. Колесо в матче меняет масштаб вокруг курсора, в меню и списках прокручивает их. Перетаскивание средней кнопкой двигает карту, щелчок средней кнопкой возвращает 100%. Клавиши — как в оригинале: Esc — меню, пробел — рельеф, +/− цифрового блока — скорость, X/C — поворот. Касание экрана снова включает сенсорное управление.\n\nТачпад — дополнительный режим курсора. Касание выполняет ЛКМ; отдельную кнопку ЛКМ можно включить в настройках управления." + zonesHelp)
                 .setPositiveButton("Понятно", null).show();
     }
     private void showTextInput() { nativeEditorRequest(); }
@@ -1458,7 +1985,6 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     private void returnToLauncher() {
         releaseControls();
-        if (preferences != null) preferences.edit().putBoolean("extra", extra).commit();
         GameFiles.pending(getFilesDir(), edition).delete();
         startActivity(launcherIntent());
         finishAndRemoveTask(); android.os.Process.killProcess(android.os.Process.myPid());
@@ -1486,7 +2012,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     @Override protected void onPause() {
         if (inputManager != null) inputManager.unregisterInputDeviceListener(this);
         if (root != null) root.removeCallbacks(zoomRefresh); releaseControls();
-        if (ready && preferences != null) { rememberGameSettings(); preferences.edit().putBoolean("extra", extra).apply(); }
+        if (ready && preferences != null) rememberGameSettings();
         if(lanDiscovery!=null){lanDiscovery.release();lanDiscovery=null;}
         if (ready) nativePause(true); super.onPause();
     }
@@ -1494,7 +2020,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         super.onResume();
         if (inputManager != null) { inputManager.registerInputDeviceListener(this, null); refreshGamepads(); }
         if (root != null) discoverEditions();
-        if (ready) nativePause(false);
+        if (ready) nativePause(layoutEdit);
         if (ready && preferences != null) {
             boolean oldWide = wide; String oldResolution = preferences.getString("activeResolution", "auto");
             /* Game options changed in Android settings were applied there, immediately. */
@@ -1509,14 +2035,15 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 Toast.makeText(this, "Разрешение изменится при новом запуске игры. Сначала сохраните матч.", Toast.LENGTH_LONG).show();
             if (preferences.getBoolean("layoutEditRequest", false)) {
                 preferences.edit().remove("layoutEditRequest").apply();
-                layoutEdit = false; if (root != null) root.post(() -> editLayout(true));
+                if (!layoutEdit && root != null) root.post(() -> editLayout(true));
             }
             if (root != null) rebuildTools();
         }
         if (root != null) { root.removeCallbacks(zoomRefresh); root.post(zoomRefresh); }
     }
     @Override public void onBackPressed() {
-        if (layoutEdit) editLayout(false);
+        if (layoutEdit) finishLayout(false);
+        else if (zoneCommands != null) dismissZoneCommands();
         else if (root != null) tapKey(0x01);
         else returnToLauncher();
     }

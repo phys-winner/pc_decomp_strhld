@@ -66,14 +66,17 @@ LAYOUT = {
         panel=((0x533104, 0x4BDBE0, 0x533109), (0x533118, 0x4BDBE0, 0x53311D), (0x533141, 0x448560, 0x533146)),
         present=(0x533156, 0x45EC40),
         raster=((0x4408D0, 0x441A06), (0x4430F0, 0x4452CF), (0x4480C0, 0x448550), (0x448560, 0x4486AC),
-                (0x459D00, 0x459DBF), (0x442520, 0x44266C), (0x442670, 0x442BDE), (0x459DC0, 0x459E3B)),
+                (0x459D00, 0x459DBF), (0x442520, 0x44266C), (0x442670, 0x442BDE),
+                (0x442BF0, 0x4430EF), (0x459DC0, 0x459E3B)),
     ),
 }
 # Remaining weight of the pixel below at a translucent store (0..255); None: an intermediate store.
 SHADE = b"(((esi - 0x9CE0C8u) >> 9) * 255u / 32u)"
 MASKED = b"((32u - ((MEM16(MEM32(ebp - 4u) - 2u) & 31u) - MEM32(ebp + 0x1Cu))) * 255u / 32u)"
 BLEND = {0x4425D3: SHADE, 0x44264B: SHADE, 0x4428AC: MASKED, 0x442995: MASKED, 0x442B05: MASKED,
-         0x442BBE: MASKED, 0x459E2A: b"128u", 0x44293F: None}
+         0x442BBE: MASKED, 0x459E2A: b"128u", 0x44293F: None,
+         0x442FA4: b"((32u - LO16(edx)) * 255u / 32u)",
+         0x4430B1: b"((32u - LO16(edx)) * 255u / 32u)"}
 DECLARATIONS = (b"\nextern uint32_t stronghold_original_mode(uint32_t);"
                 b"\nextern void stronghold_original_frame(void);"
                 b"\nextern void stronghold_game_ui_click(uint32_t);"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.stronghold.port"
-    android:versionCode="27" android:versionName="0.3-dev">
+    android:versionCode="32" android:versionName="1.0-release">
   <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="28" />
   <uses-feature android:glEsVersion="0x00030000" android:required="true" />
   <uses-feature android:name="android.hardware.gamepad" android:required="false" />
@@ -11,7 +11,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-  <application android:icon="@mipmap/ic_classic" android:roundIcon="@mipmap/ic_classic" android:label="Stronghold Launcher" android:debuggable="true"
+  <application android:icon="@mipmap/ic_classic" android:roundIcon="@mipmap/ic_classic" android:label="Stronghold Launcher" android:debuggable="false"
       android:allowAudioPlaybackCapture="true"
       android:allowBackup="false" android:extractNativeLibs="true"
       android:requestLegacyExternalStorage="true" android:hasCode="true"

@@ -9,6 +9,7 @@
 #include "touch_api.h"
 #include "game_ui.h"
 #include "feedback.h"
+#include "mods.h"
 #include <aaudio/AAudio.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
@@ -147,6 +148,16 @@ JNIEXPORT void JNICALL Java_org_stronghold_port_GameActivity_nativeSurface(JNIEn
 
 JNIEXPORT jint JNICALL Java_org_stronghold_port_GameActivity_nativeUiEvent(JNIEnv *env,jclass self)
 { (void)env;(void)self;return stronghold_game_ui_event(); }
+JNIEXPORT jstring JNICALL Java_org_stronghold_port_GameActivity_nativeMods(JNIEnv *env,jclass self,jstring path)
+{
+    (void)self;
+    if (game_started) return (*env)->NewStringUTF(env,"Mod changes require a new game process");
+    const char *text=(*env)->GetStringUTFChars(env,path,NULL);
+    if (!text) return NULL;
+    const char *error=stronghold_mods_configure(text);
+    (*env)->ReleaseStringUTFChars(env,path,text);
+    return error ? (*env)->NewStringUTF(env,error) : NULL;
+}
 JNIEXPORT void JNICALL Java_org_stronghold_port_GameActivity_nativeEditorRequest(JNIEnv *env,jclass self)
 { (void)env;(void)self;stronghold_game_editor_request(); }
 JNIEXPORT jintArray JNICALL Java_org_stronghold_port_GameActivity_nativeSettings(JNIEnv *env,jclass self)

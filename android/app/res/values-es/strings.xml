@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="text_9c3f3eda" formatted="false">"Stronghold HD, Crusader y Crusader Extreme Android ARM64"</string>
+  <string name="text_73226756" formatted="false">"Selecciona un juego"</string>
+  <string name="text_bf25f362" formatted="false">"Archivos de juego"</string>
+  <string name="text_780ea472" formatted="false">"Comprobando juegos instalados..."</string>
+  <string name="text_3eccf7d" formatted="false">"Seleccionar carpeta…"</string>
+  <string name="text_beab1997" formatted="false">"Extraer ZIP…"</string>
+  <string name="text_16342f65" formatted="false">"Instalar desde GOG..."</string>
+  <string name="text_997ffce7" formatted="false">"Cambiar archivos del juego..."</string>
+  <string name="text_37a30576" formatted="false">"Inicio"</string>
+  <string name="text_cfea62c8" formatted="false">"Saltar vídeos, anuncios y advertencias online"</string>
+  <string name="text_fca6a79b" formatted="false">"Las opciones de inicio se aplican cuando se reinicia el proceso del juego. Guarda el partido antes de reiniciar."</string>
+  <string name="text_452078ee" formatted="false">"Idioma de la interfaz..."</string>
+  <string name="text_c688c5f2" formatted="false">"UCP en GitHub"</string>
+  <string name="text_a7a66ff6" formatted="false">"Deshabilitar todas las funciones de UCP"</string>
+  <string name="text_5b4d7f78" formatted="false">"Completa un juego en ejecución antes de cambiar de mod. La nueva configuración se aplicará la próxima vez que comience."</string>
+  <string name="text_7e32e4c9" formatted="false">"Todas las funciones de UCP están deshabilitadas. Se guardan los paquetes de datos y localización."</string>
+  <string name="text_d584799a" formatted="false">"Comprobando archivos..."</string>
+  <string name="text_398251d5" formatted="false">"Jugar"</string>
+  <string name="text_65aed1e5" formatted="false">"Configuración"</string>
+  <string name="text_3be6ad8d" formatted="false">"Mods…"</string>
+  <string name="text_1eea9b9" formatted="false">"Mods"</string>
+  <string name="text_dc795e10" formatted="false">"Mods · "</string>
+  <string name="text_8604996b" formatted="false">"Características del parche Crusader no oficial"</string>
+  <string name="text_235cc110" formatted="false">"Paquetes de datos y localización"</string>
+  <string name="text_d773e353" formatted="false">"Versión y compatibilidad"</string>
+  <string name="text_be822985" formatted="false">"Versión fija de UCP3:\n"</string>
+  <string name="text_93c07082" formatted="false">"\n\nAndroid utiliza funciones y paquetes de datos preparados por UCP2 Legacy. Se enumera el soporte para cada característica. Los complementos DLL de Windows, ASI y Lua arbitrarios requieren una adaptación por separado.\n\nLos archivos originales del juego se conservan. Si hay una coincidencia entre archivos, el primer paquete incluido en la lista tiene prioridad."</string>
+  <string name="text_bc760176" formatted="false">"Cerrar"</string>
+  <string name="text_e5255a4e" formatted="false">"No se pudo verificar el idioma del mod"</string>
+  <string name="text_7fd9ff17" formatted="false">"Paquetes · mantenga presionado para eliminar"</string>
+  <string name="text_2559db35" formatted="false">"Aplicar"</string>
+  <string name="text_449106b0" formatted="false">"Cancelar"</string>
+  <string name="text_7e140f28" formatted="false">"Instalar ZIP..."</string>
+  <string name="text_ef231dd1" formatted="false">"Eliminar \""</string>
+  <string name="text_702d414b" formatted="false">"Se guardarán el juego y los archivos guardados."</string>
+  <string name="text_3d84b2c6" formatted="false">"Eliminar"</string>
+  <string name="text_b2eb0c03" formatted="false">"Instalando el mod..."</string>
+  <string name="text_f7d7ea15" formatted="false">"Comprobar y descomprimir ZIP"</string>
+  <string name="text_6041b138" formatted="false">"Archivo no disponible"</string>
+  <string name="text_4ac71ec" formatted="false">"Mod instalado"</string>
+  <string name="text_dbcaedd6" formatted="false">"» disponible en la lista de modificaciones para "</string>
+  <string name="text_26dcbf3d" formatted="false">"Especificar carpeta manualmente..."</string>
+  <string name="text_827c9d62" formatted="false">"comprobar de nuevo"</string>
+  <string name="text_32d1af36" formatted="false">"Carpeta de juegos o carpeta de juegos compartida"</string>
+  <string name="text_4303cf88" formatted="false">"Carpeta de archivos del juego"</string>
+  <string name="text_51b025a2" formatted="false">"comprobar"</string>
+  <string name="text_215eb3ac" formatted="false">"Archivos de juego en "</string>
+  <string name="text_bb517237" formatted="false">"Listo para lanzar · "</string>
+  <string name="text_1b4e6798" formatted="false">"Los tres juegos han sido encontrados y probados."</string>
+  <string name="text_86848d19" formatted="false">"Agregar archivos: "</string>
+  <string name="text_a35721c5" formatted="false">". La carpeta o ZIP se reconoce automáticamente; Puede seleccionar una carpeta compartida con juegos."</string>
+  <string name="text_ce68736f" formatted="false">"Permitir el acceso a archivos"</string>
+  <string name="text_8216fca" formatted="false">"La selección de carpetas del sistema no está disponible en este dispositivo."</string>
+  <string name="text_4b88cede" formatted="false">"La selección de archivos del sistema no está disponible en este dispositivo."</string>
+  <string name="text_79599422" formatted="false">"No se encontraron instaladores setup_*.exe en la carpeta. Todos los BIN deben estar ubicados al lado del EXE."</string>
+  <string name="text_634d6aab" formatted="false">"Instalador de GOG · seleccionar idioma"</string>
+  <string name="text_bb39e0dd" formatted="false">"Leyendo el instalador de GOG..."</string>
+  <string name="text_a35f8320" formatted="false">"\nArchivos del juego: "</string>
+  <string name="text_b22fddf3" formatted="false">". Después de la instalación: "</string>
+  <string name="text_579559c3" formatted="false">".\nBloques comprimidos: "</string>
+  <string name="text_1ee4e1" formatted="false">" de "</string>
+  <string name="text_53bd09" formatted="false">"\nPara la instalación necesita EXE y todos los BIN de la misma carpeta."</string>
+  <string name="text_4d92cf4d" formatted="false">"\n\nCarpeta de instalación: "</string>
+  <string name="text_8d934598" formatted="false">"\nSe conserva el instalador original. Los juegos guardados se almacenan por separado."</string>
+  <string name="text_410e21c" formatted="false">"Instalar GOG"</string>
+  <string name="text_8cfeb85d" formatted="false">"Instalar"</string>
+  <string name="text_be9830ba" formatted="false">"Instalando GOG"</string>
+  <string name="text_fb4cb106" formatted="false">"GOG instalado para "</string>
+  <string name="text_e88699f0" formatted="false">" s. Idioma: "</string>
+  <string name="text_5637065a" formatted="false">"Para GOG, seleccione la carpeta en la memoria del dispositivo con el EXE y todos los BIN adyacentes."</string>
+  <string name="text_f6993e58" formatted="false">"%.0f KB"</string>
+  <string name="text_f6993e96" formatted="false">"%.0fMB"</string>
+  <string name="text_660e6a9a" formatted="false">"Archivo «"</string>
+  <string name="text_d1bd702e" formatted="false">" será descomprimido en\n"</string>
+  <string name="text_a8d6d121" formatted="false">"\n\nDisponible: "</string>
+  <string name="text_c5347de1" formatted="false">". El juego descomprimido ocupa aproximadamente 1 GB."</string>
+  <string name="text_4f09e1af" formatted="false">"¿Descomprimir el juego?"</string>
+  <string name="text_e758a48e" formatted="false">"Desempacar"</string>
+  <string name="text_a8ab15f" formatted="false">"Descomprimiendo el archivo"</string>
+  <string name="text_4163fe5" formatted="false">"¿Copiar el juego?"</string>
+  <string name="text_1d870e8e" formatted="false">"A la carpeta \""</string>
+  <string name="text_d8eccaca" formatted="false">"» sin acceso directo en el camino. Cópialo a\n"</string>
+  <string name="text_fbbd6344" formatted="false">"Copiar"</string>
+  <string name="text_bc4d084d" formatted="false">"Copiar una carpeta"</string>
+  <string name="text_3aaea5ba" formatted="false">"Preparación..."</string>
+  <string name="text_d1f4a247" formatted="false">" archivos · "</string>
+  <string name="text_89d586e4" formatted="false">"No se pudo crear la carpeta "</string>
+  <string name="text_4d3c8d8" formatted="false">"Cancelado. Los archivos parcialmente copiados permanecen en "</string>
+  <string name="text_9ac267bf" formatted="false">"Error: "</string>
+  <string name="text_927d6d18" formatted="false">"archivo no disponible"</string>
+  <string name="text_3fb73205" formatted="false">"ruta de archivo no válida: "</string>
+  <string name="text_82970e9b" formatted="false">"no se pudo crear "</string>
+  <string name="text_57596e60" formatted="false">"nombre no válido después de la recuperación: "</string>
+  <string name="text_62ed0e4a" formatted="false">"No se pudo restaurar el nombre de la tarjeta: "</string>
+  <string name="text_cb6f0ae5" formatted="false">"los nombres de los archivos en el archivo no están en UTF-8; reempaquetar el juego con un ZIP estándar"</string>
+  <string name="text_2c7db8e6" formatted="false">"el archivo está vacío o no es un ZIP"</string>
+  <string name="text_9584175b" formatted="false">"\nNombres perdidos en el archivo "</string>
+  <string name="text_6f044b61" formatted="false">" mapas: se guardan como “Mapa...”. Todos los archivos se guardan por separado."</string>
+  <string name="text_a5ac9a61" formatted="false">"el proveedor de archivos no devolvió el contenido de la carpeta"</string>
+  <string name="text_24605ef0" formatted="false">"no se pudo abrir "</string>
+  <string name="text_d3ca647b" formatted="false">"Para iniciarlo necesitas acceso a los archivos del juego."</string>
+  <string name="text_ab5540f3" formatted="false">"No se pudo preparar el juego: "</string>
+  <string name="text_2bbd5d5e" formatted="false">"Advertencia de compatibilidad"</string>
+  <string name="text_a9002c9" formatted="false">"Corre de todos modos"</string>
+  <string name="text_e6290764" formatted="false">"No se pudo actualizar el estado de inicio"</string>
+  <string name="text_50c87387" formatted="false">"No se pudo guardar el estado de inicio"</string>
+  <string name="text_3c32a8fb" formatted="false">"No se pudo iniciar el juego: "</string>
+  <string name="text_6df9977b" formatted="false">"El partido acabó con un error. Verifique la carpeta e inténtelo nuevamente. Registro: /sdcard/Stronghold/"</string>
+  <string name="text_bcbda96a" formatted="false">"Inicio "</string>
+  <string name="text_f2fc3664" formatted="false">"Configuración · "</string>
+  <string name="text_39f3c6d" formatted="false">"Gráficos"</string>
+  <string name="text_674b0c2" formatted="false">"Resolución, tamaño de interfaz y calidad de imagen."</string>
+  <string name="text_1ec3892" formatted="false">"sonido"</string>
+  <string name="text_e1fcef4c" formatted="false">"Música, efectos y habla."</string>
+  <string name="text_1ecb04b" formatted="false">"juego"</string>
+  <string name="text_66aca461" formatted="false">"Velocidad del juego, consejos y controles."</string>
+  <string name="text_7bdceb3f" formatted="false">"Iniciador y carpetas de juegos."</string>
+  <string name="text_a2356111" formatted="false">"Resolución"</string>
+  <string name="text_1e909de" formatted="false">"Automático"</string>
+  <string name="text_77737898" formatted="false">"Mínimo"</string>
+  <string name="text_dcd7c4a4" formatted="false">"Dispositivo"</string>
+  <string name="text_7ae310b2" formatted="false">"La resolución y la relación de aspecto se aplican al iniciar el juego nuevamente."</string>
+  <string name="text_dcfb5f04" formatted="false">"Guarda el partido antes de reiniciar. “Mínimo”: 600 líneas, el marco más pequeño del motor, con proporciones de pantalla. "</string>
+  <string name="text_53607ee6" formatted="false">"La resolución no cambia automáticamente durante el juego."</string>
+  <string name="text_2b870dec" formatted="false">"Usar la relación de aspecto del dispositivo"</string>
+  <string name="text_8329db6f" formatted="false">"Tamaño de la interfaz"</string>
+  <string name="text_97402fea" formatted="false">"Tamaño del panel de poderes"</string>
+  <string name="text_e82aaf5f" formatted="false">"bicúbico"</string>
+  <string name="text_d874e791" formatted="false">"Píxeles nítidos"</string>
+  <string name="text_f8faebee" formatted="false">"bilineal"</string>
+  <string name="text_3278c869" formatted="false">"Filtro mundial"</string>
+  <string name="text_7451d9ec" formatted="false">"Filtro de interfaz"</string>
+  <string name="text_7c3ae905" formatted="false">"Nitidez"</string>
+  <string name="text_560f76b4" formatted="false">"Suavizado de degradados"</string>
+  <string name="text_7e78b3ab" formatted="false">"Borrar texto"</string>
+  <string name="text_2768014e" formatted="false">"FSR 1.0 conserva bordes nítidos, bicúbico es más suave, Clear Pixels mantiene una apariencia irregular y pixelada, bilineal es el más suave. Aplicar inmediatamente."</string>
+  <string name="text_4e53c7f9" formatted="false">"El mapa se amplía para que quepa en la pantalla por separado de la interfaz. "</string>
+  <string name="text_308cf9d6" formatted="false">"La interfaz se amplía para que quepa en la pantalla por separado del mapa. "</string>
+  <string name="text_83e093cf" formatted="false">"El poder de enfocar una imagen. Aplicar inmediatamente."</string>
+  <string name="text_1122e28" formatted="false">"Elimina pasos de color de 16 bits del cielo y el agua. Aplicar inmediatamente."</string>
+  <string name="text_8c127489" formatted="false">"Vuelve a dibujar etiquetas en resolución de pantalla. Aplicar inmediatamente."</string>
+  <string name="text_8823e982" formatted="false">"Tamaño del panel, las ventanas, los recursos y las ayudas durante la partida. Se limita para que toda la interfaz quepa en pantalla. Se aplica de inmediato."</string>
+  <string name="text_b35280b9" formatted="false">"El tamaño de la barra lateral obliga independientemente de la interfaz principal. Aplicar inmediatamente."</string>
+  <string name="text_9e69e9de" formatted="false">"Velocidad del juego"</string>
+  <string name="text_2fec8049" formatted="false">"Información sobre herramientas"</string>
+  <string name="text_3a0deda" formatted="false">"Movimiento suave de la cámara"</string>
+  <string name="text_1a976048" formatted="false">"Velocidad de desplazamiento"</string>
+  <string name="text_d7a19c29" formatted="false">"lentamente"</string>
+  <string name="text_d3f969a5" formatted="false">"normales"</string>
+  <string name="text_2ee35139" formatted="false">"Rápido"</string>
+  <string name="text_3dcdba6c" formatted="false">"Cursor"</string>
+  <string name="text_ec7adcfb" formatted="false">"Flecha"</string>
+  <string name="text_ff3ce" formatted="false">"espada"</string>
+  <string name="text_3b44416a" formatted="false">"Sonido encendido"</string>
+  <string name="text_166c3f7d" formatted="false">"Volumen de música"</string>
+  <string name="text_5c2e3288" formatted="false">"Volumen de efectos"</string>
+  <string name="text_f62c5aca" formatted="false">"Volumen del habla"</string>
+  <string name="text_3b723ff6" formatted="false">"genio"</string>
+  <string name="text_81c559da" formatted="false">"Gestión"</string>
+  <string name="text_c16adbbf" formatted="false">"Panel táctil con cursor"</string>
+  <string name="text_b99001af" formatted="false">"Sensibilidad del panel táctil"</string>
+  <string name="text_5d0828c0" formatted="false">"Tamaño del botón"</string>
+  <string name="text_e4f123e1" formatted="false">"Opacidad de los botones"</string>
+  <string name="text_5f6b07f0" formatted="false">"Botones de control táctil"</string>
+  <string name="text_4064640" formatted="false">"Botones separados en pantalla, en listas laterales y en el libro de contabilidad. Cualquier botón se puede ocultar; LMB está oculto de forma predeterminada."</string>
+  <string name="text_7ce69eca" formatted="false">"Zonas laterales"</string>
+  <string name="text_82162e12" formatted="false">"Lista de comandos o acciones separadas de tocar y mantener presionado para cada zona"</string>
+  <string name="text_5e1fff23" formatted="false">"Zona izquierda"</string>
+  <string name="text_61e3d6f8" formatted="false">"zona derecha"</string>
+  <string name="text_31963493" formatted="false">"Listo"</string>
+  <string name="text_fdaf9ab1" formatted="false">"Cambia secciones de edificios deslizando el dedo"</string>
+  <string name="text_62ae5442" formatted="false">"Vibración"</string>
+  <string name="text_d6ec4c34" formatted="false">"Diagnóstico táctil"</string>
+  <string name="text_b7c1cc15" formatted="false">"Cambiar diseño de botones"</string>
+  <string name="text_9c62f9a0" formatted="false">"Vista previa en pausa: mover, pellizcar o deslizar el tamaño, guardar y cancelar"</string>
+  <string name="text_8d8b72a0" formatted="false">"Primero, inicia el juego: el diseño cambia en la parte superior de la pantalla del juego."</string>
+  <string name="text_7452e6e7" formatted="false">"Diseño del botón de reinicio"</string>
+  <string name="text_f63bb278" formatted="false">"Ubicación original restaurada"</string>
+  <string name="text_e075984c" formatted="false">"Lista de comandos"</string>
+  <string name="text_ff22ffb8" formatted="false">"Tocar y mantener acciones"</string>
+  <string name="text_a0d9976b" formatted="false">"Modo: "</string>
+  <string name="text_3c346897" formatted="false">"Toque: "</string>
+  <string name="text_425441f4" formatted="false">"nada"</string>
+  <string name="text_18219bca" formatted="false">"Mantener: "</string>
+  <string name="text_e4e01701" formatted="false">"Comandos de lista"</string>
+  <string name="text_79a043" formatted="false">"zona lateral izquierda"</string>
+  <string name="text_6766d318" formatted="false">"zona lateral derecha"</string>
+  <string name="text_280c7d94" formatted="false">"Modo de zona lateral"</string>
+  <string name="text_3bee53e8" formatted="false">"Atrás"</string>
+  <string name="text_c93e0a86" formatted="false">"Acción de retención"</string>
+  <string name="text_ea1afa49" formatted="false">"Acción por toque"</string>
+  <string name="text_d85b3a2" formatted="false">"en la pantalla"</string>
+  <string name="text_4940f932" formatted="false">"Oculto"</string>
+  <string name="text_940437ba" formatted="false">"en la zona izquierda"</string>
+  <string name="text_850bf3f3" formatted="false">"en la zona derecha"</string>
+  <string name="text_be0cece" formatted="false">"En el libro del escriba"</string>
+  <string name="text_381c15a5" formatted="false">"Seleccione un botón"</string>
+  <string name="text_6930c0ed" formatted="false">"Botones originales"</string>
+  <string name="text_58dee6e2" formatted="false">"Pantalla completa"</string>
+  <string name="text_21fe03e4" formatted="false">"Aplica al iniciar el juego nuevamente"</string>
+  <string name="text_a8f56f96" formatted="false">"La altura del marco proviene de los propios modos de juego. “Pantalla completa”: ancho del marco en proporciones de pantalla, sin márgenes en los laterales. "</string>
+  <string name="text_535e0f4c" formatted="false">"Apagado: modos de juego 16:9 (600 líneas - 4:3) con márgenes."</string>
+  <string name="text_1c807936" formatted="false">"Filtro de mapa"</string>
+  <string name="text_b4a6b086" formatted="false">"Filtro de interfaz y menú"</string>
+  <string name="text_9d5299a9" formatted="false">"Establecer gráficos mínimos"</string>
+  <string name="text_18318ed4" formatted="false">"Resolución mínima, filtros bilineales, sin nitidez, sin suavizado de degradado, sin texto claro. Resolución: después de reiniciar el juego."</string>
+  <string name="text_d009bb6" formatted="false">"¿Establecer gráficos mínimos?"</string>
+  <string name="text_e169a424" formatted="false">"Se seleccionarán la resolución mínima y los filtros bilineales, se desactivará la nitidez, el suavizado de degradado y el texto claro. La resolución cambiará después de reiniciar el juego; guarda el partido anterior."</string>
+  <string name="text_50c0fca2" formatted="false">"Conjunto mínimo de gráficos. Guarda el partido antes de reiniciar."</string>
+  <string name="text_134c4b51" formatted="false">"Lupa durante la construcción"</string>
+  <string name="text_bdc49d14" formatted="false">"Tamaño de la lupa"</string>
+  <string name="text_d4381850" formatted="false">"Acercándose con una lupa"</string>
+  <string name="text_2802cc6e" formatted="false">" líneas · "</string>
+  <string name="text_a491b1c" formatted="false">" (recomendado)"</string>
+  <string name="text_ed627e79" formatted="false">" (mínimo)"</string>
+  <string name="text_4df3cfcb" formatted="false">"Automático · "</string>
+  <string name="text_a67f2ed1" formatted="false">"Mínimo · "</string>
+  <string name="text_b92cd745" formatted="false">"Dispositivo · "</string>
+  <string name="text_1ea4f7a" formatted="false">"Apagado"</string>
+  <string name="text_9cc4fef4" formatted="false">"Restablecer configuración"</string>
+  <string name="text_13c03dbd" formatted="false">"Gráficos, sonido, jugabilidad, controles y disposición de botones de esta edición."</string>
+  <string name="text_fbdadfcb" formatted="false">"¿Restablecer configuración?"</string>
+  <string name="text_5c9aa70f" formatted="false">"Restaure la configuración original de gráficos, sonido, juegos y controles de \""</string>
+  <string name="text_2212d98f" formatted="false">"\"? El diseño de los botones también se restablecerá. La carpeta de guardados y juegos permanecerá."</string>
+  <string name="text_20185fcf" formatted="false">"Reiniciar"</string>
+  <string name="text_95756cc3" formatted="false">"Se han restaurado los ajustes originales. Resolución: después de reiniciar el juego."</string>
+  <string name="text_e9b3ed23" formatted="false">"Se perdió la conexión LAN"</string>
+  <string name="text_8c56b252" formatted="false">"El partido ya no se sincroniza con otros jugadores. Para un nuevo juego en línea, regrese al lobby."</string>
+  <string name="text_cd2e947f" formatted="false">"abrir menú"</string>
+  <string name="text_397db4c9" formatted="false">"quedarse"</string>
+  <string name="text_e17e86d7" formatted="false">"No se pudo guardar el último juego"</string>
+  <string name="text_e361570e" formatted="false">"Radar: coloración “amigo/enemigo”"</string>
+  <string name="text_9e26dc2e" formatted="false">"Radar: los colores de los señores"</string>
+  <string name="text_5426ab15" formatted="false">"El relieve está nivelado."</string>
+  <string name="text_b4a44764" formatted="false">"Relieve mostrado"</string>
+  <string name="text_2d0109a6" formatted="false">"No se pudo cargar la biblioteca de juegos: "</string>
+  <string name="text_4cb18659" formatted="false">"No se pudo registrar el estado del proceso del juego: "</string>
+  <string name="text_713f2555" formatted="false">"Anota "</string>
+  <string name="text_593c73fa" formatted="false">"llamar "</string>
+  <string name="text_81cc2e8c" formatted="false">"punto "</string>
+  <string name="text_7b2e487f" formatted="false">"escuadrón "</string>
+  <string name="text_9f626b72" formatted="false">"No se pudo abrir la carpeta de perfil: "</string>
+  <string name="text_cef3e0b" formatted="false">"No se pudo escribir el estado de inicio"</string>
+  <string name="text_f6705b85" formatted="false">"No se pudieron aplicar modificaciones: "</string>
+  <string name="text_9b698f2c" formatted="false">"No se pudo crear la transmisión del juego."</string>
+  <string name="text_b73264df" formatted="false">"Auto+: desde el próximo lanzamiento del juego "</string>
+  <string name="text_94178ee5" formatted="false">"Escala del mapa "</string>
+  <string name="text_dbdce9de" formatted="false">". Haga clic para devolver el 100%"</string>
+  <string name="text_f8e1b788" formatted="false">"Velocidad"</string>
+  <string name="text_2ed35202" formatted="false">"Velocidad del juego "</string>
+  <string name="text_908c5443" formatted="false">"Lanzador"</string>
+  <string name="text_6505de10" formatted="false">"Otro juego"</string>
+  <string name="text_3d783ca2" formatted="false">"Botones"</string>
+  <string name="text_b242fa66" formatted="false">"Acciones de zona"</string>
+  <string name="text_3c2749d3" formatted="false">"Reiniciar"</string>
+  <string name="text_345e4ebd" formatted="false">"Guardar"</string>
+  <string name="text_771c4a21" formatted="false">"Todos los botones y zonas"</string>
+  <string name="text_6da7435b" formatted="false">"Artículo seleccionado"</string>
+  <string name="text_2bb11c12" formatted="false">"Restablecer en vista previa"</string>
+  <string name="text_cbea86b0" formatted="false">"Tamaño o ancho del elemento seleccionado."</string>
+  <string name="text_7d09312e" formatted="false">"Altura de la zona seleccionada"</string>
+  <string name="text_1c91ec15" formatted="false">"mas lento"</string>
+  <string name="text_ad86d905" formatted="false">"Más rápido"</string>
+  <string name="text_25736bb0" formatted="false">"Girar el mapa en sentido antihorario"</string>
+  <string name="text_deee81ed" formatted="false">"Girar el mapa en el sentido de las agujas del reloj"</string>
+  <string name="text_9f22a8aa" formatted="false">"Configurar controles"</string>
+  <string name="text_128ace70" formatted="false">"Menú de pausa"</string>
+  <string name="text_3bd45817" formatted="false">"Izquierda"</string>
+  <string name="text_46242f22" formatted="false">"Derecha"</string>
+  <string name="text_372daac6" formatted="false">" área de comando: haga clic para mostrar u ocultar; mantenga presionado y seleccione con gesto"</string>
+  <string name="text_10846330" formatted="false">" zona de mando. Toque: "</string>
+  <string name="text_a31f1f85" formatted="false">"; mantener: "</string>
+  <string name="text_28198ae" formatted="false">"Lanzador abierto"</string>
+  <string name="text_47d71fc6" formatted="false">"Configuración del parche Crusader no oficial"</string>
+  <string name="text_f6b7f63e" formatted="false">"Juego · "</string>
+  <string name="text_76a9fba6" formatted="false">"Pausa / continuar"</string>
+  <string name="text_ef035265" formatted="false">"Impuestos, dinero y dieta."</string>
+  <string name="text_366d1184" formatted="false">"restaurar al señor"</string>
+  <string name="text_127fdd5c" formatted="false">"Tipo de tarjeta"</string>
+  <string name="text_40f8487d" formatted="false">"Quitar animales"</string>
+  <string name="text_b40852fd" formatted="false">"Costuras del terreno"</string>
+  <string name="text_b214cb0e" formatted="false">"editor de mapas"</string>
+  <string name="text_996eed65" formatted="false">": Presione para mantener, presione nuevamente para soltar"</string>
+  <string name="text_84a2a892" formatted="false">": Mantenga presionado y mueva el cursor con otro dedo"</string>
+  <string name="text_c5ff77a4" formatted="false">"Joystick izquierdo - cursor\nJoystick derecho - cámara\nA / B - LMB / RMB (se puede sostener)\nX - terreno Y - pausa\nLB / RB - escala / desplazamiento de lista\nLT - guía precisa RT - Shift\nD-pad ↑ / ↓ - velocidad\nD-pad ← / → - rotación del mapa\nL3 - escala 100% R3 - bloquear (F1)\nInicio - seleccionar menú / Atrás - diseño"</string>
+  <string name="text_5bdffeb8" formatted="false">"Mantenga presionado Seleccionar para combinaciones:\n↑ → ↓ ← - escuadrones 1-4\nA B X Y - escuadrones 5-8 LB - escuadrón 9\nAgregar RT - registrar escuadrón\nAgregar LT - puntos del mapa 1-9\nLT + RT - registrar punto del mapa\nRB - colores del radar L3 - reservar comandos\nR3 - inicio del teclado - configuración\n\nEl cursor desaparece después de 30 segundos de inactividad.\nCerrar: A, B, Iniciar o Seleccionar."</string>
+  <string name="text_feb3681" formatted="false">"Mando · diseño"</string>
+  <string name="text_2a77e835" formatted="false">"Editor de arreglos: seleccione y arrastre un elemento, tamaño con dos dedos"</string>
+  <string name="text_9824700e" formatted="false">"Seleccione un artículo. Arrastrar; tamaño: pellizco o control deslizante."</string>
+  <string name="text_3c04bfa1" formatted="false">"Grupos"</string>
+  <string name="text_3c3b63e9" formatted="false">"Marcadores"</string>
+  <string name="text_69353b01" formatted="false">"Ancho: "</string>
+  <string name="text_73d35386" formatted="false">"Tamaño: "</string>
+  <string name="text_6afd712a" formatted="false">"Altura: "</string>
+  <string name="text_6663223b" formatted="false">"Campo de juego: tocar, arrastrar selección, dos dedos para el mapa"</string>
+  <string name="text_31f6a807" formatted="false">"llamar a un escuadrón"</string>
+  <string name="text_c147bfd8" formatted="false">"Registra el equipo seleccionado"</string>
+  <string name="text_62460ad7" formatted="false">"Ir al punto del mapa"</string>
+  <string name="text_4551ce12" formatted="false">"Registrar punto del mapa"</string>
+  <string name="text_e4ea7ac8" formatted="false">"escribir al celular"</string>
+  <string name="text_2079c993" formatted="false">"Seleccionar celda"</string>
+  <string name="text_da5ce02b" formatted="false">"Asignar"</string>
+  <string name="text_e1d8a8e6" formatted="false">"Recuperar"</string>
+  <string name="text_c3b66742" formatted="false">"Centro: cancelar"</string>
+  <string name="text_d8ce0722" formatted="false">" · lupa"</string>
+  <string name="text_c975cf94" formatted="false">"Mando de juego %.0f, %.0f"</string>
+  <string name="text_1eedcf3" formatted="false">"ratón"</string>
+  <string name="text_4a6be62a" formatted="false">"Panel táctil"</string>
+  <string name="text_1cf2a817" formatted="false">"Dedo %.0f, %.0f"</string>
+  <string name="text_2e32007a" formatted="false">"\n\nLibro del secretario: mantén presionado para abrir la lista, luego presiona un comando o desliza el dedo para seleccionarlo y soltarlo. Al tocar el libro nuevamente se oculta la lista. Las asignaciones se cambian a través del catálogo de botones.\n\nLas zonas laterales están vacías de forma predeterminada. Asigne comandos a la zona izquierda o derecha: tocar abre una lista vertical, tocar nuevamente en la misma zona la oculta. Mantenga presionado durante aproximadamente un tercio de segundo y mueva el dedo hacia el comando, suéltelo para ejecutarlo.\n\nEl editor de diseño muestra una pausa: seleccione y arrastre un botón o zona, cambie el tamaño con dos dedos, un control deslizante o una esquina. “Botones” especifica la ubicación de los comandos en la pantalla, en el libro y en las áreas laterales. \"Acciones de zona\" cambia la lista o las asignaciones individuales de tocar y mantener presionado. Los cambios se aplican únicamente mediante “Guardar”; \"Cancelar\" o \"Atrás\" de Android devuelve el diseño anterior."</string>
+  <string name="text_8d249b77" formatted="false">"Controles Fortaleza HD"</string>
+  <string name="text_fd0b4522" formatted="false">"En el mapa, toca selecciona tropas o da órdenes, deslizando el dedo mueve la cámara. Para enmarcar tropas o dibujar una pared, mantenga presionado el dedo durante aproximadamente un tercio de segundo y luego arrastre. Mantener cancela la construcción o selección.\n\nDos dedos: desplazar - cámara, pellizcar o extender - zoom suave alrededor de la mitad del gesto. Al tocar el porcentaje sobre el radar se obtiene 100%, girándolo aproximadamente un cuarto de vuelta: rotar el mapa (C / X), tocar brevemente: cancelar. Sostener el radar cambia el terreno, un breve toque con dos dedos sobre él: el color \"amigos/enemigos\".\n\nEn menús y ventanas, toque, presione un botón o abra el teclado para un campo de texto; arrastrar tira de controles deslizantes y listas. Al mantener presionado el libro del escriba, se abre una lista vertical de comandos. De forma predeterminada, tiene configuraciones de control y un menú de pausa. Android \"Atrás\" abre el menú del juego (Esc).\n\nAl deslizar el dedo por el panel del edificio, se cambian las secciones disponibles. El edificio seleccionado se resalta y su nombre y costo se muestran junto a él. La lupa al seleccionar una ubicación está desactivada de forma predeterminada; su tamaño y proximidad se pueden cambiar en la configuración.\n\nLos botones de escuadrón y punto se agregan a través del catálogo de botones en el editor de diseño. Grupos: toque las tropas seleccionadas - grabar, mantener en espera - llamar; Llamar de nuevo centra la cámara. Puntos: toque - avance, mantenga presionado - grabe la vista actual. Se anula la selección del centro o área detrás del círculo.\n\nLa velocidad del juego, el sonido, el desplazamiento, el tamaño de la interfaz, el texto claro, el panel táctil y el diseño de los botones están disponibles en la configuración. “Pantalla completa” selecciona la relación de aspecto del dispositivo. El botón “⇄” abre la transición entre los juegos y el iniciador."</string>
+  <string name="text_7bbca9d2" formatted="false">"ya veo"</string>
+  <string name="text_7b305f23" formatted="false">"En el mapa: toque - elección u orden, toque dos veces - unidad del mismo tipo. Al deslizar el dedo se mueve la cámara; para un marco, primero mantenga el dedo hacia abajo durante aproximadamente un tercio de segundo y luego tire.\n\nMantener presionado el mapa cancela un resaltado, estructura o habilidad; si no hay nada que cancelar, iguala el alivio. Mantener el radar también cambia el terreno.\n\nDos dedos mueven la cámara y cambian el zoom. Un giro de aproximadamente un cuarto de vuelta con dos dedos hace girar la tarjeta 90°. Toque corto con dos dedos - cancelar; encima del radar está el color “amigo/enemigo”. Al tocar el valor de la escala sobre el radar se obtiene 100%.\n\nEn el menú, toque presiona el botón, manteniendo presionado se muestra la descripción; Se pueden arrastrar controles deslizantes y listas. Al sostener el libro del escriba se abre una lista vertical de comandos; en el editor, sostenga el lápiz a la izquierda del panel. El botón Disposición le permite arrastrar cada botón individualmente. Android \"Atrás\" abre el menú del juego.\n\nLos botones de escuadrón y punto se agregan a través del catálogo de botones en el editor de diseño. Grupos: toque las tropas seleccionadas - grabar, mantener en espera - llamar; Llamar de nuevo centra la cámara. Puntos: toque - avance, mantenga presionado - grabe la vista actual. Se anula la selección del centro o área detrás del círculo.\n\nAl deslizar el dedo por el panel de edificios, se desplaza por las secciones disponibles: izquierda - siguiente, derecha - anterior; Desde una subsección, al deslizar el dedo en cualquier dirección se abre la siguiente sección. El edificio seleccionado se resalta en su botón.\n\nLupa: mientras tu dedo selecciona una ubicación para un edificio, muro, demolición o habilidad, se muestra una porción ampliada del mapa cerca. Un breve toque lo sitúa de inmediato, sin lupa.\n\nLa vibración marca la configuración del zoom al 100%, cambiando la sección de los edificios, manteniendo, rotando y seleccionando unidades y puntos del mapa. La lupa y la vibración se pueden desactivar en la configuración.\n\nRatón y teclado (USB o Bluetooth): con un ratón, el juego funciona como en una PC: apuntando, LMB y RMB, desplazando la cámara en el borde de la pantalla. La rueda de coincidencias cambia de escala alrededor del cursor y se desplaza por menús y listas. Arrastrar con el botón central mueve el mapa, hacer clic con el botón central devuelve el 100%. Teclas - como en el original: Esc - menú, espacio - relieve, +/− teclado numérico - velocidad, X/C - rotación. Al tocar la pantalla se reactivan los controles táctiles.\n\nPanel táctil: modo de cursor adicional. El toque lo realiza LMB; Se puede habilitar un botón LMB separado en la configuración de control."</string>
+  <string name="text_3974cee0" formatted="false">"Texto en el campo seleccionado"</string>
+  <string name="text_9dcaa1b2" formatted="false">"Ingresando texto"</string>
+  <string name="text_156c037a" formatted="false">"No se pudo enviar el texto. Repetir."</string>
+  <string name="text_e75a395d" formatted="false">"Necesito reiniciar el juego."</string>
+  <string name="text_8eb11e4d" formatted="false">"Se han cambiado las opciones de inicio. Si la partida aún no se ha guardado, regresa al juego y guárdala. Luego cierra el juego y ejecútalo desde el lanzador."</string>
+  <string name="text_1f3ca4a8" formatted="false">"Cerrar juego"</string>
+  <string name="text_7aa86411" formatted="false">"volver al juego"</string>
+  <string name="text_7bda8a8" formatted="false">"La resolución cambiará cuando inicies el juego nuevamente. Primero guarda el partido."</string>
+  <string name="text_6bbeeed" formatted="false">"No se pudo abrir la carpeta: "</string>
+  <string name="text_700a6ce" formatted="false">"No se encontraron archivos de juegos compatibles (sh.tex o cr.tex, gfx, mapas, EXE y DLL) en la carpeta seleccionada."</string>
+  <string name="text_a4644fc1" formatted="false">"Mapa %08X.mapa"</string>
+  <string name="text_ab4773ef" formatted="false">"Idioma desconocido ("</string>
+  <string name="text_fb8eb11f" formatted="false">"Archivo de idioma no disponible"</string>
+  <string name="text_7fefc6fe" formatted="false">"Especifica la ruta absoluta a la carpeta del juego (menos de 512 bytes)."</string>
+  <string name="text_9f82bc76" formatted="false">"Carpeta del juego no disponible: "</string>
+  <string name="text_77e593d2" formatted="false">"Falta o es inaccesible en la carpeta del juego: "</string>
+  <string name="text_1d7e051d" formatted="false">"Extreme requiere una carpeta MapsExtreme."</string>
+  <string name="text_28b1d162" formatted="false">"No encontrado "</string>
+  <string name="text_27fd156" formatted="false">"\nSeleccione el juego descomprimido con EXE y DLL o guarde la carpeta adyacente "</string>
+  <string name="text_b8a27c7e" formatted="false">"La versión EXE difiere de la utilizada para construir el puerto: "</string>
+  <string name="text_9d1f8785" formatted="false">"\nLa compatibilidad no está garantizada: pueden producirse errores o fallos."</string>
+  <string name="text_6e53cedb" formatted="false">"Versión de archivo no compatible: "</string>
+  <string name="text_5bd43a34" formatted="false">". Se requieren archivos originales "</string>
+  <string name="text_1cc40d25" formatted="false">", utilizado al ensamblar el puerto."</string>
+  <string name="text_5bb3e0b9" formatted="false">"No se pudo comprobar "</string>
+  <string name="text_1c8469ed" formatted="false">"Mod.properties incorrecto: se necesitan id, nombre y edición"</string>
+  <string name="text_b2bafaf5" formatted="false">"Sin propiedades mod."</string>
+  <string name="text_eb403ade" formatted="false">"No hay carpeta de archivos en el mod."</string>
+  <string name="text_a50d5f02" formatted="false">"El ID del mod no coincide con la carpeta"</string>
+  <string name="text_bf68a7c2" formatted="false">"No se pudo crear la carpeta de mods"</string>
+  <string name="text_e301efe5" formatted="false">"Instalación del mod cancelada"</string>
+  <string name="text_da0f7a1b" formatted="false">"Hay demasiados archivos en el mod."</string>
+  <string name="text_1d86aacf" formatted="false">"Ruta de modificación no válida: "</string>
+  <string name="text_ac61087a" formatted="false">"Ruta fuera de la carpeta mod"</string>
+  <string name="text_2dbc90bc" formatted="false">"No se pudo crear la carpeta"</string>
+  <string name="text_4806bcdb" formatted="false">"Mod demasiado grande o no hay suficiente espacio"</string>
+  <string name="text_c0c24538" formatted="false">"Mod con identificación "</string>
+  <string name="text_589d7d1e" formatted="false">" ya instalado; primero desinstale la versión anterior"</string>
+  <string name="text_dfc00caa" formatted="false">"Ruta fuera de la carpeta mods"</string>
+  <string name="text_dcab549e" formatted="false">"El archivo de configuración UCP es demasiado grande"</string>
+  <string name="text_3885cbb8" formatted="false">"Versión incompatible de la configuración de UCP"</string>
+  <string name="text_37ee1202" formatted="false">"Versión UCP incorrecta"</string>
+  <string name="text_21477ff3" formatted="false">"ID de UCP no válido"</string>
+  <string name="text_d8f45539" formatted="false">"No se pudo conectar la carpeta mod"</string>
+  <string name="text_9eb924ea" formatted="false">"Datos de instalador incorrectos"</string>
+  <string name="text_bb7b574e" formatted="false">"Instalador de GOG no compatible"</string>
+  <string name="text_a7626e40" formatted="false">"Tamaño de instalador incorrecto"</string>
+  <string name="text_935d7c39" formatted="false">"Nombre de archivo de instalación no válido"</string>
+  <string name="text_3a38ea3a" formatted="false">"No se pudo leer el instalador de GOG"</string>
+  <string name="text_e9f593c1" formatted="false">"Instalador no disponible"</string>
+  <string name="text_71aaf593" formatted="false">"El instalador está dañado o aún no se ha descargado"</string>
+  <string name="text_fe6aedd5" formatted="false">"No se pudo leer el instalador en 30 segundos"</string>
+  <string name="text_b941bd0a" formatted="false">"Demasiados datos del instalador"</string>
+  <string name="text_8650ed8e" formatted="false">"No se pudo leer GOG EXE. Verifique la carga de EXE y BIN vecinos.\n"</string>
+  <string name="text_a028f060" formatted="false">"No hay suficiente espacio para la instalación"</string>
+  <string name="text_8daf5f21" formatted="false">"Cadena de instalación demasiado larga"</string>
+  <string name="text_cb58dac1" formatted="false">"El directorio UCP es demasiado grande"</string>
+  <string name="text_baeab032" formatted="false">"Descripción y limitaciones"</string>
+  <string name="text_d4663468" formatted="false">"Mantenga presionada una línea para leer la descripción de la función.\n\nLos parámetros utilizan valores de perfil de Android preparados. Todas las funciones están inicialmente deshabilitadas.\n\nAún no disponible:\n"</string>
+  <string name="text_c4ca9a3e" formatted="false">"Los cambios se aplican cuando se reinicia el juego."</string>
+  <string name="text_761ec6a6" formatted="false">"Esta función entra en conflicto con la que ya está habilitada. Elige uno de ellos."</string>
+  <string name="text_894c55a6" formatted="false">"Aplicar y reiniciar"</string>
+  <string name="text_c1d8dcca" formatted="false">"Desactivar todo"</string>
+  <string name="text_5eac72ff" formatted="false">"Idioma del dispositivo"</string>
+  <string name="text_4c8d6e38" formatted="false">"Idioma de la interfaz"</string>
+  <string name="text_1ee890a" formatted="false">"Menú"</string>
+  <string name="text_3c0ab0cb" formatted="false">"Pausa"</string>
+  <string name="text_1e9f216" formatted="false">"Introducir texto"</string>
+  <string name="text_e72d2f88" formatted="false">"Distribución"</string>
+  <string name="text_2f4b6762" formatted="false">"Otro juego/lanzador"</string>
+  <string name="text_6de00461" formatted="false">"F1 · castillo"</string>
+  <string name="text_47436775" formatted="false">"Terreno"</string>
+  <string name="text_c55b4d28" formatted="false">"Zoom"</string>
+  <string name="text_789ab605" formatted="false">"Acciones del editor"</string>
+  <string name="text_fec9d" formatted="false">"Clic izquierdo"</string>
+  <string name="text_ffba1" formatted="false">"Clic derecho"</string>
+  <string name="text_b2b43e17" formatted="false">"Zoom del mapa"</string>
+  <string name="text_1feddd8" formatted="false">"No demolición de edificios inaccesibles"</string>
+  <string name="text_452ad1bd" formatted="false">"Evita que la IA destruya edificios sin acceso. Esto debería impedir que la IA\ndestruya y reconstruya continuamente edificios donde no hay acceso a ellos."</string>
+  <string name="text_ac28330" formatted="false">"Mayor velocidad de tropas atacantes adicionales."</string>
+  <string name="text_defb6765" formatted="false">"En Vanilla, el número de unidades de ataque aumenta en 5 &amp;\nunidades en promedio. Este es el significado para todos aquí."</string>
+  <string name="text_c8794600" formatted="false">"No hay cambio de objetivo de la IA durante el asedio."</string>
+  <string name="text_ea7d305f" formatted="false">"Señores de IA que a veces atacan al enemigo más poderoso o más débil y\ncambian de objetivo en medio de un ataque en curso y envían sus tropas y\na otro castillo. Esto se evita con esta configuración, una vez que el asalto ha comenzado &amp;\n, es decir, durante la fase de reunión de tropas frente al castillo, aún pueden ocurrir cambios."</string>
+  <string name="text_3a58fc20" formatted="false">"Aumento del límite de tropas atacantes de IA"</string>
+  <string name="text_9f0fa654" formatted="false">"La cantidad de unidades adicionales que se agregan después del primer ataque y\nen Vanilla es de hasta 200. Aquí puedes cambiar este límite."</string>
+  <string name="text_e53043e9" formatted="false">"Establecer objetivo de ataque de IA"</string>
+  <string name="text_c1544a8a" formatted="false">"Mejora de la ola de ataque"</string>
+  <string name="text_56bf559c" formatted="false">"La IA en un ataque en vainilla envía la misma cantidad de tropas a la vez que cuando las paredes están intactas. Esto hace que las unidades mueran en pequeñas oleadas\ncuando el castillo objetivo tiene muchos edificios justo fuera de sus muros. Esta opción permite a las unidades atacar edificios civiles y fortificados, así como muros\nque ya están atacados por una unidad. Además, la IA envía más tropas al señor enemigo tan pronto como detecta que el muro ha sido destruido."</string>
+  <string name="text_87f0374c" formatted="false">"Compra suficiente madera"</string>
+  <string name="text_1a97404f" formatted="false">"Para que los ladrones arqueros no puedan robar la madera que acaba de comprar la IA para el edificio.\nLa IA ahora comprará 2 unidades de madera adicionales para cada edificio."</string>
+  <string name="text_9d075c1d" formatted="false">"Corrige los refuerzos de las tropas de defensa de la IA."</string>
+  <string name="text_8ff5c08c" formatted="false">"Se corrigió un error que causaba que la IA no reforzara a las tropas faltantes en muros y torres mientras todavía había patrullas defensivas."</string>
+  <string name="text_285bc551" formatted="false">"Desactivar la demolición por el dinero de AI Lords"</string>
+  <string name="text_dd03c78" formatted="false">"Se corrigió que los arqueros europeos no dispararan a la zanja de petróleo."</string>
+  <string name="text_dc18c73c" formatted="false">"Se corrige que los arqueros europeos (AI) no encienden fosos como los arqueros árabes cuando son atacados por unidades enemigas."</string>
+  <string name="text_3b8c03e6" formatted="false">"Se corrige que la IA no use escaleras si están disponibles."</string>
+  <string name="text_48597cd" formatted="false">"La IA (específicamente Snake) ya no deja de usar escaleras con armas de asedio si están en un espacio confinado."</string>
+  <string name="text_65f9d31a" formatted="false">"Configuración de una solución de inteligencia artificial para construir y demoler casas"</string>
+  <string name="text_bce08238" formatted="false">"Desactivar la hibernación por falta de recursos"</string>
+  <string name="text_5436458" formatted="false">"La IA suele poner a dormir sus edificios de procesamiento porque falta el recurso necesario.\nEsto se hace sin tener en cuenta la pérdida de alimentos y armas que hay en el camino a la Armería.\nEsta función se puede desactivar completamente aquí."</string>
+  <string name="text_dae17703" formatted="false">"Reparación de IA mejorada"</string>
+  <string name="text_b470fb65" formatted="false">"La IA reparará las ruinas de las torres, las paredes ligeramente dañadas y &amp;\ndestruirá los gremios de ingeniería y construcción de túneles y las plataformas de refinería de petróleo cuyo lugar de reunión &amp;\naún existe. Además, la IA ahora puede basarse en la plataforma de canteras Gathering &amp;\n."</string>
+  <string name="text_c6d39296" formatted="false">"Mayor velocidad de reclutamiento"</string>
+  <string name="text_81a08df1" formatted="false">"Establece el intervalo de reclutamiento de toda la IA al valor más bajo (Rat/Richard)"</string>
+  <string name="text_5852fbee" formatted="false">"Configuración del tiempo inicial de reclutamiento de IA para la defensa"</string>
+  <string name="text_98504523" formatted="false">"Mejorar la reposición de bienes necesarios mediante IA"</string>
+  <string name="text_e5362373" formatted="false">"La IA a menudo no reabastece productos incluso si tiene el oro para ello, lo que deja sus cadenas de producción secas. Esta opción reduce la cantidad de tiempo que la IA espera a que se agoten sus existencias antes de reponer los bienes necesarios."</string>
+  <string name="text_411fb045" formatted="false">"Desactiva el spam de anclaje"</string>
+  <string name="text_b0668156" formatted="false">"Normalmente, la IA construye una nueva atadura y\npara cada nueva cantera, independientemente de cuántas ataduras ya existan. Esto se puede desactivar aquí, ya que &amp;\ngenera spam si las carreras de IA se destruyen repetidamente."</string>
+  <string name="text_58c13e33" formatted="false">"No hay límite de máquinas de asedio en las torres."</string>
+  <string name="text_fd22b83d" formatted="false">"La IA suele construir hasta tres mangoneles y balistas en sus torres. &amp;\nEste límite se puede eliminar aquí."</string>
+  <string name="text_75701bbb" formatted="false">"Tamaño del área de cultivo de manzanas"</string>
+  <string name="text_1155fd0d" formatted="false">"Cambia el tamaño del edificio del huerto de manzanos al tamaño que ocupa después de la ubicación de la granja. Esto ahorra espacio al construir granjas y aumenta la velocidad a la que la IA puede colocar estas granjas."</string>
+  <string name="text_399176b3" formatted="false">"Arreglar armas de armería/mercado para que coincidan con el orden."</string>
+  <string name="text_729e4f00" formatted="false">"Se cambió el orden de los íconos de armas en la Armería y el Mercado para que estén en el mismo orden. También mueve la armadura de cuero entre la maza y la ballesta, y la armadura de metal entre las picas y la espada para facilitar el acceso al desplazarse por los elementos del mercado."</string>
+  <string name="text_b7349c41" formatted="false">"La posición de aparición de las máquinas de asedio está en el medio."</string>
+  <string name="text_1c8fc28d" formatted="false">"Las máquinas de asedio ahora aparecen en el centro en lugar de aparecer en la esquina superior de la tienda."</string>
+  <string name="text_9644382a" formatted="false">"Establece la velocidad multijugador por defecto."</string>
+  <string name="text_589c7e28" formatted="false">"No hay elección de tienda de asedio"</string>
+  <string name="text_18b28856" formatted="false">"Con esta configuración, el juego no cancela el equipo de asedio elegido después de colocar más de una tienda de campaña\n. De esta forma podrás crear varias tiendas de campaña una tras otra sin tener que volver a seleccionar el mismo equipo de asedio."</string>
+  <string name="text_4feb7c60" formatted="false">"Colocación rápida"</string>
+  <string name="text_1ef65230" formatted="false">"Aumentar la duración de la seguridad contra incendios de los edificios extinguidos."</string>
+  <string name="text_cc03f437" formatted="false">"Aquí puede ampliar el periodo durante el cual los edificios extintos ya no pueden incendiarse."</string>
+  <string name="text_6e6b12a1" formatted="false">"Arreglar el error de desaparición del panadero"</string>
+  <string name="text_fccb5bb" formatted="false">"Se corrigió un error por el cual las panaderías desaparecían si los panaderos no encontraban harina en el almacén de suministros."</string>
+  <string name="text_cf14e917" formatted="false">"Corrige el error del tirador."</string>
+  <string name="text_8361dffd" formatted="false">"Corrección de conducta donde el arquero regresa al lugar de trabajo después de depositar un arco/ballesta en lugar de dirigirse directamente al almacén."</string>
+  <string name="text_ca54190c" formatted="false">"Arreglar el error de subir escaleras"</string>
+  <string name="text_eb50f98e" formatted="false">"Las unidades ya no olvidan su propósito después de escalar una pared y ya no comenzarán a subir o descender inmediatamente después de haber escalado."</string>
+  <string name="text_61a70c46" formatted="false">"Habilitar el envío de mapas en multijugador"</string>
+  <string name="text_9e950ce" formatted="false">"Reduce la longitud del nombre del mapa enviado para que el envío del mapa sea posible nuevamente."</string>
+  <string name="text_159da4d9" formatted="false">"Corrige unidades que desaparecen al cavar una zanja."</string>
+  <string name="text_c2d9827d" formatted="false">"Se corrigió un error por el cual los excavadores de zanjas desaparecían aleatoriamente durante las excavaciones. ¡Ten en cuenta que aún pueden desaparecer si les dices que se muevan mientras excavas y accidentalmente terminan en una casilla no peatonal!"</string>
+  <string name="text_863b3398" formatted="false">"Arreglar la eliminación rápida de recursos"</string>
+  <string name="text_f103a852" formatted="false">"Eliminar edificios con un clic automático rápido ya no proporciona recursos para más de una eliminación."</string>
+  <string name="text_325c982e" formatted="false">"mercado libre"</string>
+  <string name="text_8f03ccd2" formatted="false">"Porque a veces la IA juega sola cuando está lejos del bosque y su mercado está destruido. &amp;\nEsta opción permitirá que el mercado sea libre para evitarlo."</string>
+  <string name="text_f069c318" formatted="false">"Límites de velocidad de juego avanzados"</string>
+  <string name="text_fc01c356" formatted="false">"Ahora la velocidad del juego se puede cambiar de la siguiente manera:\n- De 10 a 90 con un intervalo de 5\n- de 90 a 200 con un intervalo de 10\n- de 200 a 1000 con un intervalo de 100\n- de 1100 - 9000 (pero después de 1100 no hay aumento)\nLos nuevos valores solo están disponibles usando el + - teclas, el control deslizante en &amp;\nEl menú del juego permanece sin cambios."</string>
+  <string name="text_678f0452" formatted="false">"El curandero trata a los soldados heridos"</string>
+  <string name="text_d80b35ab" formatted="false">"El sanador del edificio de la farmacia ahora busca activamente soldados, aldeanos y animales heridos para curarlos. Primero cura a los objetivos cercanos.\nSe reproduce una animación que cura la salud del lancero en 1/3 de segundo. Cuando un sanador camina, puede disipar una nube de plaga que nota.\nCurará a todos en un área del castillo hasta que esté completamente curado, y solo entonces pasará a otra área del castillo.\nAdemás, no comenzará a disipar las nubes de plaga hasta que descienda a los jardines."</string>
+  <string name="text_5537ff62" formatted="false">"Comprobando la ruta disponible con más frecuencia"</string>
+  <string name="text_c2320354" formatted="false">"En Vanilla, se necesitaban 200 ticks de juego para probar nuevos caminos, a menudo deteniendo unidades para permitir que la IA entrara al castillo después de destruir una puerta o torre inmediatamente.\nLa disponibilidad ahora se calcula cada 50 ticks del juego, lo que permite a las unidades implementar nuevas rutas más rápido."</string>
+  <string name="text_7b910129" formatted="false">"Botones WASD y guardado rápido"</string>
+  <string name="text_da9cb22e" formatted="false">"Las teclas WASD se pueden usar para moverse con esta configuración, así como &amp;\nCTRL-S y CTRL-L para guardar y cargar rápidamente, respectivamente."</string>
+  <string name="text_663f3a2c" formatted="false">"Mostrar siempre la zanja prevista."</string>
+  <string name="text_c57cf934" formatted="false">"Su propia zanja, pero no excavada, siempre se mostrará con esta opción, incluso si anula la selección de la ubicación de la zanja."</string>
+  <string name="text_c3793199" formatted="false">"Activar el modo espectador (solo IA) [Posibles errores]"</string>
+  <string name="text_980be06e" formatted="false">"Elimina al jugador 1 para que solo puedas ver 8 IA en el mismo modo. &amp;\nLos juegos guardados ahora se cargan correctamente en este modo. A veces aparece el error &amp;\ncuando aparecen objetos aleatorios por todo el mapa. Esto es solo un error visual &amp;\ny se puede eliminar guardando el juego, completando la misión y recargando &amp;\nguardar el archivo."</string>
+  <string name="text_b5130776" formatted="false">"Redefina el menú \"Configurar identidad\" agregando nuevas funciones."</string>
+  <string name="text_346aae56" formatted="false">"Agrega una selección de unidades a distancia y cuerpo a cuerpo al menú de configuración de identidad.\" ¡SOLO PARA EL MODO DE JUEGO REGULAR!"</string>
+  <string name="text_8951aea4" formatted="false">"Cambiar color del jugador 1"</string>
+  <string name="text_e5c92bd" formatted="false">"Rápida reacción de las unidades a los enemigos."</string>
+  <string name="text_796f1f14" formatted="false">"La puerta se cierra más tarde y\ncuando el peligro desaparece. La distancia del enemigo durante la cual se cierra la puerta y\nse reducirá de 200 a 140. El tiempo después del cual se abre la puerta y\nse reducirá de 1200 a 100."</string>
+  <string name="text_e11c16a2" formatted="false">"Restaurando el habla árabe del ingeniero"</string>
+  <string name="text_47bf4b5e" formatted="false">"Permite a los ingenieros hablar en pistas de voz en árabe grabadas de forma nativa cuando el reproductor está usando el Señor Árabe.\n\nLas líneas de voz no son muy diferentes entre sí, por lo que pueden volverse molestas después de un tiempo."</string>
+  <string name="text_ccbd6746" formatted="false">"Fortalecer"</string>
+  <string name="text_b9c448ff" formatted="false">"Rotar la fortaleza de un jugador"</string>
+  <string name="text_c6a03e85" formatted="false">"La fortaleza del jugador rota de la misma manera que las fortalezas de la IA. Más precisamente, está frente al fuego de la IA y del otro lado al borde del mapa."</string>
+  <string name="text_7431cbf3" formatted="false">"Se eliminaron los íconos mágicos de Stronghold Crusader Extreme."</string>
+  <string name="text_732ad036" formatted="false">"Elimina íconos mágicos de Stronghold Crusader Extreme."</string>
+  <string name="text_40f0ed66" formatted="false">"u_arabwall"</string>
+  <string name="text_40f165ee" formatted="false">"u_arabxbow"</string>
+  <string name="text_fc37c472" formatted="false">" - Los espadachines árabes mueren después de 6 flechas de ballesta en lugar de 3."</string>
+  <string name="text_ea90a6d6" formatted="false">"Las balistas de fuego disparan a monjes y excavadores de túneles."</string>
+  <string name="text_c2f7c701" formatted="false">"Las balistas de fuego disparan automáticamente contra monjes y excavadores de túneles."</string>
+  <string name="text_6b6a494d" formatted="false">"Reparar granjas de manzanas bloqueadas"</string>
+  <string name="text_395fdc85" formatted="false">"Los agricultores de manzanas ya no pueden ser bloqueados colocando edificios en la parte superior izquierda de la granja."</string>
+  <string name="text_51c1fc58" formatted="false">"Corrige la animación de congelación de Lord."</string>
+  <string name="text_6a6653f" formatted="false">"Corrige la animación de congelación del Señor cuando está de pie o cuando destruye un edificio."</string>
+  <string name="text_e40f72c0" formatted="false">"Armadura aumentada de campesinos con escaleras contra tropas distantes."</string>
+  <string name="text_fcd33444" formatted="false">" - Los campesinos con escaleras mueren después de 12 flechas en lugar de 5\n- Los campesinos con escaleras mueren después de 5 disparos de ballesta o hondera en lugar de 2\n- Los campesinos con escaleras cuestan 20 de oro en lugar de 4"</string>
+  <string name="text_8e5eeb6c" formatted="false">"Mayor armadura de los lanceros contra el daño de unidades a distancia."</string>
+  <string name="text_c3e8d497" formatted="false">" - Los lanceros mueren después de ser alcanzados por 5 flechas de arco en lugar de 3\n- Los lanceros apenas sobreviven a un disparo de ballesta en lugar de morir de un solo disparo."</string>
+  <string name="text_73d4b3b4" formatted="false">"Los lanceros corren por defecto en lugar de caminar."</string>
+  <string name="text_ee55b088" formatted="false">"En lugar de caminar lentamente, los lanceros corren lentamente."</string>
+  <string name="text_528a62c4" formatted="false">"Se corrige que los peleteros obtengan la misma vaca."</string>
+  <string name="text_997e4ebf" formatted="false">"Los peleteros ya no volverán sin una vaca cuando otro peletero se haya llevado la vaca objetivo. En cambio, esperarán un poco y luego tomarán otra vaca."</string>
+  <string name="text_b06cab43" formatted="false">"No se pudo preparar EXE"</string>
+  <string name="text_d9afbeb9" formatted="false">"Formato de adaptación EXE no válido"</string>
+  <string name="text_b1da8da8" formatted="false">"EXE no coincide con la adaptación."</string>
+  <string name="text_db07b86e" formatted="false">"EXE está truncado"</string>
+  <string name="text_b570e58e" formatted="false">"Datos extra de adaptación EXE"</string>
+  <string name="text_709de14b" formatted="false">"La suma de comprobación del EXE adaptado no coincidía"</string>
+  <string name="text_fab87405" formatted="false">"Ir · "</string>
+  <string name="text_87fac83a" formatted="false">" cerrará"</string>
+  <string name="text_402982c5" formatted="false">"IA · correcciones"</string>
+  <string name="text_4c783982" formatted="false">"IA · mejoras"</string>
+  <string name="text_73372df1" formatted="false">"Correcciones de errores"</string>
+  <string name="text_2d63d878" formatted="false">"Equilibrio"</string>
+  <string name="text_8a6cac11" formatted="false">"Comodidad de juego"</string>
+  <string name="text_462adbaa" formatted="false">"Otros"</string>
+  <string name="text_ec7e9b17" formatted="false">"Categoría de parches"</string>
+  <string name="text_a418107d" formatted="false">"Autores: %s"</string>
+</resources>

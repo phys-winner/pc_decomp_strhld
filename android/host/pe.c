@@ -6,6 +6,7 @@
 #define _GNU_SOURCE
 #include "host.h"
 #include "edition.h"
+#include "mods.h"
 #include <ctype.h>
 #include <errno.h>
 #include <strings.h>
@@ -392,6 +393,7 @@ int void_modules_init(const char *image_dir)
     int ok = 1;
     for (int i = 0; i < module_count; ++i) if (modules[i].kind != MOD_PSEUDO) ok &= bind_imports(&modules[i]);
     if (!ok) return 0;
+    if (!stronghold_ucp_apply()) return 0;
     for (int i = 0; i < module_count; ++i) {
         void_module *m = &modules[i];
         if (m->kind != MOD_LIFTED_DLL) continue;

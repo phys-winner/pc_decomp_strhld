@@ -9,6 +9,7 @@
 #define _GNU_SOURCE
 #include "host.h"
 #include "edition.h"
+#include "mods.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -269,6 +270,59 @@ static char *to_host(const char *windows_path, int *parent_exists, char *normali
 
 char *void_path_to_host(const char *windows_path) { return to_host(windows_path, NULL, NULL); }
 
+/* Mod overlays serve asset reads; all writes continue through the original mounts. */
+static char *mod_host(const char *normalized, int root, int directory)
+{
+    size_t prefix = strlen(GAME_INSTALL);
+    if (strncasecmp(normalized, GAME_INSTALL, prefix) || (normalized[prefix] && normalized[prefix] != '\\')) return NULL;
+    const char *relative = normalized + prefix;
+    while (*relative == '\\') relative++;
+    if (strstr(relative, "..") || strpbrk(relative, ":\r\n")) return NULL;
+    if (*relative) {
+        size_t length = strcspn(relative, "\\");
+        const char *directories[] = {"aiv", "binks", "fx", "gfx", "gfx8", "gm", "maps", "mapsExtreme"};
+        int allowed = 0;
+        for (size_t i=0; i<sizeof directories/sizeof *directories; i++)
+            if (strlen(directories[i]) == length && !strncasecmp(relative, directories[i], length)) allowed = 1;
+        if (!allowed && !relative[length]) {
+            const char *extension = strrchr(relative, '.');
+            const char *extensions[] = {".tex", ".ani", ".cur", ".bmp", ".csv", ".mlb"};
+            for (size_t i=0; extension && i<sizeof extensions/sizeof *extensions; i++)
+                if (!strcasecmp(extension, extensions[i])) allowed = 1;
+        }
+        if (!allowed) return NULL;
+        const char *extension = strrchr(relative, '.');
+        if (extension && (!strcasecmp(extension, ".exe") || !strcasecmp(extension, ".dll") ||
+                          !strcasecmp(extension, ".asi") || !strcasecmp(extension, ".lua"))) return NULL;
+    } else if (!directory) return NULL;
+    const char *base = stronghold_mod_root(root);
+    if (!base) return NULL;
+    char host[2048], component[512];
+    if (strlen(base) >= sizeof host) return NULL;
+    snprintf(host, sizeof host, "%s", base);
+    while (*relative) {
+        size_t n = strcspn(relative, "\\");
+        if (!n || n >= sizeof component) return NULL;
+        memcpy(component, relative, n); component[n] = 0;
+        if (!resolve_component(host, sizeof host, component)) return NULL;
+        relative += n; if (*relative) relative++;
+    }
+    struct stat st;
+    if (stat(host, &st) || (directory > 0 ? !S_ISDIR(st.st_mode) : directory == 0 && !S_ISREG(st.st_mode))) return NULL;
+    return strdup(host);
+}
+static char *to_read_host(const char *path, int *parent_exists, int directory)
+{
+    char normalized[1024];
+    char *original = to_host(path, parent_exists, normalized);
+    if (!original) return NULL;
+    for (int i = 0; i < stronghold_mod_count(); i++) {
+        char *overlay = mod_host(normalized, i, directory);
+        if (overlay) { free(original); if (parent_exists) *parent_exists = 1; return overlay; }
+    }
+    return original;
+}
+
 uint32_t void_cwd_get(char *out, uint32_t cap)
 {
     pthread_mutex_lock(&cwd_lock);
@@ -397,7 +451,8 @@ static uint32_t create_file(const char *path, uint32_t access, uint32_t disposit
     int parent_ok = 0, fd = -1, error = 0, directory = 0, exists = 0;
     char *host = NULL;
     void_blocking_begin();
-    host = to_host(norm, &parent_ok, NULL);
+    host = disposition == OPEN_EXISTING_ && !(access & (GENERIC_WRITE_ | FILE_WRITE_DATA_ | FILE_APPEND_DATA_ | 0x10000000u))
+        ? to_read_host(norm, &parent_ok, 0) : to_host(norm, &parent_ok, NULL);
     if (!host) { error = ERROR_PATH_NOT_FOUND_; goto opened; }
     struct stat st;
     exists = !stat(host, &st);
@@ -689,7 +744,7 @@ static uint32_t attributes_of(const char *path)
 {
     if (!path) { void_set_last_error(ERROR_PATH_NOT_FOUND_); return 0xFFFFFFFFu; }
     int parent_ok = 0;
-    char *host = to_host(path, &parent_ok, NULL);
+    char *host = to_read_host(path, &parent_ok, -1);
     struct stat st;
     if (!host || stat(host, &st)) {
         void_set_last_error(parent_ok ? ERROR_FILE_NOT_FOUND_ : ERROR_PATH_NOT_FOUND_);
@@ -884,6 +939,7 @@ typedef struct {
     char **names;
     int count, next;
     char dir[2048];
+    char windows_dir[1024];
 } find_t;
 
 static void find_destroy(void_object *o)
@@ -902,6 +958,11 @@ static int fill_find_data(find_t *f, const char *name, uint32_t out, int wide)
 {
     char host[4096];
     snprintf(host, sizeof host, "%s/%s", f->dir, name);
+    if (stronghold_mod_count()) {
+        char windows[1600]; snprintf(windows, sizeof windows, "%s\\%s", f->windows_dir, name);
+        char *mapped = to_read_host(windows, NULL, -1);
+        if (mapped) { snprintf(host, sizeof host, "%s", mapped); free(mapped); }
+    }
     struct stat st;
     memset(GPTR(out), 0, wide ? 592 : 320);
     if (stat(host, &st)) return 0;
@@ -929,7 +990,7 @@ static uint32_t find_first(const char *pattern_path, uint32_t out, int wide)
     if (slash) *slash = 0;
     if (strlen(norm) == 2) strcat(norm, "\\");
     int parent_ok = 0;
-    char *host_dir = to_host(norm, &parent_ok, NULL);
+    char *host_dir = to_read_host(norm, &parent_ok, 1);
     DIR *d = host_dir ? opendir(host_dir) : NULL;
     if (!d) {
         VLOG("[void] FindFirstFile(%s): no directory", pattern_path);
@@ -941,6 +1002,7 @@ static uint32_t find_first(const char *pattern_path, uint32_t out, int wide)
     find_t *f = (find_t *)o->data;
     o->destroy = find_destroy;
     snprintf(f->dir, sizeof f->dir, "%s", host_dir);
+    snprintf(f->windows_dir, sizeof f->windows_dir, "%s", norm);
     /* "*.*" matches every name, as on Windows. */
     int match_all = !strcmp(pattern, "*") || !strcmp(pattern, "*.*");
     struct dirent *e;
@@ -952,6 +1014,23 @@ static uint32_t find_first(const char *pattern_path, uint32_t out, int wide)
         }
     }
     closedir(d);
+    for (int root = 0; root < stronghold_mod_count(); root++) {
+        char *overlay = mod_host(norm, root, 1);
+        DIR *mod = overlay ? opendir(overlay) : NULL;
+        if (mod) {
+            while ((e = readdir(mod))) {
+                if (!match_all && fnmatch(pattern, e->d_name, FNM_CASEFOLD)) continue;
+                int duplicate = 0;
+                for (int n = 0; n < f->count; n++) if (!strcasecmp(f->names[n], e->d_name)) { duplicate = 1; break; }
+                if (duplicate) continue;
+                char **names = realloc(f->names, sizeof(char *) * (size_t)(f->count + 1));
+                if (!names) { closedir(mod); free(overlay); free(host_dir); void_object_release(o); void_set_last_error(8); return WIN_INVALID_HANDLE; }
+                f->names = names; f->names[f->count++] = strdup(e->d_name);
+            }
+            closedir(mod);
+        }
+        free(overlay);
+    }
     free(host_dir);
     VLOG("[void] FindFirstFile(%s): %d matches", pattern_path, f->count);
     while (f->next < f->count && !fill_find_data(f, f->names[f->next], out, wide)) ++f->next;

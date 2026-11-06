@@ -7,13 +7,10 @@ final class ControlLayout {
     static final int SCREEN = 0, HIDDEN = 2, LEFT_ZONE = 3, RIGHT_ZONE = 4, BOOK_ZONE = 5;
     static final String[] IDS = {"menu", "pause", "text", "settings", "layout", "help", "switch",
             "ctrl", "shift", "backspace", "enter", "f5", "f1", "slower", "speed", "faster",
-            "relief", "zoom", "rotate_left", "rotate_right", "editor", "lmb", "rmb", "groups", "markers", "zoom_value",
-            "editor_pause", "editor_resources", "editor_lord", "editor_type", "editor_animals", "editor_seams", "gamepad_help"};
+            "relief", "zoom", "rotate_left", "rotate_right", "editor", "lmb", "rmb", "groups", "markers", "zoom_value", "gamepad_help"};
     static final String[] LABELS = {"Меню", "Пауза", "Ввод", "Настройки", "Расположение", "?", "Другая игра / лаунчер",
             "Ctrl", "Shift", "⌫", "Enter", "F5", "F1 · замок", "−", "Скорость игры", "+",
-            "Рельеф", "Масштаб", "↺", "↻", "Редактор…", "ЛКМ", "ПКМ", "Отряд", "Точки", "Приближение карты",
-            "Редактор: пауза", "Редактор: налоги, деньги и рацион", "Редактор: восстановить лорда",
-            "Редактор: тип карты", "Редактор: удалить животных", "Редактор: швы местности", "Геймпад · раскладка"};
+            "Рельеф", "Масштаб", "↺", "↻", "Действия редактора", "ЛКМ", "ПКМ", "Отряд", "Точки", "Приближение карты", "Геймпад · раскладка"};
     static String label(String id) {
         for (int i = 0; i < IDS.length; i++) if (IDS[i].equals(id)) return LABELS[i];
         throw new IllegalArgumentException(id);
@@ -25,13 +22,12 @@ final class ControlLayout {
     static boolean inZone(String id) { return known(id) && !"speed".equals(id) && !"zoom_value".equals(id); }
     static int defaultPlacement(String id, boolean extra, boolean touchpad, boolean groups, boolean markers) {
         if (!known(id)) return HIDDEN;
-        if ("zoom_value".equals(id) || "gamepad_help".equals(id)) return SCREEN;
+        if ("zoom_value".equals(id) || "gamepad_help".equals(id) || "editor".equals(id)) return SCREEN;
         // Screen taps already left-click in cursor mode; an explicit choice can restore the button.
         if ("lmb".equals(id)) return HIDDEN;
         if ("rmb".equals(id)) return touchpad ? SCREEN : HIDDEN;
         if ("groups".equals(id)) return groups ? SCREEN : HIDDEN;
         if ("markers".equals(id)) return markers ? SCREEN : HIDDEN;
-        if (id.startsWith("editor_")) return HIDDEN;
         if (!extra && ("layout".equals(id) || "menu".equals(id))) return BOOK_ZONE;
         return extra ? SCREEN : HIDDEN;
     }
@@ -63,12 +59,20 @@ final class ControlLayout {
     }
     static boolean removedMenuKey(String key) {
         return key != null && (key.startsWith("radial-slot-") || "control-more".equals(key) ||
-                "pos-more".equals(key) || key.startsWith("pos-more-"));
+                "pos-more".equals(key) || key.startsWith("pos-more-") ||
+                key.startsWith("control-editor_") || key.startsWith("pos-editor_"));
     }
     static boolean cleanRemovedMenu(Map<String, Object> preferences) {
         boolean changed = false;
         java.util.Iterator<String> keys = preferences.keySet().iterator();
-        while (keys.hasNext()) if (removedMenuKey(keys.next())) { keys.remove(); changed = true; }
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = preferences.get(key);
+            boolean editorBinding = ("zone-left-tap".equals(key) || "zone-left-hold".equals(key) ||
+                    "zone-right-tap".equals(key) || "zone-right-hold".equals(key)) &&
+                    value instanceof String && ((String)value).startsWith("editor_");
+            if (removedMenuKey(key) || editorBinding) { keys.remove(); changed = true; }
+        }
         for (String id : IDS) {
             String key = "control-" + id;
             if (Integer.valueOf(1).equals(preferences.get(key))) { preferences.put(key, HIDDEN); changed = true; }

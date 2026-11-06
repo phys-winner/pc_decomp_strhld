@@ -6,11 +6,32 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from test_touch import Original
+from test_game_text import Editor
 from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
 
 
 def main():
     results = []
+    hd = Editor('stronghold'); transitions = []; actions = []
+    def hd_hook(pc):
+        if pc==0x49314F: hd.u.emu_stop()
+        elif pc in (0x45BEB0,0x48E2F0,0x4F3990):
+            sp=hd.u.reg_read(UC_X86_REG_ESP)
+            if pc==0x45BEB0: transitions.append((hd.r(sp+4),hd.r(sp+8)));pops=2
+            elif pc==0x48E2F0: actions.append(hd.r(sp+4));pops=2
+            else: actions.append('animals');pops=0
+            hd.u.reg_write(UC_X86_REG_ESP,sp+4+pops*4);hd.u.reg_write(UC_X86_REG_EIP,hd.r(sp))
+    hd.w(0x1503CE4,0xffffffff);hd.w(0x1503D84,1);hd.w(0x1505670,1)
+    hd.run(0x4394E0,(25,),hook=hd_hook)
+    assert transitions==[(1002,0)],transitions
+    hd.w(0x1503D38,1002);hd.h(0xBF6452,0)
+    for expected in (1,0):
+        hd.run(0x4923D0,(0x10010,0x104,0xDE,1),hook=hd_hook)
+        assert hd.rh(0xBF6452)==expected
+    hd.w(0x1503D38,17)
+    for key in (0xBC,ord('E')):hd.run(0x4923D0,(0x10010,0x104,key,1),hook=hd_hook)
+    assert actions==[31,'animals'],actions
+    results.append(dict(edition='stronghold',sha256=hd.sha,editor_resources_round_trip=True,map_type_dialog=31,animals_handler=True))
     for edition in ('classic', 'game'):
         o = Original(edition)
         ex = edition == 'game'
@@ -82,7 +103,7 @@ def main():
         results.append(dict(edition=edition, sha256=o.sha, bookmark_slots=9,
                             bookmark_index='virtual key', radar_round_trip=True, editor_resources_round_trip=True))
     (ROOT / 'generated/android-hotkeys-proof.json').write_text(json.dumps(results, indent=2) + '\n')
-    print('Original Classic/Extreme Alt+R, all nine bookmarks, scenario transition and initial tax/ration/money panel: PASS')
+    print('Original HD editor transitions/resources/type/animals; Classic/Extreme Alt+R, nine bookmarks and initial resources: PASS')
 
 
 if __name__ == '__main__':

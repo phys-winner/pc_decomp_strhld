@@ -21,18 +21,20 @@ public abstract class SettingsActivity extends PreferenceActivity {
     private SharedPreferences preferences;
     private PreferenceScreen home, graphics, audio, gameplay;
     private String section = "";
+    private String screenLanguage;
     private int[] game;
     static Class<? extends SettingsActivity> settingsClass(String edition) {
         return "classic".equals(edition) ? ClassicSettingsActivity.class : "stronghold".equals(edition) ? StrongholdSettingsActivity.class : ExtremeSettingsActivity.class;
     }
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        I18n.apply(this);
         /* Like the launcher: the backdrop also fills the camera cutout and bars,
          * while the action bar and list keep clear of them. */
         Theme.edgeToEdge(this);
         View root = ((ViewGroup) getWindow().getDecorView()).getChildAt(0);
         root.setOnApplyWindowInsetsListener((view, insets) -> Theme.padInsets(view, insets, 0, 0, 0, 0));
-        setTitle("Настройки · " + GameFiles.title(edition()));
+        setTitle(I18n.t("Настройки · ") + GameFiles.title(edition()));
         getActionBar().setDisplayHomeAsUpEnabled(true);
         preferences = getSharedPreferences("controls-" + edition(), MODE_PRIVATE);
         migrate(preferences);
@@ -51,53 +53,60 @@ public abstract class SettingsActivity extends PreferenceActivity {
         buildScreens();
         showSection(state == null ? getIntent().getStringExtra("section") : state.getString("section"));
     }
+    @Override protected void onResume() {
+        super.onResume(); I18n.apply(this);
+        if (preferences != null && !I18n.language().equals(screenLanguage)) {
+            game = GameActivity.gameSettings(); buildScreens(); showSection(section);
+        }
+    }
     private void buildScreens() {
+        screenLanguage = I18n.language();
         home = getPreferenceManager().createPreferenceScreen(this);
-        graphics = newSection("graphics", "Графика", "Разрешение, размер интерфейса и качество изображения");
-        audio = newSection("audio", "Звук", "Музыка, эффекты и речь");
-        gameplay = newSection("game", "Игра", "Скорость игры, подсказки и управление");
+        graphics = newSection("graphics", I18n.t("Графика"), I18n.t("Разрешение, размер интерфейса и качество изображения"));
+        audio = newSection("audio", I18n.t("Звук"), I18n.t("Музыка, эффекты и речь"));
+        gameplay = newSection("game", I18n.t("Игра"), I18n.t("Скорость игры, подсказки и управление"));
         if (GameFiles.original(edition())) strongholdSettings(graphics); else crusaderGraphics(graphics);
         graphicsDescriptions();
         minimumGraphics(graphics);
         gameSettings();
         controlSettings();
         resetSettings();
-        Preference launcher = new Preference(this); launcher.setTitle("Лаунчер и папки игры"); home.addPreference(launcher);
+        Preference launcher = new Preference(this); launcher.setTitle(I18n.t("Лаунчер и папки игры")); home.addPreference(launcher);
         launcher.setOnPreferenceClickListener(item -> {
             startActivity(new Intent(this,LauncherActivity.class).putExtra("showLauncher",true).putExtra("edition",edition())
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)); return true;
         });
     }
     private void crusaderGraphics(PreferenceGroup graphics) {
-        list(graphics,"resolution","Разрешение",new String[]{"Авто","Минимальное","Устройство","720p","1080p","1440p"},
+        list(graphics,"resolution",I18n.t("Разрешение"),new String[]{I18n.t("Авто"),I18n.t("Минимальное"),I18n.t("Устройство"),"720p","1080p","1440p"},
                 new String[]{"auto","minimum","device","1280x720","1920x1080","2560x1440"},preferences.getString("resolution","auto"),
                 value -> preferences.edit().putString("resolution",value).apply());
-        Preference note = new Preference(this); note.setTitle("Разрешение и пропорции применяются при новом запуске игры");
-        note.setSummary("Перед перезапуском сохраните матч. «Минимальное» — 600 строк, наименьший кадр движка, с пропорциями экрана. "+
-                "Разрешение не меняется автоматически во время игры."); note.setSelectable(false); graphics.addPreference(note);
-        toggle(graphics,"wide","Использовать пропорции устройства",true);
+        Preference note = new Preference(this); note.setTitle(I18n.t("Разрешение и пропорции применяются при новом запуске игры"));
+        note.setSummary(I18n.t("Перед перезапуском сохраните матч. «Минимальное» — 600 строк, наименьший кадр движка, с пропорциями экрана. ")+
+                I18n.t("Разрешение не меняется автоматически во время игры.")); note.setSelectable(false); graphics.addPreference(note);
+        toggle(graphics,"wide",I18n.t("Использовать пропорции устройства"),true);
         resolutionLabels();
-        integers(graphics,"uiScale","Размер интерфейса",new int[]{75,90,100,110,120,150,175,200},120,"%",-1);
+        integers(graphics,"uiScale",I18n.t("Размер интерфейса"),new int[]{75,90,100,110,120,150,175,200},120,"%",-1);
         if ("extreme".equals(edition()))
-            integers(graphics,"powersScale","Размер панели сил",new int[]{75,100,120,150,175,200,250,300},150,"%",-1);
-        String[] filterLabels={"FSR 1.0","Бикубический","Чёткие пиксели","Билинейный"},filterValues={"fsr","bicubic","pixels","bilinear"};
-        list(graphics,"worldFilter","Фильтр мира",filterLabels,filterValues,preferences.getString("worldFilter","fsr"),
+            integers(graphics,"powersScale",I18n.t("Размер панели сил"),new int[]{75,100,120,150,175,200,250,300},150,"%",-1);
+        String[] filterLabels={"FSR 1.0",I18n.t("Бикубический"),I18n.t("Чёткие пиксели"),I18n.t("Билинейный")},filterValues={"fsr","bicubic","pixels","bilinear"};
+        list(graphics,"worldFilter",I18n.t("Фильтр мира"),filterLabels,filterValues,preferences.getString("worldFilter","fsr"),
                 value -> preferences.edit().putString("worldFilter",value).apply());
-        list(graphics,"uiFilter","Фильтр интерфейса",filterLabels,filterValues,preferences.getString("uiFilter","fsr"),
+        list(graphics,"uiFilter",I18n.t("Фильтр интерфейса"),filterLabels,filterValues,preferences.getString("uiFilter","fsr"),
                 value -> preferences.edit().putString("uiFilter",value).apply());
-        integers(graphics,"sharpness","Резкость",new int[]{0,25,50,75,100},25,"%",-1);
-        toggle(graphics,"deband","Сглаживание градиентов",false);
-        toggle(graphics,"crispText","Чёткий текст",true);
+        integers(graphics,"sharpness",I18n.t("Резкость"),new int[]{0,25,50,75,100},25,"%",-1);
+        toggle(graphics,"deband",I18n.t("Сглаживание градиентов"),false);
+        toggle(graphics,"crispText",I18n.t("Чёткий текст"),true);
     }
     private void graphicsDescriptions() {
-        String filters = "FSR 1.0 сохраняет чёткие края, бикубический мягче, «Чёткие пиксели» сохраняют пиксельный вид без зубцов, билинейный самый мягкий. Применяется сразу.";
-        describe("worldFilter", "Карта увеличивается до размера экрана отдельно от интерфейса. " + filters);
-        describe("uiFilter", "Интерфейс увеличивается до размера экрана отдельно от карты. " + filters);
-        describe("sharpness", "Сила повышения резкости изображения. Применяется сразу.");
-        describe("deband", "Убирает ступеньки 16-битного цвета на небе и воде. Применяется сразу.");
-        describe("crispText", "Перерисовывает надписи в разрешении экрана. Применяется сразу.");
-        describe("uiScale", "Размер панели, окон, ресурсов и подсказок в матче. Ограничивается размером кадра, чтобы интерфейс помещался целиком. Применяется сразу.");
-        if ("extreme".equals(edition())) describe("powersScale", "Размер боковой панели сил независимо от основного интерфейса. Применяется сразу.");
+        String filters = I18n.t("FSR 1.0 сохраняет чёткие края, бикубический мягче, «Чёткие пиксели» сохраняют пиксельный вид без зубцов, билинейный самый мягкий. Применяется сразу.");
+        describe("worldFilter", I18n.t("Карта увеличивается до размера экрана отдельно от интерфейса. ") + filters);
+        describe("uiFilter", I18n.t("Интерфейс увеличивается до размера экрана отдельно от карты. ") + filters);
+        describe("sharpness", I18n.t("Сила повышения резкости изображения. Применяется сразу."));
+        describe("deband", I18n.t("Убирает ступеньки 16-битного цвета на небе и воде. Применяется сразу."));
+        describe("crispText", I18n.t("Перерисовывает надписи в разрешении экрана. Применяется сразу."));
+        describe("uiScale", I18n.t("Размер панели, окон, ресурсов и подсказок в матче. Ограничивается размером кадра, чтобы интерфейс помещался целиком. Применяется сразу."));
+        if ("extreme".equals(edition())) describe("powersScale", I18n.t("Размер боковой панели сил независимо от основного интерфейса. Применяется сразу."));
     }
     private void describe(String key, String description) {
         Preference item = findSetting(key);
@@ -107,56 +116,56 @@ public abstract class SettingsActivity extends PreferenceActivity {
         int minimum = GameFiles.original(edition()) ? 10 : 20;
         int[] speeds = new int[(90-minimum)/5+1];
         for(int i=0;i<speeds.length;i++) speeds[i]=minimum+i*5;
-        integers(gameplay,"game-0","Скорость игры",speeds,nativeValue(0,40),"",0);
-        gameToggle(gameplay,1,"Всплывающие подсказки",true);
-        toggle(gameplay,"smoothCamera","Плавное перемещение камеры",true);
-        namedGame(gameplay,2,"Скорость прокрутки",new String[]{"Медленно","Нормально","Быстро"},new int[]{0,1,2},0);
-        namedGame(gameplay,3,"Курсор",new String[]{"Стрелка","Меч"},new int[]{1,2},2);
-        gameToggle(audio,4,"Звук включён",true);
+        integers(gameplay,"game-0",I18n.t("Скорость игры"),speeds,nativeValue(0,40),"",0);
+        gameToggle(gameplay,1,I18n.t("Всплывающие подсказки"),true);
+        toggle(gameplay,"smoothCamera",I18n.t("Плавное перемещение камеры"),true);
+        namedGame(gameplay,2,I18n.t("Скорость прокрутки"),new String[]{I18n.t("Медленно"),I18n.t("Нормально"),I18n.t("Быстро")},new int[]{0,1,2},0);
+        namedGame(gameplay,3,I18n.t("Курсор"),new String[]{I18n.t("Стрелка"),I18n.t("Меч")},new int[]{1,2},2);
+        gameToggle(audio,4,I18n.t("Звук включён"),true);
         int[] volumes = new int[21]; for (int i=0;i<volumes.length;i++) volumes[i]=i*5;
-        integers(audio,"game-5","Громкость музыки",volumes,nativeValue(5,90),"%",5);
-        integers(audio,"game-6","Громкость эффектов",volumes,nativeValue(6,80),"%",6);
-        integers(audio,"game-7","Громкость речи",volumes,nativeValue(7,85),"%",7);
-        if (!GameFiles.original(edition())) gameToggle(audio,8,"Джинн",true);
+        integers(audio,"game-5",I18n.t("Громкость музыки"),volumes,nativeValue(5,90),"%",5);
+        integers(audio,"game-6",I18n.t("Громкость эффектов"),volumes,nativeValue(6,80),"%",6);
+        integers(audio,"game-7",I18n.t("Громкость речи"),volumes,nativeValue(7,85),"%",7);
+        if (!GameFiles.original(edition())) gameToggle(audio,8,I18n.t("Джинн"),true);
     }
     private void controlSettings() {
-        PreferenceCategory controls = category(gameplay,"Управление");
-        toggle(controls,"touchpad","Тачпад с курсором",false);
-        floatChoices(controls,"sensitivity","Чувствительность тачпада",new float[]{.5f,.75f,1,1.25f,1.5f,2,2.5f},1,"×");
-        integers(controls,"controlsScale","Размер кнопок",new int[]{75,90,100,110,120,130,140,150,175,200},100,"%",-1);
-        floatChoices(controls,"opacity","Видимость кнопок",new float[]{.25f,.5f,.75f,1},.75f,"");
-        Preference buttons = new Preference(this); buttons.setTitle("Кнопки сенсорного управления");
-        buttons.setSummary("Отдельные кнопки на экране, в боковых списках и книге писаря. Любую кнопку можно скрыть; ЛКМ по умолчанию скрыта.");
+        PreferenceCategory controls = category(gameplay,I18n.t("Управление"));
+        toggle(controls,"touchpad",I18n.t("Тачпад с курсором"),false);
+        floatChoices(controls,"sensitivity",I18n.t("Чувствительность тачпада"),new float[]{.5f,.75f,1,1.25f,1.5f,2,2.5f},1,"×");
+        integers(controls,"controlsScale",I18n.t("Размер кнопок"),new int[]{75,90,100,110,120,130,140,150,175,200},100,"%",-1);
+        floatChoices(controls,"opacity",I18n.t("Видимость кнопок"),new float[]{.25f,.5f,.75f,1},.75f,"");
+        Preference buttons = new Preference(this); buttons.setTitle(I18n.t("Кнопки сенсорного управления"));
+        buttons.setSummary(I18n.t("Отдельные кнопки на экране, в боковых списках и книге писаря. Любую кнопку можно скрыть; ЛКМ по умолчанию скрыта."));
         controls.addPreference(buttons);
         buttons.setOnPreferenceClickListener(item -> { controlChoices(this, preferences, () -> {}); return true; });
-        Preference zones = new Preference(this); zones.setTitle("Боковые зоны");
-        zones.setSummary("Список команд или отдельные действия по касанию и удержанию для каждой зоны");
+        Preference zones = new Preference(this); zones.setTitle(I18n.t("Боковые зоны"));
+        zones.setSummary(I18n.t("Список команд или отдельные действия по касанию и удержанию для каждой зоны"));
         controls.addPreference(zones);
         zones.setOnPreferenceClickListener(item -> {
-            new AlertDialog.Builder(this).setTitle("Боковые зоны").setItems(new String[]{"Левая зона", "Правая зона"},
-                    (dialog, side) -> zoneChoices(this, preferences, side, () -> {})).setNegativeButton("Готово", null).show();
+            new AlertDialog.Builder(this).setTitle(I18n.t("Боковые зоны")).setItems(new String[]{I18n.t("Левая зона"), I18n.t("Правая зона")},
+                    (dialog, side) -> zoneChoices(this, preferences, side, () -> {})).setNegativeButton(I18n.t("Готово"), null).show();
             return true;
         });
-        toggle(controls,"buildingSwipes","Переключать разделы построек свайпами",true);
+        toggle(controls,"buildingSwipes",I18n.t("Переключать разделы построек свайпами"),true);
         loupeSettings(controls);
-        toggle(controls,"vibration","Вибрация",true);
-        toggle(controls,"touchDiagnostics","Диагностика касания",false);
-        Preference arrange = new Preference(this); arrange.setTitle("Изменить расположение кнопок");
-        arrange.setSummary("Предпросмотр поверх паузы: перемещение, размер щипком или ползунком, Сохранить и Отмена");
+        toggle(controls,"vibration",I18n.t("Вибрация"),true);
+        toggle(controls,"touchDiagnostics",I18n.t("Диагностика касания"),false);
+        Preference arrange = new Preference(this); arrange.setTitle(I18n.t("Изменить расположение кнопок"));
+        arrange.setSummary(I18n.t("Предпросмотр поверх паузы: перемещение, размер щипком или ползунком, Сохранить и Отмена"));
         controls.addPreference(arrange);
         arrange.setOnPreferenceClickListener(item -> {
             if (!GameActivity.gameRunning()) {
-                Toast.makeText(this, "Сначала запустите игру: расположение меняется поверх игрового экрана.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, I18n.t("Сначала запустите игру: расположение меняется поверх игрового экрана."), Toast.LENGTH_LONG).show();
                 return true;
             }
             preferences.edit().putBoolean("layoutEditRequest", true).commit(); finish(); return true;
         });
-        Preference reset = new Preference(this); reset.setTitle("Сбросить расположение кнопок");
+        Preference reset = new Preference(this); reset.setTitle(I18n.t("Сбросить расположение кнопок"));
         controls.addPreference(reset);
         reset.setOnPreferenceClickListener(item -> {
             SharedPreferences.Editor edit = preferences.edit();
             for (String key : preferences.getAll().keySet()) if (key.startsWith("pos-")) edit.remove(key);
-            edit.apply(); Toast.makeText(this, "Исходное расположение восстановлено", Toast.LENGTH_SHORT).show(); return true;
+            edit.apply(); Toast.makeText(this, I18n.t("Исходное расположение восстановлено"), Toast.LENGTH_SHORT).show(); return true;
         });
     }
     static int controlPlacement(SharedPreferences preferences, String id) {
@@ -166,31 +175,31 @@ public abstract class SettingsActivity extends PreferenceActivity {
         if (side < 0 || side > 1) return;
         boolean direct = ControlLayout.zoneDirect(preferences.getAll(), side);
         String prefix = side == 0 ? "zone-left-" : "zone-right-";
-        String[] modes = {"Список команд", "Действия по тапу и удержанию"};
+        String[] modes = {I18n.t("Список команд"), I18n.t("Действия по тапу и удержанию")};
         String tap = ControlLayout.zoneAction(preferences.getAll(), side, false), hold = ControlLayout.zoneAction(preferences.getAll(), side, true);
-        String[] choices = direct ? new String[]{"Режим: " + modes[1], "Тап: " + (tap.isEmpty() ? "Ничего" : ControlLayout.label(tap)),
-                "Удержание: " + (hold.isEmpty() ? "Ничего" : ControlLayout.label(hold))} : new String[]{"Режим: " + modes[0], "Команды списка"};
-        new AlertDialog.Builder(context).setTitle(side == 0 ? "Левая боковая зона" : "Правая боковая зона")
+        String[] choices = direct ? new String[]{I18n.t("Режим: ") + modes[1], I18n.t("Тап: ") + (tap.isEmpty() ? I18n.t("Ничего") : I18n.t(ControlLayout.label(tap))),
+                I18n.t("Удержание: ") + (hold.isEmpty() ? I18n.t("Ничего") : I18n.t(ControlLayout.label(hold)))} : new String[]{I18n.t("Режим: ") + modes[0], I18n.t("Команды списка")};
+        new AlertDialog.Builder(context).setTitle(side == 0 ? I18n.t("Левая боковая зона") : I18n.t("Правая боковая зона"))
                 .setItems(choices, (dialog, which) -> {
                     if (which == 0) {
-                        new AlertDialog.Builder(context).setTitle("Режим боковой зоны")
+                        new AlertDialog.Builder(context).setTitle(I18n.t("Режим боковой зоны"))
                                 .setSingleChoiceItems(modes, direct ? 1 : 0, (choice, selected) -> {
                                     preferences.edit().putString(prefix + "mode", selected == 1 ? "actions" : "list").apply();
                                     changed.run(); choice.dismiss(); zoneChoices(context, preferences, side, changed);
-                                }).setNegativeButton("Назад", (choice, selected) -> zoneChoices(context, preferences, side, changed)).show();
+                                }).setNegativeButton(I18n.t("Назад"), (choice, selected) -> zoneChoices(context, preferences, side, changed)).show();
                     } else if (!direct) controlChoices(context, preferences, changed);
                     else zoneActionChoices(context, preferences, side, which == 2, changed);
-                }).setNegativeButton("Готово", null).show();
+                }).setNegativeButton(I18n.t("Готово"), null).show();
     }
     private static void zoneActionChoices(android.content.Context context, SharedPreferences preferences, int side, boolean hold, Runnable changed) {
         java.util.ArrayList<String> ids = new java.util.ArrayList<>(), names = new java.util.ArrayList<>();
-        ids.add(""); names.add("Ничего");
-        for (String id : ControlLayout.IDS) if (ControlLayout.inZone(id)) { ids.add(id); names.add(ControlLayout.label(id)); }
-        new AlertDialog.Builder(context).setTitle(hold ? "Действие по удержанию" : "Действие по тапу")
+        ids.add(""); names.add(I18n.t("Ничего"));
+        for (String id : ControlLayout.IDS) if (ControlLayout.inZone(id)) { ids.add(id); names.add(I18n.t(ControlLayout.label(id))); }
+        new AlertDialog.Builder(context).setTitle(hold ? I18n.t("Действие по удержанию") : I18n.t("Действие по тапу"))
                 .setItems(names.toArray(new String[0]), (dialog, which) -> {
                     preferences.edit().putString((side == 0 ? "zone-left-" : "zone-right-") + (hold ? "hold" : "tap"), ids.get(which)).apply();
                     changed.run(); zoneChoices(context, preferences, side, changed);
-                }).setNegativeButton("Назад", (dialog, which) -> zoneChoices(context, preferences, side, changed)).show();
+                }).setNegativeButton(I18n.t("Назад"), (dialog, which) -> zoneChoices(context, preferences, side, changed)).show();
     }
     static void cleanRemovedMenu(SharedPreferences preferences) {
         java.util.Map<String, ?> before = preferences.getAll();
@@ -204,35 +213,35 @@ public abstract class SettingsActivity extends PreferenceActivity {
         edit.apply();
     }
     static void controlChoices(android.content.Context context, SharedPreferences preferences, Runnable changed) {
-        String[] places = {"На экране", "Скрыта", "В левой зоне", "В правой зоне", "В книге писаря"};
+        String[] places = {I18n.t("На экране"), I18n.t("Скрыта"), I18n.t("В левой зоне"), I18n.t("В правой зоне"), I18n.t("В книге писаря")};
         int[] placements = {ControlLayout.SCREEN, ControlLayout.HIDDEN, ControlLayout.LEFT_ZONE, ControlLayout.RIGHT_ZONE, ControlLayout.BOOK_ZONE};
         String[] names = new String[ControlLayout.IDS.length];
         for (int i = 0; i < names.length; i++) {
             int current = controlPlacement(preferences, ControlLayout.IDS[i]), selected = 1;
             for (int j = 0; j < placements.length; j++) if (placements[j] == current) selected = j;
-            names[i] = ControlLayout.LABELS[i] + " · " + places[selected];
+            names[i] = I18n.t(ControlLayout.label(ControlLayout.IDS[i])) + " · " + places[selected];
         }
-        new AlertDialog.Builder(context).setTitle("Выберите кнопку")
+        new AlertDialog.Builder(context).setTitle(I18n.t("Выберите кнопку"))
                 .setItems(names, (dialog, index) -> {
                     String id = ControlLayout.IDS[index];
                     String[] choices = ControlLayout.inZone(id) ? places : new String[]{places[0], places[1]};
                     int[] values = ControlLayout.inZone(id) ? placements : new int[]{ControlLayout.SCREEN, ControlLayout.HIDDEN};
                     int current = controlPlacement(preferences, id), selected = 1;
                     for (int i = 0; i < values.length; i++) if (values[i] == current) selected = i;
-                    new AlertDialog.Builder(context).setTitle(ControlLayout.LABELS[index])
+                    new AlertDialog.Builder(context).setTitle(I18n.t(ControlLayout.label(ControlLayout.IDS[index])))
                             .setSingleChoiceItems(choices, selected,
                                     (choice, which) -> {
                                         preferences.edit().putInt("control-" + id, values[which]).apply();
                                         changed.run(); choice.dismiss(); controlChoices(context, preferences, changed);
-                                    }).setNegativeButton("Назад", (choice, which) -> controlChoices(context, preferences, changed)).show();
-                }).setNeutralButton("Исходные кнопки", (dialog, which) -> {
+                                    }).setNegativeButton(I18n.t("Назад"), (choice, which) -> controlChoices(context, preferences, changed)).show();
+                }).setNeutralButton(I18n.t("Исходные кнопки"), (dialog, which) -> {
                     SharedPreferences.Editor edit = preferences.edit();
                     for (String id : ControlLayout.IDS) edit.remove("control-" + id);
                     for (String prefix : new String[]{"zone-left-", "zone-right-"})
                         edit.remove(prefix + "mode").remove(prefix + "tap").remove(prefix + "hold");
                     edit.remove("extra").remove("groupWheel").remove("markerWheel").apply();
                     changed.run(); controlChoices(context, preferences, changed);
-                }).setNegativeButton("Готово", null).show();
+                }).setNegativeButton(I18n.t("Готово"), null).show();
     }
     /* Stronghold HD uses its own mode table and native option handlers. */
     private void strongholdSettings(PreferenceGroup graphics) {
@@ -241,30 +250,30 @@ public abstract class SettingsActivity extends PreferenceActivity {
         if(saved.contains("x")){saved=Integer.toString(GameActivity.strongholdMode(saved,1,1,false)[1]);preferences.edit().putString("resolution",saved).apply();}
         String[] heights=new String[GameActivity.STRONGHOLD_HEIGHTS.length];
         for(int i=0;i<heights.length;i++)heights[i]=Integer.toString(GameActivity.STRONGHOLD_HEIGHTS[i]);
-        list(graphics,"resolution","Разрешение",heights,heights,saved,value -> preferences.edit().putString("resolution",value).apply());
-        toggle(graphics,"wide","Во весь экран",true);
+        list(graphics,"resolution",I18n.t("Разрешение"),heights,heights,saved,value -> preferences.edit().putString("resolution",value).apply());
+        toggle(graphics,"wide",I18n.t("Во весь экран"),true);
         strongholdResolutionLabels();
-        Preference note = new Preference(this); note.setTitle("Применяется при новом запуске игры");
-        note.setSummary("Высота кадра — из режимов самой игры. «Во весь экран»: ширина кадра в пропорциях экрана, без полей по бокам. "+
-                "Выключено — режимы игры 16:9 (600 строк — 4:3) с полями."); note.setSelectable(false); graphics.addPreference(note);
-        integers(graphics,"uiScale","Размер интерфейса",new int[]{100,110,120,130,150,175,200},100,"%",-1);
-        String[] filterLabels={"FSR 1.0","Бикубический","Чёткие пиксели","Билинейный"},filterValues={"fsr","bicubic","pixels","bilinear"};
-        list(graphics,"worldFilter","Фильтр карты",filterLabels,filterValues,preferences.getString("worldFilter","fsr"),
+        Preference note = new Preference(this); note.setTitle(I18n.t("Применяется при новом запуске игры"));
+        note.setSummary(I18n.t("Высота кадра — из режимов самой игры. «Во весь экран»: ширина кадра в пропорциях экрана, без полей по бокам. ")+
+                I18n.t("Выключено — режимы игры 16:9 (600 строк — 4:3) с полями.")); note.setSelectable(false); graphics.addPreference(note);
+        integers(graphics,"uiScale",I18n.t("Размер интерфейса"),new int[]{100,110,120,130,150,175,200},100,"%",-1);
+        String[] filterLabels={"FSR 1.0",I18n.t("Бикубический"),I18n.t("Чёткие пиксели"),I18n.t("Билинейный")},filterValues={"fsr","bicubic","pixels","bilinear"};
+        list(graphics,"worldFilter",I18n.t("Фильтр карты"),filterLabels,filterValues,preferences.getString("worldFilter","fsr"),
                 value -> preferences.edit().putString("worldFilter",value).apply());
-        list(graphics,"uiFilter","Фильтр интерфейса и меню",filterLabels,filterValues,preferences.getString("uiFilter","fsr"),
+        list(graphics,"uiFilter",I18n.t("Фильтр интерфейса и меню"),filterLabels,filterValues,preferences.getString("uiFilter","fsr"),
                 value -> preferences.edit().putString("uiFilter",value).apply());
-        integers(graphics,"sharpness","Резкость",new int[]{0,25,50,75,100},25,"%",-1);
-        toggle(graphics,"deband","Сглаживание градиентов",false);
-        toggle(graphics,"crispText","Чёткий текст",true);
+        integers(graphics,"sharpness",I18n.t("Резкость"),new int[]{0,25,50,75,100},25,"%",-1);
+        toggle(graphics,"deband",I18n.t("Сглаживание градиентов"),false);
+        toggle(graphics,"crispText",I18n.t("Чёткий текст"),true);
     }
     private void minimumGraphics(PreferenceGroup graphics) {
-        Preference item=new Preference(this);item.setTitle("Установить минимальную графику");
-        item.setSummary("Минимальное разрешение, билинейные фильтры, без резкости, сглаживания градиентов и чёткого текста. Разрешение — после перезапуска игры.");
+        Preference item=new Preference(this);item.setTitle(I18n.t("Установить минимальную графику"));
+        item.setSummary(I18n.t("Минимальное разрешение, билинейные фильтры, без резкости, сглаживания градиентов и чёткого текста. Разрешение — после перезапуска игры."));
         graphics.addPreference(item);
         item.setOnPreferenceClickListener(clicked -> {
-            new AlertDialog.Builder(this).setTitle("Установить минимальную графику?")
-                    .setMessage("Будут выбраны минимальное разрешение и билинейные фильтры, отключены резкость, сглаживание градиентов и чёткий текст. Разрешение изменится после перезапуска игры; перед ним сохраните матч.")
-                    .setNegativeButton("Отмена", null).setPositiveButton("Установить", (dialog, which) -> applyMinimumGraphics()).show();
+            new AlertDialog.Builder(this).setTitle(I18n.t("Установить минимальную графику?"))
+                    .setMessage(I18n.t("Будут выбраны минимальное разрешение и билинейные фильтры, отключены резкость, сглаживание градиентов и чёткий текст. Разрешение изменится после перезапуска игры; перед ним сохраните матч."))
+                    .setNegativeButton(I18n.t("Отмена"), null).setPositiveButton(I18n.t("Установить"), (dialog, which) -> applyMinimumGraphics()).show();
             return true;
         });
     }
@@ -279,13 +288,13 @@ public abstract class SettingsActivity extends PreferenceActivity {
         ((ListPreference)findSetting("sharpness")).setValue("0");
         ((CheckBoxPreference)findSetting("deband")).setChecked(false);
         ((CheckBoxPreference)findSetting("crispText")).setChecked(false);
-        Toast.makeText(this,"Минимальная графика установлена. Перед перезапуском сохраните матч.",Toast.LENGTH_LONG).show();
+        Toast.makeText(this,I18n.t("Минимальная графика установлена. Перед перезапуском сохраните матч."),Toast.LENGTH_LONG).show();
     }
     private int nativeValue(int index,int fallback) { return game == null ? preferences.getInt("last-game-"+index,fallback) : game[index]; }
     private void loupeSettings(PreferenceGroup controls) {
-        toggle(controls,"loupe","Лупа при строительстве",false);
-        integers(controls,"loupeSize","Размер лупы",new int[]{50,75,100,125,150,175,200},100,"%",-1);
-        integers(controls,"loupeZoom","Приближение лупы",new int[]{150,200,250,300,350,400},200,"%",-1);
+        toggle(controls,"loupe",I18n.t("Лупа при строительстве"),false);
+        integers(controls,"loupeSize",I18n.t("Размер лупы"),new int[]{50,75,100,125,150,175,200},100,"%",-1);
+        integers(controls,"loupeZoom",I18n.t("Приближение лупы"),new int[]{150,200,250,300,350,400},200,"%",-1);
     }
     private void strongholdResolutionLabels() {
         ListPreference item=(ListPreference)findSetting("resolution");
@@ -295,7 +304,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
         CharSequence[] values=item.getEntryValues();String[] labels=new String[values.length];
         for(int i=0;i<values.length;i++) {
             int[] frame=GameActivity.strongholdMode(values[i].toString(),size.x,size.y,wide);
-            labels[i]=frame[1]+" строк · "+frame[0]+" × "+frame[1]+(frame[1]==720?" (рекомендуется)":frame[1]==600?" (минимальное)":"");
+            labels[i]=frame[1]+I18n.t(" строк · ")+frame[0]+" × "+frame[1]+(frame[1]==720?I18n.t(" (рекомендуется)"):frame[1]==600?I18n.t(" (минимальное)"):"");
         }
         item.setEntries(labels);item.setSummary("%s");
     }
@@ -308,7 +317,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
         for(int i=0;i<values.length;i++) {
             String value=values[i].toString();
             int[] pixels=TouchControls.resolution(value,size.x,size.y,density,wide);
-            String prefix=value.equals("auto")?"Авто · ":value.equals("minimum")?"Минимальное · ":value.equals("device")?"Устройство · ":"";
+            String prefix=value.equals("auto")?I18n.t("Авто · "):value.equals("minimum")?I18n.t("Минимальное · "):value.equals("device")?I18n.t("Устройство · "):"";
             labels[i]=prefix+pixels[0]+" × "+pixels[1];
         }
         item.setEntries(labels);item.setSummary("%s");
@@ -330,6 +339,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
     private interface Change { void set(String value); }
     private void list(PreferenceGroup group,String key,String title,String[] labels,String[] values,String current,Change change) {
         ListPreference item=new ListPreference(this);item.setKey(key);item.setTitle(title);item.setPersistent(false);
+        item.setNegativeButtonText(I18n.t("Отмена"));
         item.setEntries(labels);item.setEntryValues(values);item.setValue(current);item.setSummary("%s");group.addPreference(item);
         item.setOnPreferenceChangeListener((preference,value) -> {
             String selected=(String)value;change.set(selected);item.setValue(selected);return true;
@@ -339,7 +349,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
         int current=preferences.getInt(key,fallback);
         java.util.TreeSet<Integer> choices=new java.util.TreeSet<>();for(int n:numbers)choices.add(n);choices.add(current);
         String[] labels=new String[choices.size()],values=new String[choices.size()];int at=0;
-        for(int n:choices){values[at]=Integer.toString(n);labels[at]=(key.equals("sharpness")&&n==0?"Выкл":n+suffix);at++;}
+        for(int n:choices){values[at]=Integer.toString(n);labels[at]=(key.equals("sharpness")&&n==0?I18n.t("Выкл"):n+suffix);at++;}
         list(group,key,title,labels,values,Integer.toString(current),value -> {
             int number=Integer.parseInt(value);preferences.edit().putInt(key,number).apply();
             if(index>=0)GameActivity.gameSetting(index,number);
@@ -384,7 +394,8 @@ public abstract class SettingsActivity extends PreferenceActivity {
         PreferenceScreen page = "graphics".equals(key) ? graphics : "audio".equals(key) ? audio : "game".equals(key) ? gameplay : home;
         section = page == home ? "" : key;
         setPreferenceScreen(page);
-        setTitle((page == graphics ? "Графика" : page == audio ? "Звук" : page == gameplay ? "Игра" : "Настройки") + " · " + GameFiles.title(edition()));
+        setTitle((page == graphics ? I18n.t("Графика") : page == audio ? I18n.t("Звук") : page == gameplay ? I18n.t("Игра") : I18n.t("Настройки")) + " · " + GameFiles.title(edition()));
+        getActionBar().setHomeActionContentDescription(I18n.t("Назад"));
         getListView().setSelection(0);
     }
     private Preference findSetting(String key) {
@@ -394,12 +405,12 @@ public abstract class SettingsActivity extends PreferenceActivity {
         return null;
     }
     private void resetSettings() {
-        Preference reset = new Preference(this); reset.setTitle("Сбросить настройки");
-        reset.setSummary("Графика, звук, игра, управление и расположение кнопок этой редакции"); home.addPreference(reset);
+        Preference reset = new Preference(this); reset.setTitle(I18n.t("Сбросить настройки"));
+        reset.setSummary(I18n.t("Графика, звук, игра, управление и расположение кнопок этой редакции")); home.addPreference(reset);
         reset.setOnPreferenceClickListener(item -> {
-            new AlertDialog.Builder(this).setTitle("Сбросить настройки?")
-                    .setMessage("Восстановить исходные настройки графики, звука, игры и управления для «" + GameFiles.title(edition()) + "»? Расположение кнопок тоже будет сброшено. Сохранения и папка игры останутся.")
-                    .setNegativeButton("Отмена", null).setPositiveButton("Сбросить", (dialog, which) -> {
+            new AlertDialog.Builder(this).setTitle(I18n.t("Сбросить настройки?"))
+                    .setMessage(I18n.t("Восстановить исходные настройки графики, звука, игры и управления для «") + GameFiles.title(edition()) + I18n.t("»? Расположение кнопок тоже будет сброшено. Сохранения и папка игры останутся."))
+                    .setNegativeButton(I18n.t("Отмена"), null).setPositiveButton(I18n.t("Сбросить"), (dialog, which) -> {
                         SharedPreferences.Editor edit = preferences.edit();
                         clearSettings(graphics, edit); clearSettings(audio, edit); clearSettings(gameplay, edit);
                         for (String key : preferences.getAll().keySet())
@@ -411,7 +422,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
                             GameActivity.gameSetting(i,game[i]);
                         }
                         edit.commit(); buildScreens(); showSection("");
-                        Toast.makeText(this,"Исходные настройки восстановлены. Разрешение — после перезапуска игры.",Toast.LENGTH_LONG).show();
+                        Toast.makeText(this,I18n.t("Исходные настройки восстановлены. Разрешение — после перезапуска игры."),Toast.LENGTH_LONG).show();
                     }).show();
             return true;
         });

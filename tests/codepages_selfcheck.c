@@ -31,6 +31,7 @@ int main(void)
     for (int i = 0; i < 256; ++i) {
         uint8_t b;
         assert(void_u16_to_cp1251(void_cp1251_to_u16((uint8_t)i), &b) && b == i);
+        assert(void_u16_to_cp1250(void_cp1250_to_u16((uint8_t)i), &b) && b == i);
     }
     assert(void_utf8_to_gw(player, 0x3000, 64) == 16);
     assert(void_utf8_to_ga(player, 0, 0) == 17);
@@ -54,6 +55,13 @@ int main(void)
     args(0, 0x4000, 16, 0x6000, 15); MEM16(0x601E) = 0x5555;
     assert(MultiByteToWideChar_impl() == 0 && last_error == ERROR_INSUFFICIENT_BUFFER_ && MEM16(0x601E) == 0x5555);
 
+    /* Polish TEX selects1250 explicitly, including filenames used at startup. */
+    const uint8_t polish[]={0x5A,0x61,0xBF,0xF3,0xB3,0xE6,0x20,0x67,0xEA,0x9C,0x6C,0xB9,0x20,0x6A,0x61,0x9F,0xF1,0};
+    assert(void_utf8_to_gw("Zażółć gęślą jaźń",0x3300,64)==17);
+    args(1250,0x3300,0xffffffffu,0x4100,18);ARG(7)=0x5000;
+    assert(WideCharToMultiByte_impl()==18&&!memcmp(GPTR(0x4100),polish,18)&&!MEM32(0x5000));
+    args(1250,0x4100,18,0x6100,18);
+    assert(MultiByteToWideChar_impl()==18&&!memcmp(GPTR(0x6100),GPTR(0x3300),36));
     /* Explicit 1252 still means Western text; it is never redirected to ACP. */
     MEM16(0x3100) = 0x00E9; MEM16(0x3102) = 0x20AC; MEM16(0x3104) = 0x0152; MEM16(0x3106) = 0;
     const uint8_t western[] = {0xE9,0x80,0x8C,0};
@@ -90,6 +98,6 @@ int main(void)
     uint32_t block = env_block(0); const char *entry = (const char *)GPTR(block);
     while (*entry && strncmp(entry, "PLAYER_TEST=", 12)) entry += strlen(entry) + 1;
     assert(*entry && !memcmp(entry + 12, encoded, 17));
-    puts("codepages_selfcheck: Russian ACP/default-player, all CP1251 bytes, ANSI GDI/path/env, explicit1252/UTF8 boundaries PASS");
+    puts("codepages_selfcheck: Russian ACP/default-player, all CP1250/1251 bytes, Polish text, ANSI GDI/path/env, explicit1252/UTF8 boundaries PASS");
     return 0;
 }

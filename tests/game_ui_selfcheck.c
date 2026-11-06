@@ -107,6 +107,10 @@ int main(void)
     assert(editor_transitions==1&&key_calls==before&&command_count==1);
     MEM32(GAME+12)=1002;stronghold_game_ui_frame();
     assert(key_calls==before+1&&last_key==0xDE&&last_modifiers==2&&!command_count);
+    MEM32(GAME+12)=12;before=key_calls;stronghold_game_command(0xBC,2);stronghold_game_ui_frame();
+    assert(MEM32(GAME+24)==17&&key_calls==before&&command_count==1);
+    MEM32(GAME+12)=17;stronghold_game_ui_frame();
+    assert(key_calls==before+1&&last_key==0xBC&&last_modifiers==2&&!command_count);
     /* A paused guest must not make a recreated Settings screen see stale55.
      * A second edit during an original callback must survive this publish. */
     stronghold_game_setting_set(6,65);
@@ -115,6 +119,18 @@ int main(void)
     assert(!pending_probe&&MEM32(addresses[6])==65&&stronghold_game_settings_get(snapshot)&&snapshot[6]==70);
     stronghold_game_ui_frame();assert(MEM32(addresses[6])==70&&stronghold_game_settings_get(snapshot)&&snapshot[6]==70);
     assert(!changed&&!applying&&stamp==1234);
+    /* Bank0 is the UTF16 player name written by the original config saver. */
+    int saved_before=saves;uint32_t player_name=EDITOR+336;
+    memset(GPTR(player_name),0,500);MEM16(player_name)=0x65E5;MEM16(player_name+2)=0x672C;
+    MEM32(OPTIONS+0x5c)=0;MEM32(MAIN_DIALOG)=36;MEM32(GAME+12)=40;
+    stronghold_game_ui_frame();assert(saves==saved_before);
+    MEM32(GAME+12)=41;stronghold_game_ui_frame();assert(saves==saved_before);
+    MEM32(MAIN_DIALOG)=UINT32_MAX;stronghold_game_ui_frame();assert(saves==saved_before+1&&stamp==1234);
+    stronghold_game_ui_frame();assert(saves==saved_before+1);
+    for(int i=2;i<24;i++)MEM16(player_name+i*2)='A';
+    MEM32(GAME+12)=14;stronghold_game_ui_frame();assert(saves==saved_before+1);
+    MEM32(GAME+12)=41;stronghold_game_ui_frame();assert(saves==saved_before+2&&stamp==1234);
+    stronghold_game_ui_frame();assert(saves==saved_before+2);
     puts("game UI: startup, original callbacks/save, editor limits/stale context, paused settings snapshot and in-flight newer edit retained PASS");
     return 0;
 }

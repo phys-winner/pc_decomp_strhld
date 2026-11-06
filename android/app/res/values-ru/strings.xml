@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="text_9c3f3eda" formatted="false">"Stronghold HD, Crusader и Crusader Extreme · Android ARM64"</string>
+  <string name="text_73226756" formatted="false">"Выберите игру"</string>
+  <string name="text_bf25f362" formatted="false">"Файлы игр"</string>
+  <string name="text_780ea472" formatted="false">"Проверка установленных игр…"</string>
+  <string name="text_3eccf7d" formatted="false">"Выбрать папку…"</string>
+  <string name="text_beab1997" formatted="false">"Распаковать ZIP…"</string>
+  <string name="text_16342f65" formatted="false">"Установить из GOG…"</string>
+  <string name="text_997ffce7" formatted="false">"Изменить файлы игр…"</string>
+  <string name="text_37a30576" formatted="false">"Запуск"</string>
+  <string name="text_cfea62c8" formatted="false">"Пропускать ролики, рекламу и предупреждение об онлайне"</string>
+  <string name="text_fca6a79b" formatted="false">"Параметры запуска применяются при новом запуске процесса игры. Перед перезапуском сохраните матч."</string>
+  <string name="text_452078ee" formatted="false">"Язык интерфейса…"</string>
+  <string name="text_c688c5f2" formatted="false">"UCP на GitHub"</string>
+  <string name="text_a7a66ff6" formatted="false">"Отключить все функции UCP"</string>
+  <string name="text_5b4d7f78" formatted="false">"Завершите запущенную игру перед изменением модов. Новые настройки применяются при следующем запуске."</string>
+  <string name="text_7e32e4c9" formatted="false">"Все функции UCP отключены. Пакеты данных и локализации сохранены."</string>
+  <string name="text_d584799a" formatted="false">"Проверка файлов…"</string>
+  <string name="text_398251d5" formatted="false">"Играть"</string>
+  <string name="text_65aed1e5" formatted="false">"Настройки"</string>
+  <string name="text_3be6ad8d" formatted="false">"Моды…"</string>
+  <string name="text_1eea9b9" formatted="false">"Моды"</string>
+  <string name="text_dc795e10" formatted="false">"Моды · "</string>
+  <string name="text_8604996b" formatted="false">"Функции Unofficial Crusader Patch"</string>
+  <string name="text_235cc110" formatted="false">"Пакеты данных и локализации"</string>
+  <string name="text_d773e353" formatted="false">"Версия и совместимость"</string>
+  <string name="text_be822985" formatted="false">"Зафиксированная версия UCP3:\n"</string>
+  <string name="text_93c07082" formatted="false">"\n\nAndroid использует подготовленные функции UCP2 Legacy и пакеты данных. Поддержка каждой функции указана в списке. Windows DLL, ASI и произвольные Lua-плагины требуют отдельной адаптации.\n\nОригинальные файлы игры сохраняются. При совпадении файлов приоритет имеет первый включённый пакет в списке."</string>
+  <string name="text_bc760176" formatted="false">"Закрыть"</string>
+  <string name="text_e5255a4e" formatted="false">"Не удалось проверить язык мода"</string>
+  <string name="text_7fd9ff17" formatted="false">"Пакеты · удерживайте для удаления"</string>
+  <string name="text_2559db35" formatted="false">"Применить"</string>
+  <string name="text_449106b0" formatted="false">"Отмена"</string>
+  <string name="text_7e140f28" formatted="false">"Установить ZIP…"</string>
+  <string name="text_ef231dd1" formatted="false">"Удалить «"</string>
+  <string name="text_702d414b" formatted="false">"Файлы игры и сохранения сохранятся."</string>
+  <string name="text_3d84b2c6" formatted="false">"Удалить"</string>
+  <string name="text_b2eb0c03" formatted="false">"Установка мода…"</string>
+  <string name="text_f7d7ea15" formatted="false">"Проверка и распаковка ZIP"</string>
+  <string name="text_6041b138" formatted="false">"Архив недоступен"</string>
+  <string name="text_4ac71ec" formatted="false">"Мод установлен"</string>
+  <string name="text_dbcaedd6" formatted="false">"» доступен в списке модов для "</string>
+  <string name="text_26dcbf3d" formatted="false">"Указать папку вручную…"</string>
+  <string name="text_827c9d62" formatted="false">"Проверить снова"</string>
+  <string name="text_32d1af36" formatted="false">"Папка игры или общая папка с играми"</string>
+  <string name="text_4303cf88" formatted="false">"Папка с файлами игр"</string>
+  <string name="text_51b025a2" formatted="false">"Проверить"</string>
+  <string name="text_215eb3ac" formatted="false">"Файлы игр в "</string>
+  <string name="text_bb517237" formatted="false">"Готов к запуску · "</string>
+  <string name="text_1b4e6798" formatted="false">"Все три игры найдены и проверены."</string>
+  <string name="text_86848d19" formatted="false">"Добавьте файлы: "</string>
+  <string name="text_a35721c5" formatted="false">". Папка или ZIP распознаются автоматически; можно выбрать общую папку с играми."</string>
+  <string name="text_ce68736f" formatted="false">"Разрешить доступ к файлам"</string>
+  <string name="text_8216fca" formatted="false">"Системный выбор папок недоступен на этом устройстве."</string>
+  <string name="text_4b88cede" formatted="false">"Системный выбор файлов недоступен на этом устройстве."</string>
+  <string name="text_79599422" formatted="false">"В папке не найдены установщики setup_*.exe. Все BIN должны лежать рядом с EXE."</string>
+  <string name="text_634d6aab" formatted="false">"Установщик GOG · выберите язык"</string>
+  <string name="text_bb39e0dd" formatted="false">"Чтение установщика GOG…"</string>
+  <string name="text_a35f8320" formatted="false">"\nФайлов игры: "</string>
+  <string name="text_b22fddf3" formatted="false">". После установки: "</string>
+  <string name="text_579559c3" formatted="false">".\nСжатых блоков: "</string>
+  <string name="text_1ee4e1" formatted="false">" из "</string>
+  <string name="text_53bd09" formatted="false">"\nДля установки нужны EXE и все BIN из той же папки."</string>
+  <string name="text_4d92cf4d" formatted="false">"\n\nПапка установки: "</string>
+  <string name="text_8d934598" formatted="false">"\nИсходный установщик сохраняется. Сохранения игры хранятся отдельно."</string>
+  <string name="text_410e21c" formatted="false">"Установить GOG"</string>
+  <string name="text_8cfeb85d" formatted="false">"Установить"</string>
+  <string name="text_be9830ba" formatted="false">"Установка GOG"</string>
+  <string name="text_fb4cb106" formatted="false">"GOG установлен за "</string>
+  <string name="text_e88699f0" formatted="false">" с. Язык: "</string>
+  <string name="text_5637065a" formatted="false">"Для GOG выберите папку в памяти устройства с EXE и всеми соседними BIN."</string>
+  <string name="text_f6993e58" formatted="false">"%.0f КБ"</string>
+  <string name="text_f6993e96" formatted="false">"%.0f МБ"</string>
+  <string name="text_660e6a9a" formatted="false">"Архив «"</string>
+  <string name="text_d1bd702e" formatted="false">" будет распакован в\n"</string>
+  <string name="text_a8d6d121" formatted="false">"\n\nСвободно: "</string>
+  <string name="text_c5347de1" formatted="false">". Распакованная игра занимает около 1 ГБ."</string>
+  <string name="text_4f09e1af" formatted="false">"Распаковать игру?"</string>
+  <string name="text_e758a48e" formatted="false">"Распаковать"</string>
+  <string name="text_a8ab15f" formatted="false">"Распаковка архива"</string>
+  <string name="text_4163fe5" formatted="false">"Скопировать игру?"</string>
+  <string name="text_1d870e8e" formatted="false">"К папке «"</string>
+  <string name="text_d8eccaca" formatted="false">"» нет прямого доступа по пути. Скопировать её в\n"</string>
+  <string name="text_fbbd6344" formatted="false">"Скопировать"</string>
+  <string name="text_bc4d084d" formatted="false">"Копирование папки"</string>
+  <string name="text_3aaea5ba" formatted="false">"Подготовка…"</string>
+  <string name="text_d1f4a247" formatted="false">" файлов · "</string>
+  <string name="text_89d586e4" formatted="false">"Не удалось создать папку "</string>
+  <string name="text_4d3c8d8" formatted="false">"Отменено. Частично скопированные файлы остались в "</string>
+  <string name="text_9ac267bf" formatted="false">"Ошибка: "</string>
+  <string name="text_927d6d18" formatted="false">"архив недоступен"</string>
+  <string name="text_3fb73205" formatted="false">"недопустимый путь в архиве: "</string>
+  <string name="text_82970e9b" formatted="false">"не удалось создать "</string>
+  <string name="text_57596e60" formatted="false">"недопустимое имя после восстановления: "</string>
+  <string name="text_62ed0e4a" formatted="false">"не удалось восстановить имя карты: "</string>
+  <string name="text_cb6f0ae5" formatted="false">"имена файлов в архиве не в UTF-8; упакуйте игру заново стандартным ZIP"</string>
+  <string name="text_2c7db8e6" formatted="false">"архив пуст или не является ZIP"</string>
+  <string name="text_9584175b" formatted="false">"\nВ архиве утрачены названия "</string>
+  <string name="text_6f044b61" formatted="false">" карт: они сохранены как «Карта …». Все файлы сохранены отдельно."</string>
+  <string name="text_a5ac9a61" formatted="false">"поставщик файлов не отдал содержимое папки"</string>
+  <string name="text_24605ef0" formatted="false">"не удалось открыть "</string>
+  <string name="text_d3ca647b" formatted="false">"Для запуска нужен доступ к файлам игры."</string>
+  <string name="text_ab5540f3" formatted="false">"Не удалось подготовить игру: "</string>
+  <string name="text_2bbd5d5e" formatted="false">"Предупреждение о совместимости"</string>
+  <string name="text_a9002c9" formatted="false">"Запустить всё равно"</string>
+  <string name="text_e6290764" formatted="false">"Не удалось обновить состояние запуска"</string>
+  <string name="text_50c87387" formatted="false">"Не удалось сохранить состояние запуска"</string>
+  <string name="text_3c32a8fb" formatted="false">"Не удалось запустить игру: "</string>
+  <string name="text_6df9977b" formatted="false">"Игра завершилась с ошибкой. Проверьте папку и повторите запуск. Журнал: /sdcard/Stronghold/"</string>
+  <string name="text_bcbda96a" formatted="false">"Запуск "</string>
+  <string name="text_f2fc3664" formatted="false">"Настройки · "</string>
+  <string name="text_39f3c6d" formatted="false">"Графика"</string>
+  <string name="text_674b0c2" formatted="false">"Разрешение, размер интерфейса и качество изображения"</string>
+  <string name="text_1ec3892" formatted="false">"Звук"</string>
+  <string name="text_e1fcef4c" formatted="false">"Музыка, эффекты и речь"</string>
+  <string name="text_1ecb04b" formatted="false">"Игра"</string>
+  <string name="text_66aca461" formatted="false">"Скорость игры, подсказки и управление"</string>
+  <string name="text_7bdceb3f" formatted="false">"Лаунчер и папки игры"</string>
+  <string name="text_a2356111" formatted="false">"Разрешение"</string>
+  <string name="text_1e909de" formatted="false">"Авто"</string>
+  <string name="text_77737898" formatted="false">"Минимальное"</string>
+  <string name="text_dcd7c4a4" formatted="false">"Устройство"</string>
+  <string name="text_7ae310b2" formatted="false">"Разрешение и пропорции применяются при новом запуске игры"</string>
+  <string name="text_dcfb5f04" formatted="false">"Перед перезапуском сохраните матч. «Минимальное» — 600 строк, наименьший кадр движка, с пропорциями экрана. "</string>
+  <string name="text_53607ee6" formatted="false">"Разрешение не меняется автоматически во время игры."</string>
+  <string name="text_2b870dec" formatted="false">"Использовать пропорции устройства"</string>
+  <string name="text_8329db6f" formatted="false">"Размер интерфейса"</string>
+  <string name="text_97402fea" formatted="false">"Размер панели сил"</string>
+  <string name="text_e82aaf5f" formatted="false">"Бикубический"</string>
+  <string name="text_d874e791" formatted="false">"Чёткие пиксели"</string>
+  <string name="text_f8faebee" formatted="false">"Билинейный"</string>
+  <string name="text_3278c869" formatted="false">"Фильтр мира"</string>
+  <string name="text_7451d9ec" formatted="false">"Фильтр интерфейса"</string>
+  <string name="text_7c3ae905" formatted="false">"Резкость"</string>
+  <string name="text_560f76b4" formatted="false">"Сглаживание градиентов"</string>
+  <string name="text_7e78b3ab" formatted="false">"Чёткий текст"</string>
+  <string name="text_2768014e" formatted="false">"FSR 1.0 сохраняет чёткие края, бикубический мягче, «Чёткие пиксели» сохраняют пиксельный вид без зубцов, билинейный самый мягкий. Применяется сразу."</string>
+  <string name="text_4e53c7f9" formatted="false">"Карта увеличивается до размера экрана отдельно от интерфейса. "</string>
+  <string name="text_308cf9d6" formatted="false">"Интерфейс увеличивается до размера экрана отдельно от карты. "</string>
+  <string name="text_83e093cf" formatted="false">"Сила повышения резкости изображения. Применяется сразу."</string>
+  <string name="text_1122e28" formatted="false">"Убирает ступеньки 16-битного цвета на небе и воде. Применяется сразу."</string>
+  <string name="text_8c127489" formatted="false">"Перерисовывает надписи в разрешении экрана. Применяется сразу."</string>
+  <string name="text_8823e982" formatted="false">"Размер панели, окон, ресурсов и подсказок в матче. Ограничивается размером кадра, чтобы интерфейс помещался целиком. Применяется сразу."</string>
+  <string name="text_b35280b9" formatted="false">"Размер боковой панели сил независимо от основного интерфейса. Применяется сразу."</string>
+  <string name="text_9e69e9de" formatted="false">"Скорость игры"</string>
+  <string name="text_2fec8049" formatted="false">"Всплывающие подсказки"</string>
+  <string name="text_3a0deda" formatted="false">"Плавное перемещение камеры"</string>
+  <string name="text_1a976048" formatted="false">"Скорость прокрутки"</string>
+  <string name="text_d7a19c29" formatted="false">"Медленно"</string>
+  <string name="text_d3f969a5" formatted="false">"Нормально"</string>
+  <string name="text_2ee35139" formatted="false">"Быстро"</string>
+  <string name="text_3dcdba6c" formatted="false">"Курсор"</string>
+  <string name="text_ec7adcfb" formatted="false">"Стрелка"</string>
+  <string name="text_ff3ce" formatted="false">"Меч"</string>
+  <string name="text_3b44416a" formatted="false">"Звук включён"</string>
+  <string name="text_166c3f7d" formatted="false">"Громкость музыки"</string>
+  <string name="text_5c2e3288" formatted="false">"Громкость эффектов"</string>
+  <string name="text_f62c5aca" formatted="false">"Громкость речи"</string>
+  <string name="text_3b723ff6" formatted="false">"Джинн"</string>
+  <string name="text_81c559da" formatted="false">"Управление"</string>
+  <string name="text_c16adbbf" formatted="false">"Тачпад с курсором"</string>
+  <string name="text_b99001af" formatted="false">"Чувствительность тачпада"</string>
+  <string name="text_5d0828c0" formatted="false">"Размер кнопок"</string>
+  <string name="text_e4f123e1" formatted="false">"Видимость кнопок"</string>
+  <string name="text_5f6b07f0" formatted="false">"Кнопки сенсорного управления"</string>
+  <string name="text_4064640" formatted="false">"Отдельные кнопки на экране, в боковых списках и книге писаря. Любую кнопку можно скрыть; ЛКМ по умолчанию скрыта."</string>
+  <string name="text_7ce69eca" formatted="false">"Боковые зоны"</string>
+  <string name="text_82162e12" formatted="false">"Список команд или отдельные действия по касанию и удержанию для каждой зоны"</string>
+  <string name="text_5e1fff23" formatted="false">"Левая зона"</string>
+  <string name="text_61e3d6f8" formatted="false">"Правая зона"</string>
+  <string name="text_31963493" formatted="false">"Готово"</string>
+  <string name="text_fdaf9ab1" formatted="false">"Переключать разделы построек свайпами"</string>
+  <string name="text_62ae5442" formatted="false">"Вибрация"</string>
+  <string name="text_d6ec4c34" formatted="false">"Диагностика касания"</string>
+  <string name="text_b7c1cc15" formatted="false">"Изменить расположение кнопок"</string>
+  <string name="text_9c62f9a0" formatted="false">"Предпросмотр поверх паузы: перемещение, размер щипком или ползунком, Сохранить и Отмена"</string>
+  <string name="text_8d8b72a0" formatted="false">"Сначала запустите игру: расположение меняется поверх игрового экрана."</string>
+  <string name="text_7452e6e7" formatted="false">"Сбросить расположение кнопок"</string>
+  <string name="text_f63bb278" formatted="false">"Исходное расположение восстановлено"</string>
+  <string name="text_e075984c" formatted="false">"Список команд"</string>
+  <string name="text_ff22ffb8" formatted="false">"Действия по тапу и удержанию"</string>
+  <string name="text_a0d9976b" formatted="false">"Режим: "</string>
+  <string name="text_3c346897" formatted="false">"Тап: "</string>
+  <string name="text_425441f4" formatted="false">"Ничего"</string>
+  <string name="text_18219bca" formatted="false">"Удержание: "</string>
+  <string name="text_e4e01701" formatted="false">"Команды списка"</string>
+  <string name="text_79a043" formatted="false">"Левая боковая зона"</string>
+  <string name="text_6766d318" formatted="false">"Правая боковая зона"</string>
+  <string name="text_280c7d94" formatted="false">"Режим боковой зоны"</string>
+  <string name="text_3bee53e8" formatted="false">"Назад"</string>
+  <string name="text_c93e0a86" formatted="false">"Действие по удержанию"</string>
+  <string name="text_ea1afa49" formatted="false">"Действие по тапу"</string>
+  <string name="text_d85b3a2" formatted="false">"На экране"</string>
+  <string name="text_4940f932" formatted="false">"Скрыта"</string>
+  <string name="text_940437ba" formatted="false">"В левой зоне"</string>
+  <string name="text_850bf3f3" formatted="false">"В правой зоне"</string>
+  <string name="text_be0cece" formatted="false">"В книге писаря"</string>
+  <string name="text_381c15a5" formatted="false">"Выберите кнопку"</string>
+  <string name="text_6930c0ed" formatted="false">"Исходные кнопки"</string>
+  <string name="text_58dee6e2" formatted="false">"Во весь экран"</string>
+  <string name="text_21fe03e4" formatted="false">"Применяется при новом запуске игры"</string>
+  <string name="text_a8f56f96" formatted="false">"Высота кадра — из режимов самой игры. «Во весь экран»: ширина кадра в пропорциях экрана, без полей по бокам. "</string>
+  <string name="text_535e0f4c" formatted="false">"Выключено — режимы игры 16:9 (600 строк — 4:3) с полями."</string>
+  <string name="text_1c807936" formatted="false">"Фильтр карты"</string>
+  <string name="text_b4a6b086" formatted="false">"Фильтр интерфейса и меню"</string>
+  <string name="text_9d5299a9" formatted="false">"Установить минимальную графику"</string>
+  <string name="text_18318ed4" formatted="false">"Минимальное разрешение, билинейные фильтры, без резкости, сглаживания градиентов и чёткого текста. Разрешение — после перезапуска игры."</string>
+  <string name="text_d009bb6" formatted="false">"Установить минимальную графику?"</string>
+  <string name="text_e169a424" formatted="false">"Будут выбраны минимальное разрешение и билинейные фильтры, отключены резкость, сглаживание градиентов и чёткий текст. Разрешение изменится после перезапуска игры; перед ним сохраните матч."</string>
+  <string name="text_50c0fca2" formatted="false">"Минимальная графика установлена. Перед перезапуском сохраните матч."</string>
+  <string name="text_134c4b51" formatted="false">"Лупа при строительстве"</string>
+  <string name="text_bdc49d14" formatted="false">"Размер лупы"</string>
+  <string name="text_d4381850" formatted="false">"Приближение лупы"</string>
+  <string name="text_2802cc6e" formatted="false">" строк · "</string>
+  <string name="text_a491b1c" formatted="false">" (рекомендуется)"</string>
+  <string name="text_ed627e79" formatted="false">" (минимальное)"</string>
+  <string name="text_4df3cfcb" formatted="false">"Авто · "</string>
+  <string name="text_a67f2ed1" formatted="false">"Минимальное · "</string>
+  <string name="text_b92cd745" formatted="false">"Устройство · "</string>
+  <string name="text_1ea4f7a" formatted="false">"Выкл"</string>
+  <string name="text_9cc4fef4" formatted="false">"Сбросить настройки"</string>
+  <string name="text_13c03dbd" formatted="false">"Графика, звук, игра, управление и расположение кнопок этой редакции"</string>
+  <string name="text_fbdadfcb" formatted="false">"Сбросить настройки?"</string>
+  <string name="text_5c9aa70f" formatted="false">"Восстановить исходные настройки графики, звука, игры и управления для «"</string>
+  <string name="text_2212d98f" formatted="false">"»? Расположение кнопок тоже будет сброшено. Сохранения и папка игры останутся."</string>
+  <string name="text_20185fcf" formatted="false">"Сбросить"</string>
+  <string name="text_95756cc3" formatted="false">"Исходные настройки восстановлены. Разрешение — после перезапуска игры."</string>
+  <string name="text_e9b3ed23" formatted="false">"Соединение LAN потеряно"</string>
+  <string name="text_8c56b252" formatted="false">"Матч больше не синхронизируется с другими игроками. Для новой сетевой игры вернитесь в лобби."</string>
+  <string name="text_cd2e947f" formatted="false">"Открыть меню"</string>
+  <string name="text_397db4c9" formatted="false">"Остаться"</string>
+  <string name="text_e17e86d7" formatted="false">"Не удалось сохранить последнюю игру"</string>
+  <string name="text_e361570e" formatted="false">"Радар: окраска «свои / чужие»"</string>
+  <string name="text_9e26dc2e" formatted="false">"Радар: цвета лордов"</string>
+  <string name="text_5426ab15" formatted="false">"Рельеф выровнен"</string>
+  <string name="text_b4a44764" formatted="false">"Рельеф показан"</string>
+  <string name="text_2d0109a6" formatted="false">"Не удалось загрузить библиотеку игры: "</string>
+  <string name="text_4cb18659" formatted="false">"Не удалось записать состояние процесса игры: "</string>
+  <string name="text_713f2555" formatted="false">"Записать "</string>
+  <string name="text_593c73fa" formatted="false">"Вызвать "</string>
+  <string name="text_81cc2e8c" formatted="false">"точку "</string>
+  <string name="text_7b2e487f" formatted="false">"отряд "</string>
+  <string name="text_9f626b72" formatted="false">"Не удалось открыть папку профиля: "</string>
+  <string name="text_cef3e0b" formatted="false">"Не удалось записать состояние запуска"</string>
+  <string name="text_f6705b85" formatted="false">"Не удалось применить моды: "</string>
+  <string name="text_9b698f2c" formatted="false">"Не удалось создать поток игры."</string>
+  <string name="text_b73264df" formatted="false">"Авто+: со следующего запуска игры "</string>
+  <string name="text_94178ee5" formatted="false">"Масштаб карты "</string>
+  <string name="text_dbdce9de" formatted="false">". Нажмите, чтобы вернуть 100%"</string>
+  <string name="text_f8e1b788" formatted="false">"Скорость"</string>
+  <string name="text_2ed35202" formatted="false">"Скорость игры "</string>
+  <string name="text_908c5443" formatted="false">"Лаунчер"</string>
+  <string name="text_6505de10" formatted="false">"Другая игра"</string>
+  <string name="text_3d783ca2" formatted="false">"Кнопки"</string>
+  <string name="text_b242fa66" formatted="false">"Действия зон"</string>
+  <string name="text_3c2749d3" formatted="false">"Сброс"</string>
+  <string name="text_345e4ebd" formatted="false">"Сохранить"</string>
+  <string name="text_771c4a21" formatted="false">"Все кнопки и зоны"</string>
+  <string name="text_6da7435b" formatted="false">"Выбранный элемент"</string>
+  <string name="text_2bb11c12" formatted="false">"Сбросить в предпросмотре"</string>
+  <string name="text_cbea86b0" formatted="false">"Размер или ширина выбранного элемента"</string>
+  <string name="text_7d09312e" formatted="false">"Высота выбранной зоны"</string>
+  <string name="text_1c91ec15" formatted="false">"Медленнее"</string>
+  <string name="text_ad86d905" formatted="false">"Быстрее"</string>
+  <string name="text_25736bb0" formatted="false">"Повернуть карту против часовой стрелки"</string>
+  <string name="text_deee81ed" formatted="false">"Повернуть карту по часовой стрелке"</string>
+  <string name="text_9f22a8aa" formatted="false">"Настроить управление"</string>
+  <string name="text_128ace70" formatted="false">"Меню паузы"</string>
+  <string name="text_3bd45817" formatted="false">"Левая"</string>
+  <string name="text_46242f22" formatted="false">"Правая"</string>
+  <string name="text_372daac6" formatted="false">" зона команд: нажмите, чтобы показать или скрыть; удерживайте и выберите жестом"</string>
+  <string name="text_10846330" formatted="false">" зона команд. Тап: "</string>
+  <string name="text_a31f1f85" formatted="false">"; удержание: "</string>
+  <string name="text_28198ae" formatted="false">"Открыть лаунчер"</string>
+  <string name="text_47d71fc6" formatted="false">"Настройки Unofficial Crusader Patch"</string>
+  <string name="text_f6b7f63e" formatted="false">"Игра · "</string>
+  <string name="text_76a9fba6" formatted="false">"Пауза / продолжить"</string>
+  <string name="text_ef035265" formatted="false">"Налоги, деньги и рацион"</string>
+  <string name="text_366d1184" formatted="false">"Восстановить лорда"</string>
+  <string name="text_127fdd5c" formatted="false">"Тип карты"</string>
+  <string name="text_40f8487d" formatted="false">"Удалить животных"</string>
+  <string name="text_b40852fd" formatted="false">"Швы местности"</string>
+  <string name="text_b214cb0e" formatted="false">"Редактор карты"</string>
+  <string name="text_996eed65" formatted="false">": нажмите для удержания, повторно для отпускания"</string>
+  <string name="text_84a2a892" formatted="false">": удерживайте и двигайте курсор другим пальцем"</string>
+  <string name="text_c5ff77a4" formatted="false">"Левый стик — курсор\nПравый стик — камера\nA / B — ЛКМ / ПКМ (можно удерживать)\nX — рельеф · Y — пауза\nLB / RB — масштаб / прокрутка списка\nLT — точное наведение · RT — Shift\nКрестовина ↑ / ↓ — скорость\nКрестовина ← / → — поворот карты\nL3 — масштаб 100% · R3 — замок (F1)\nStart — меню · Select / Back — раскладка"</string>
+  <string name="text_5bdffeb8" formatted="false">"Удерживайте Select для комбинаций:\n↑ → ↓ ← — отряды 1–4\nA B X Y — отряды 5–8 · LB — отряд 9\nДобавьте RT — записать отряд\nДобавьте LT — точки карты 1–9\nLT + RT — записать точку карты\nRB — цвета радара · L3 — команды книги\nR3 — клавиатура · Start — настройки\n\nКурсор скрывается через 30 с бездействия.\nЗакрыть: A, B, Start или Select."</string>
+  <string name="text_feb3681" formatted="false">"Геймпад · раскладка"</string>
+  <string name="text_2a77e835" formatted="false">"Редактор расположения: выберите и перетащите элемент, размер — двумя пальцами"</string>
+  <string name="text_9824700e" formatted="false">"Выберите элемент. Перетаскивайте; размер — щипком или ползунком."</string>
+  <string name="text_3c04bfa1" formatted="false">"Отряд"</string>
+  <string name="text_3c3b63e9" formatted="false">"Точки"</string>
+  <string name="text_69353b01" formatted="false">"Ширина: "</string>
+  <string name="text_73d35386" formatted="false">"Размер: "</string>
+  <string name="text_6afd712a" formatted="false">"Высота: "</string>
+  <string name="text_6663223b" formatted="false">"Игровое поле: касание, выделение перетаскиванием, два пальца для карты"</string>
+  <string name="text_31f6a807" formatted="false">"Вызвать отряд"</string>
+  <string name="text_c147bfd8" formatted="false">"Записать выделенный отряд"</string>
+  <string name="text_62460ad7" formatted="false">"Перейти к точке карты"</string>
+  <string name="text_4551ce12" formatted="false">"Записать точку карты"</string>
+  <string name="text_e4ea7ac8" formatted="false">"Записать в ячейку"</string>
+  <string name="text_2079c993" formatted="false">"Выбрать ячейку"</string>
+  <string name="text_da5ce02b" formatted="false">"Записать"</string>
+  <string name="text_e1d8a8e6" formatted="false">"Вызвать"</string>
+  <string name="text_c3b66742" formatted="false">"Центр: отмена"</string>
+  <string name="text_d8ce0722" formatted="false">" · лупа"</string>
+  <string name="text_c975cf94" formatted="false">"Геймпад %.0f, %.0f"</string>
+  <string name="text_1eedcf3" formatted="false">"Мышь"</string>
+  <string name="text_4a6be62a" formatted="false">"Тачпад"</string>
+  <string name="text_1cf2a817" formatted="false">"Палец %.0f, %.0f"</string>
+  <string name="text_2e32007a" formatted="false">"\n\nКнига писаря: удерживайте, чтобы открыть список, затем нажмите команду или выберите её свайпом и отпустите. Повторный тап по книге скрывает список. Назначения меняются через каталог кнопок.\n\nБоковые зоны по умолчанию пусты. Назначьте команды в левую или правую зону: тап открывает вертикальный список, повторный тап по той же зоне скрывает его. Удерживайте около трети секунды и ведите палец к команде, отпустите для выполнения.\n\nРедактор расположения показывает паузу: выберите и перетащите кнопку или зону, меняйте размер двумя пальцами, ползунком или за угол. «Кнопки» задаёт размещение команд на экране, в книге и в боковых зонах. «Действия зон» переключает список либо отдельные назначения тапа и удержания. Изменения применяются только через «Сохранить»; «Отмена» или Android «Назад» возвращает прежнюю раскладку."</string>
+  <string name="text_8d249b77" formatted="false">"Управление · Stronghold HD"</string>
+  <string name="text_fd0b4522" formatted="false">"На карте тап выбирает войска или отдаёт приказ, сдвиг пальца двигает камеру. Чтобы выделить войска рамкой или провести стену, удерживайте палец около трети секунды, затем тяните. Удержание отменяет постройку или выделение.\n\nДва пальца: сдвиг — камера, сведение или разведение — плавное приближение вокруг середины жеста. Тап по процентам над радаром возвращает 100%, поворот примерно на четверть оборота — поворот карты (C / X), короткий тап — отмена. Удержание радара переключает рельеф, короткий тап двумя пальцами над ним — окраску «свои / чужие».\n\nВ меню и окнах тап нажимает кнопку или открывает клавиатуру для текстового поля; перетаскивание тянет ползунки и списки. Удержание книги писаря открывает вертикальный список команд. По умолчанию в нём настройка управления и меню паузы. Android «Назад» открывает меню игры (Esc).\n\nСвайп по панели построек переключает доступные разделы. Выбранная постройка подсвечивается, рядом показываются её название и стоимость. Лупа при выборе места выключена по умолчанию; её размер и приближение меняются в настройках.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nВ настройках доступны скорость игры, звук, прокрутка, размер интерфейса, чёткий текст, тачпад и расположение кнопок. «Во весь экран» выбирает пропорции устройства. Кнопка «⇄» открывает переход между играми и лаунчером."</string>
+  <string name="text_7bbca9d2" formatted="false">"Понятно"</string>
+  <string name="text_7b305f23" formatted="false">"На карте: тап — выбор или приказ, двойной тап — отряд одного типа. Сдвиг пальца двигает камеру; для рамки сначала удерживайте палец около трети секунды, затем тяните.\n\nУдержание на карте отменяет выделение, постройку или способность; если отменять нечего — выравнивает рельеф. Удержание радара тоже переключает рельеф.\n\nДва пальца двигают камеру и меняют приближение. Поворот двумя пальцами примерно на четверть оборота поворачивает карту на 90°. Короткий тап двумя пальцами — отмена; над радаром — окраска «свои / чужие». Тап по значению масштаба над радаром возвращает 100%.\n\nВ меню тап нажимает кнопку, удержание показывает описание; слайдеры и списки можно тянуть. Удержание книги писаря открывает вертикальный список команд; в редакторе удерживайте перо слева от панели. Кнопка «Расположение» позволяет перетащить каждую кнопку отдельно. Android «Назад» открывает игровое меню.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nСвайп по панели построек листает доступные разделы: влево — следующий, вправо — предыдущий; из подраздела свайп в любую сторону открывает следующий раздел. Выбранная постройка подсвечивается на своей кнопке.\n\nЛупа: пока палец выбирает место для постройки, стены, сноса или способности, рядом показывается увеличенный участок карты. Короткий тап ставит сразу, без лупы.\n\nВибрация отмечает привязку масштаба к 100%, смену раздела построек, удержание, поворот и выбор отрядов и точек карты. Лупу и вибрацию можно выключить в настройках.\n\nМышь и клавиатура (USB или Bluetooth): с мышью игра работает как на ПК — наведение, ЛКМ и ПКМ, прокрутка камеры у края экрана. Колесо в матче меняет масштаб вокруг курсора, в меню и списках прокручивает их. Перетаскивание средней кнопкой двигает карту, щелчок средней кнопкой возвращает 100%. Клавиши — как в оригинале: Esc — меню, пробел — рельеф, +/− цифрового блока — скорость, X/C — поворот. Касание экрана снова включает сенсорное управление.\n\nТачпад — дополнительный режим курсора. Касание выполняет ЛКМ; отдельную кнопку ЛКМ можно включить в настройках управления."</string>
+  <string name="text_3974cee0" formatted="false">"Текст в выбранное поле"</string>
+  <string name="text_9dcaa1b2" formatted="false">"Ввод текста"</string>
+  <string name="text_156c037a" formatted="false">"Не удалось передать текст. Повторите."</string>
+  <string name="text_e75a395d" formatted="false">"Нужен перезапуск игры"</string>
+  <string name="text_8eb11e4d" formatted="false">"Параметры запуска изменены. Если матч ещё не сохранён, вернитесь в игру и сохраните его. Затем закройте игру и запустите её из лаунчера."</string>
+  <string name="text_1f3ca4a8" formatted="false">"Закрыть игру"</string>
+  <string name="text_7aa86411" formatted="false">"Вернуться в игру"</string>
+  <string name="text_7bda8a8" formatted="false">"Разрешение изменится при новом запуске игры. Сначала сохраните матч."</string>
+  <string name="text_6bbeeed" formatted="false">"Не удалось открыть папку: "</string>
+  <string name="text_700a6ce" formatted="false">"В выбранной папке не найдены файлы поддерживаемой игры (sh.tex или cr.tex, gfx, карты, EXE и DLL)."</string>
+  <string name="text_a4644fc1" formatted="false">"Карта %08X.map"</string>
+  <string name="text_ab4773ef" formatted="false">"Неизвестный язык ("</string>
+  <string name="text_fb8eb11f" formatted="false">"Языковой файл недоступен"</string>
+  <string name="text_7fefc6fe" formatted="false">"Укажите абсолютный путь к папке игры (короче 512 байт)."</string>
+  <string name="text_9f82bc76" formatted="false">"Папка игры недоступна: "</string>
+  <string name="text_77e593d2" formatted="false">"В папке игры отсутствует или недоступен: "</string>
+  <string name="text_1d7e051d" formatted="false">"Для Extreme требуется папка mapsExtreme."</string>
+  <string name="text_28b1d162" formatted="false">"Не найден "</string>
+  <string name="text_27fd156" formatted="false">"\nВыберите распакованную игру с EXE и DLL или сохраните соседнюю папку "</string>
+  <string name="text_b8a27c7e" formatted="false">"Версия EXE отличается от использованной при сборке порта: "</string>
+  <string name="text_9d1f8785" formatted="false">"\nСовместимость не гарантируется: возможны ошибки или вылеты."</string>
+  <string name="text_6e53cedb" formatted="false">"Неподдерживаемая версия файла: "</string>
+  <string name="text_5bd43a34" formatted="false">". Требуются оригинальные файлы "</string>
+  <string name="text_1cc40d25" formatted="false">", использованные при сборке порта."</string>
+  <string name="text_5bb3e0b9" formatted="false">"Не удалось проверить "</string>
+  <string name="text_1c8469ed" formatted="false">"Некорректный mod.properties: нужны id, name и edition"</string>
+  <string name="text_b2bafaf5" formatted="false">"Нет mod.properties"</string>
+  <string name="text_eb403ade" formatted="false">"В моде нет папки files"</string>
+  <string name="text_a50d5f02" formatted="false">"ID мода не совпадает с папкой"</string>
+  <string name="text_bf68a7c2" formatted="false">"Не удалось создать папку модов"</string>
+  <string name="text_e301efe5" formatted="false">"Установка мода отменена"</string>
+  <string name="text_da0f7a1b" formatted="false">"В моде слишком много файлов"</string>
+  <string name="text_1d86aacf" formatted="false">"Недопустимый путь мода: "</string>
+  <string name="text_ac61087a" formatted="false">"Путь вне папки мода"</string>
+  <string name="text_2dbc90bc" formatted="false">"Не удалось создать папку"</string>
+  <string name="text_4806bcdb" formatted="false">"Слишком большой мод или недостаточно места"</string>
+  <string name="text_c0c24538" formatted="false">"Мод с ID "</string>
+  <string name="text_589d7d1e" formatted="false">" уже установлен; сначала удалите старую версию"</string>
+  <string name="text_dfc00caa" formatted="false">"Путь вне папки модов"</string>
+  <string name="text_dcab549e" formatted="false">"Слишком большой файл настроек UCP"</string>
+  <string name="text_3885cbb8" formatted="false">"Несовместимая версия настроек UCP"</string>
+  <string name="text_37ee1202" formatted="false">"Некорректная версия UCP"</string>
+  <string name="text_21477ff3" formatted="false">"Некорректный ID UCP"</string>
+  <string name="text_d8f45539" formatted="false">"Не удалось подключить папку мода"</string>
+  <string name="text_9eb924ea" formatted="false">"Некорректные данные установщика"</string>
+  <string name="text_bb7b574e" formatted="false">"Неподдерживаемый установщик GOG"</string>
+  <string name="text_a7626e40" formatted="false">"Некорректный размер установщика"</string>
+  <string name="text_935d7c39" formatted="false">"Недопустимое имя файла установщика"</string>
+  <string name="text_3a38ea3a" formatted="false">"Не удалось прочитать установщик GOG"</string>
+  <string name="text_e9f593c1" formatted="false">"Установщик недоступен"</string>
+  <string name="text_71aaf593" formatted="false">"Установщик повреждён или ещё не загружен"</string>
+  <string name="text_fe6aedd5" formatted="false">"Не удалось прочитать установщик за 30 секунд"</string>
+  <string name="text_b941bd0a" formatted="false">"Слишком много данных установщика"</string>
+  <string name="text_8650ed8e" formatted="false">"Не удалось прочитать GOG EXE. Проверьте загрузку EXE и соседних BIN.\n"</string>
+  <string name="text_a028f060" formatted="false">"Недостаточно места для установки"</string>
+  <string name="text_8daf5f21" formatted="false">"Слишком длинная строка установщика"</string>
+  <string name="text_cb58dac1" formatted="false">"Слишком большой каталог UCP"</string>
+  <string name="text_baeab032" formatted="false">"Описание и ограничения"</string>
+  <string name="text_d4663468" formatted="false">"Удерживайте строку, чтобы прочитать описание функции.\n\nПараметры используют значения подготовленного Android-профиля. Все функции изначально выключены.\n\nПока недоступны:\n"</string>
+  <string name="text_c4ca9a3e" formatted="false">"Изменения применяются с перезапуском игры."</string>
+  <string name="text_761ec6a6" formatted="false">"Эта функция конфликтует с уже включённой. Выберите одну из них."</string>
+  <string name="text_894c55a6" formatted="false">"Применить и перезапустить"</string>
+  <string name="text_c1d8dcca" formatted="false">"Отключить все"</string>
+  <string name="text_5eac72ff" formatted="false">"Язык устройства"</string>
+  <string name="text_4c8d6e38" formatted="false">"Язык интерфейса"</string>
+  <string name="text_1ee890a" formatted="false">"Меню"</string>
+  <string name="text_3c0ab0cb" formatted="false">"Пауза"</string>
+  <string name="text_1e9f216" formatted="false">"Ввод"</string>
+  <string name="text_e72d2f88" formatted="false">"Расположение"</string>
+  <string name="text_2f4b6762" formatted="false">"Другая игра / лаунчер"</string>
+  <string name="text_6de00461" formatted="false">"F1 · замок"</string>
+  <string name="text_47436775" formatted="false">"Рельеф"</string>
+  <string name="text_c55b4d28" formatted="false">"Масштаб"</string>
+  <string name="text_789ab605" formatted="false">"Действия редактора"</string>
+  <string name="text_fec9d" formatted="false">"ЛКМ"</string>
+  <string name="text_ffba1" formatted="false">"ПКМ"</string>
+  <string name="text_b2b43e17" formatted="false">"Приближение карты"</string>
+  <string name="text_1feddd8" formatted="false">"ИИ не сносит недоступные здания"</string>
+  <string name="text_452ad1bd" formatted="false">"Не позволяет ИИ бесконечно сносить и заново строить здания, к которым не могут пройти рабочие."</string>
+  <string name="text_ac28330" formatted="false">"Прирост армии ИИ между атаками"</string>
+  <string name="text_defb6765" formatted="false">"Определяет, сколько дополнительных бойцов ИИ добавляет к своей основной армии после каждой атаки. В исходной игре обычный прирост составляет 5 бойцов за атаку."</string>
+  <string name="text_c8794600" formatted="false">"ИИ сохраняет цель начатого штурма"</string>
+  <string name="text_ea7d305f" formatted="false">"ИИ не меняет выбранного противника во время штурма. Это предотвращает уход осадной армии к другому замку посреди атаки."</string>
+  <string name="text_3a58fc20" formatted="false">"Лимит прироста армии ИИ"</string>
+  <string name="text_9f0fa654" formatted="false">"Ограничивает прирост атакующей армии ИИ после первой атаки. Итоговый предел равен численности первой атаки плюс заданное число бойцов: в исходной игре — 200. Большие значения могут привести к общему лимиту войск, из-за чего новые крестьяне перестанут появляться."</string>
+  <string name="text_e53043e9" formatted="false">"ИИ атакует ближайшего противника"</string>
+  <string name="text_c1544a8a" formatted="false">"Более решительные штурмы ИИ"</string>
+  <string name="text_56bf559c" formatted="false">"ИИ отправляет несколько бойцов на один участок стены и атакует здания и башни, которые раньше игнорировал. После пролома стен он направляет всех оставшихся атакующих к вражеской цитадели."</string>
+  <string name="text_87f0374c" formatted="false">"Запас древесины для строительства ИИ"</string>
+  <string name="text_1a97404f" formatted="false">"При закупке древесины для постройки ИИ приобретает 2 дополнительных бревна. Этот запас не даёт производству оружия израсходовать всю древесину, предназначенную для строительства."</string>
+  <string name="text_9d075c1d" formatted="false">"Пополнение защитников замка ИИ"</string>
+  <string name="text_8ff5c08c" formatted="false">"ИИ восполняет потери защитников на стенах и башнях, даже если его оборонительные патрули ещё целы."</string>
+  <string name="text_285bc551" formatted="false">"ИИ не сносит здания ради золота"</string>
+  <string name="text_dd03c78" formatted="false">"Европейские лучники ИИ поджигают смолу"</string>
+  <string name="text_dc18c73c" formatted="false">"Позволяет европейским лучникам ИИ поджигать смолу при обороне от врагов так же, как это делают арабские лучники."</string>
+  <string name="text_3b8c03e6" formatted="false">"Лестничники ИИ при изолированной цитадели"</string>
+  <string name="text_48597cd" formatted="false">"ИИ продолжает отправлять лестничников на вражеские стены, даже если его собственная цитадель изолирована стенами."</string>
+  <string name="text_65f9d31a" formatted="false">"Разумное строительство жилья ИИ"</string>
+  <string name="text_bce08238" formatted="false">"Производства ИИ не переходят в спящий режим"</string>
+  <string name="text_5436458" formatted="false">"Запрещает ИИ приостанавливать производственные здания из-за нехватки сырья. Это предотвращает потерю товаров, которые уже обрабатываются или доставляются на склад либо в оружейную."</string>
+  <string name="text_dae17703" formatted="false">"Улучшенный ремонт укреплений ИИ"</string>
+  <string name="text_b470fb65" formatted="false">"ИИ восстанавливает разрушенные башни и слегка повреждённые стены. Он также может строить на уцелевших площадках сбора, если основное здание найма было уничтожено."</string>
+  <string name="text_c6d39296" formatted="false">"Максимальная скорость найма войск ИИ"</string>
+  <string name="text_81a08df1" formatted="false">"Все лорды под управлением ИИ нанимают войска с минимальным интервалом — так же быстро, как Крыса и Ричард в исходной игре."</string>
+  <string name="text_5852fbee" formatted="false">"Начальный период набора защитников ИИ"</string>
+  <string name="text_98504523" formatted="false">"Своевременная закупка сырья ИИ"</string>
+  <string name="text_e5362373" formatted="false">"Сокращает ожидание перед пополнением запасов муки, железа и древесины. ИИ быстрее закупает нужное сырьё при наличии золота, чтобы производственные цепочки не простаивали."</string>
+  <string name="text_411fb045" formatted="false">"Ограничение числа привязей для волов у ИИ"</string>
+  <string name="text_b0668156" formatted="false">"Ограничивает число привязей для волов до 10 на одного лорда ИИ. При достижении предела строительство новой каменоломни больше не создаёт лишнюю привязь. Это помогает избежать переполнения жилья и остановки притока крестьян."</string>
+  <string name="text_58c13e33" formatted="false">"Больше осадных орудий на башнях ИИ"</string>
+  <string name="text_fd22b83d" formatted="false">"Повышает предел осадных орудий на башнях ИИ с 3 до 5 мангонелей и с 3 до 5 баллист на одного лорда."</string>
+  <string name="text_75701bbb" formatted="false">"Меньше места для размещения яблоневых садов"</string>
+  <string name="text_1155fd0d" formatted="false">"Уменьшает область, требуемую для размещения яблоневого сада, до его фактического размера после строительства. Это экономит место и помогает ИИ находить подходящие участки на траве оазиса."</string>
+  <string name="text_399176b3" formatted="false">"Единый порядок оружия на рынке и в оружейной"</string>
+  <string name="text_729e4f00" formatted="false">"Располагает значки оружия и доспехов на рынке в том же порядке, что и в оружейной. Изменение касается как основной категории, так и переключения страниц рынка."</string>
+  <string name="text_b7349c41" formatted="false">"Осадные орудия появляются в центре палатки"</string>
+  <string name="text_1c8fc28d" formatted="false">"Готовые осадные орудия появляются в центре своей палатки, а не в её верхнем правом углу. Положение самой палатки относительно точки из редактора AIV не меняется."</string>
+  <string name="text_9644382a" formatted="false">"Скорость сетевой игры по умолчанию"</string>
+  <string name="text_589c7e28" formatted="false">"Непрерывное размещение осадных палаток"</string>
+  <string name="text_18b28856" formatted="false">"После размещения палатки выбранное осадное орудие остаётся активным. Можно поставить несколько палаток подряд, не выбирая каждый раз один и тот же тип орудия."</string>
+  <string name="text_4feb7c60" formatted="false">"Непрерывное размещение обычных построек"</string>
+  <string name="text_1ef65230" formatted="false">"Продление защиты зданий от повторного пожара"</string>
+  <string name="text_cc03f437" formatted="false">"Увеличивает время, в течение которого потушенное здание не может загореться снова. В исходной игре защита длится 2000 игровых тактов (2,5 месяца), в подготовленном профиле — 4000 тактов (5 месяцев)."</string>
+  <string name="text_6e6b12a1" formatted="false">"Пекари не исчезают при нехватке муки"</string>
+  <string name="text_fccb5bb" formatted="false">"Исправляет исчезновение пекаря, если на выбранном им складе больше нет муки."</string>
+  <string name="text_cf14e917" formatted="false">"Правильный маршрут работников лучной мастерской"</string>
+  <string name="text_8361dffd" formatted="false">"После доставки готового лука или арбалета в оружейную мастер сразу идёт на склад за новой древесиной. Лишний заход в мастерскую больше не нужен."</string>
+  <string name="text_ca54190c" formatted="false">"Сохранение команды после подъёма по лестнице"</string>
+  <string name="text_eb50f98e" formatted="false">"После подъёма по лестнице бойцы сохраняют прежнюю цель движения. Они не застревают на лестнице или у её верхнего края, забыв полученный приказ."</string>
+  <string name="text_61a70c46" formatted="false">"Исправление передачи карт в сетевой игре"</string>
+  <string name="text_9e950ce" formatted="false">"Сокращает длину имени отправляемой карты, чтобы передача карт между игроками снова работала."</string>
+  <string name="text_159da4d9" formatted="false">"Бойцы не исчезают при копании рва"</string>
+  <string name="text_c2d9827d" formatted="false">"Устраняет случайное исчезновение бойцов во время копания рва. Если приказать им двигаться, когда они стоят на непроходимом участке, они всё ещё могут исчезнуть."</string>
+  <string name="text_863b3398" formatted="false">"Защита от дублирования ресурсов при сносе"</string>
+  <string name="text_f103a852" formatted="false">"Быстрые повторные нажатия на снос здания больше не возвращают ресурсы несколько раз за одну постройку. Это устраняет получение лишних ресурсов с помощью автокликера."</string>
+  <string name="text_325c982e" formatted="false">"Бесплатный рынок"</string>
+  <string name="text_8f03ccd2" formatted="false">"Рынок строится без затрат ресурсов. Это позволяет ИИ восстановить торговлю при нехватке древесины и помогает игрокам, забывшим построить рынок до исчерпания запасов."</string>
+  <string name="text_f069c318" formatted="false">"Расширенная регулировка скорости игры"</string>
+  <string name="text_fc01c356" formatted="false">"Меняет шаг регулировки скорости клавишами «+» и «−»: от 10 до 90 — шаг 5, от 90 до 200 — шаг 10, выше 200 — шаг 100. Обычный ползунок скорости в меню игры не меняется."</string>
+  <string name="text_678f0452" formatted="false">"Лекарь лечит раненых"</string>
+  <string name="text_d80b35ab" formatted="false">"Лекарь из аптеки ищет поблизости раненых солдат, жителей и животных, а также повреждённые осадные орудия. Сначала он лечит ближайшие цели; за одну анимацию лечения восстанавливается примерно треть здоровья копейщика. Обходы садов и борьба с чумой сохраняются. Обычные прогулки по замку откладываются, пока рядом остаются раненые."</string>
+  <string name="text_5537ff62" formatted="false">"Более частое обновление доступных путей"</string>
+  <string name="text_c2320354" formatted="false">"Игра проверяет новые доступные пути каждые 50 игровых тактов вместо 200. Бойцы быстрее замечают проходы, открывшиеся после разрушения ворот или башен."</string>
+  <string name="text_7b910129" formatted="false">"Камера на WASD и быстрые сохранения"</string>
+  <string name="text_da9cb22e" formatted="false">"Клавиши WASD перемещают камеру, Ctrl+S выполняет быстрое сохранение, Ctrl+L — быструю загрузку. Меняются обычные назначения клавиш WASD, в том числе клавиши A для оружейной; это может мешать вводу описаний карт."</string>
+  <string name="text_663f3a2c" formatted="false">"Всегда показывать запланированный ров"</string>
+  <string name="text_c57cf934" formatted="false">"Контур собственного ещё не выкопанного рва остаётся видимым после выхода из инструмента размещения рва и при снятии выделения с бойцов."</string>
+  <string name="text_c3793199" formatted="false">"Режим наблюдателя"</string>
+  <string name="text_980be06e" formatted="false">"Убирает игрока из первого слота и позволяет наблюдать за сражением до 8 лордов ИИ. Сохранения загружаются, но ранее существовавшим игроком управлять нельзя. Иногда на карте появляются лишние объекты: это визуальная ошибка, которую можно устранить сохранением, выходом из миссии и повторной загрузкой."</string>
+  <string name="text_b5130776" formatted="false">"Выбор стартовых войск в меню профиля"</string>
+  <string name="text_346aae56" formatted="false">"Добавляет выбор стартовых бойцов ближнего и дальнего боя в меню настройки имени и герба. Действует только в обычном режиме схватки."</string>
+  <string name="text_8951aea4" formatted="false">"Цвет первого игрока"</string>
+  <string name="text_e5c92bd" formatted="false">"Более отзывчивые ворота"</string>
+  <string name="text_796f1f14" formatted="false">"Ворота закрываются при более близком подходе врага и быстрее открываются после исчезновения опасности. Радиус обнаружения уменьшается с 200 до 140, задержка открытия — с 1200 до 100 игровых тактов."</string>
+  <string name="text_e11c16a2" formatted="false">"Арабские реплики инженеров"</string>
+  <string name="text_47bf4b5e" formatted="false">"Если выбран арабский лорд, инженеры используют записанные для него арабские реплики."</string>
+  <string name="text_ccbd6746" formatted="false">"Баланс Stronghold 1 (Strongholdify)"</string>
+  <string name="text_b9c448ff" formatted="false">"Поворот цитадели игрока"</string>
+  <string name="text_c6a03e85" formatted="false">"Разворачивает цитадель игрока так же, как цитадели ИИ: костёр направлен к краю карты. Другие здания, их входы и площадки сбора не поворачиваются."</string>
+  <string name="text_7431cbf3" formatted="false">"Отключение особых способностей Extreme"</string>
+  <string name="text_732ad036" formatted="false">"Отключает отображение и использование панели особых способностей в Stronghold Crusader Extreme."</string>
+  <string name="text_40f0ed66" formatted="false">"Арабские мечники быстрее разрушают стены"</string>
+  <string name="text_40f165ee" formatted="false">"Защита арабских мечников от арбалетов"</string>
+  <string name="text_fc37c472" formatted="false">"Для гибели арабского мечника требуется 6 попаданий арбалетных болтов вместо 3."</string>
+  <string name="text_ea90a6d6" formatted="false">"Огненные баллисты атакуют монахов и землекопов"</string>
+  <string name="text_c2f7c701" formatted="false">"Огненные баллисты автоматически выбирают вражеских монахов и землекопов в качестве целей."</string>
+  <string name="text_6b6a494d" formatted="false">"Устранение блокировки сборщиков яблок"</string>
+  <string name="text_395fdc85" formatted="false">"Рабочие яблоневого сада больше не блокируются постройками у его верхнего левого края во время сбора яблок."</string>
+  <string name="text_51c1fc58" formatted="false">"Исправление зависшей анимации лорда"</string>
+  <string name="text_6a6653f" formatted="false">"После остановки или разрушения здания лорд возвращается в обычную позу. Исправляет зависание в наклонённом положении."</string>
+  <string name="text_e40f72c0" formatted="false">"Защита лестничников от обстрела"</string>
+  <string name="text_fcd33444" formatted="false">"Лестничники погибают после 12 попаданий стрел вместо 5, а также после 5 попаданий арбалетных болтов или камней пращников вместо 2. Цена найма и её отображение исправлены до 20 золотых."</string>
+  <string name="text_8e5eeb6c" formatted="false">"Защита копейщиков от обстрела"</string>
+  <string name="text_c3e8d497" formatted="false">"Копейщики погибают после 5 попаданий стрел вместо 3 и переживают одно попадание арбалетного болта с небольшим остатком здоровья."</string>
+  <string name="text_73d4b3b4" formatted="false">"Копейщики бегают по умолчанию"</string>
+  <string name="text_ee55b088" formatted="false">"Копейщики передвигаются бегом вместо ходьбы, как рабы и булавоносцы."</string>
+  <string name="text_528a62c4" formatted="false">"Кожевники не возвращаются без коровы"</string>
+  <string name="text_997e4ebf" formatted="false">"Если выбранную корову уже забрал другой кожевник, работник немного ждёт и выбирает другую. Он больше не возвращается в мастерскую с пустыми руками."</string>
+  <string name="text_b06cab43" formatted="false">"Не удалось подготовить EXE"</string>
+  <string name="text_d9afbeb9" formatted="false">"Неверный формат адаптации EXE"</string>
+  <string name="text_b1da8da8" formatted="false">"EXE не соответствует адаптации"</string>
+  <string name="text_db07b86e" formatted="false">"EXE обрезан"</string>
+  <string name="text_b570e58e" formatted="false">"Лишние данные адаптации EXE"</string>
+  <string name="text_709de14b" formatted="false">"Контрольная сумма адаптированного EXE не совпала"</string>
+  <string name="text_fab87405" formatted="false">"Перейти · "</string>
+  <string name="text_87fac83a" formatted="false">" закроется"</string>
+  <string name="text_402982c5" formatted="false">"ИИ · исправления"</string>
+  <string name="text_4c783982" formatted="false">"ИИ · улучшения"</string>
+  <string name="text_73372df1" formatted="false">"Исправления ошибок"</string>
+  <string name="text_2d63d878" formatted="false">"Баланс"</string>
+  <string name="text_8a6cac11" formatted="false">"Удобство"</string>
+  <string name="text_462adbaa" formatted="false">"Прочее"</string>
+  <string name="text_ec7e9b17" formatted="false">"Категория патчей"</string>
+  <string name="text_a418107d" formatted="false">"Авторы: %s"</string>
+</resources>

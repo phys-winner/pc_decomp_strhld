@@ -80,6 +80,8 @@ uint32_t void_utf8_to_ga(const char *s, uint32_t dst, uint32_t cap);
 /* Explicit code page helpers; CP_ACP uses 1251 for this Russian installation. */
 uint16_t void_cp1252_to_u16(uint8_t c);
 int void_u16_to_cp1252(uint16_t u, uint8_t *out);
+uint16_t void_cp1250_to_u16(uint8_t c);
+int void_u16_to_cp1250(uint16_t u, uint8_t *out);
 uint16_t void_cp1251_to_u16(uint8_t c);
 int void_u16_to_cp1251(uint16_t u, uint8_t *out);
 size_t void_utf8_encode(uint32_t cp, char *out);

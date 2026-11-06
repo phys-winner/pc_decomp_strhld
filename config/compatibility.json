@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "executables": {
+    "stronghold": {
+      "8b581f48df4d14b65b596f3a34ca2ee37b388ed93e7b1e505cceb0b1dadbcede": {
+        "bytes": 4755456,
+        "target": "8b581f48df4d14b65b596f3a34ca2ee37b388ed93e7b1e505cceb0b1dadbcede",
+        "target_bytes": 4755456
+      },
+      "832429eedf89bc690e7ab3358bb72d654a26b46e9124c9cee176b400ca9a9715": {
+        "bytes": 4755456,
+        "target": "8b581f48df4d14b65b596f3a34ca2ee37b388ed93e7b1e505cceb0b1dadbcede",
+        "target_bytes": 4755456
+      },
+      "96341d7aedc4828655d0a524796ae95a68f02f9401c64ebe1ed37c0445dd3e40": {
+        "bytes": 4755456,
+        "target": "8b581f48df4d14b65b596f3a34ca2ee37b388ed93e7b1e505cceb0b1dadbcede",
+        "target_bytes": 4755456
+      },
+      "1011982d64521ab7ea2ee7375ed85c012024877680359aace62861ec923641ae": {
+        "bytes": 4755456,
+        "target": "8b581f48df4d14b65b596f3a34ca2ee37b388ed93e7b1e505cceb0b1dadbcede",
+        "target_bytes": 4755456
+      }
+    },
+    "classic": {
+      "3bb0a8c1e72331b3a30a5aa93ed94beca0081b476b04c1960e26d5b45387ac5a": {
+        "bytes": 8376320,
+        "target": "e7c7afb39653a45e2f66d5f5c17f075749e3637f4a2ef30de4c8aca24843e69a",
+        "target_bytes": 8384512
+      },
+      "9a5c52f616a0a09424c1dd2ecc2dc2f056fc9f82a9d69e610c3ca61a0f60ac4c": {
+        "bytes": 8384512,
+        "target": "e7c7afb39653a45e2f66d5f5c17f075749e3637f4a2ef30de4c8aca24843e69a",
+        "target_bytes": 8384512
+      },
+      "c58d1610ddb34b9f1be5669668cf4ad43462657cf497afe81a35d4c9e8ac87fd": {
+        "bytes": 8384512,
+        "target": "e7c7afb39653a45e2f66d5f5c17f075749e3637f4a2ef30de4c8aca24843e69a",
+        "target_bytes": 8384512
+      },
+      "e7c7afb39653a45e2f66d5f5c17f075749e3637f4a2ef30de4c8aca24843e69a": {
+        "bytes": 8384512,
+        "target": "e7c7afb39653a45e2f66d5f5c17f075749e3637f4a2ef30de4c8aca24843e69a",
+        "target_bytes": 8384512
+      }
+    },
+    "extreme": {
+      "55648e6b05d67d37a5773fe699bbb17a2d6ad4de1bb9dbded9a21caef82bd7fb": {
+        "bytes": 7962624,
+        "target": "0c90204f7bf622b768cc1fd9ebc0ec5c6cf8e60ea84911c0fdc7ffcbb2119ba8",
+        "target_bytes": 7970816
+      },
+      "424ff9aac5043471a122822e8395ce3fbc835e919638cab488f6ca8ddc144da9": {
+        "bytes": 7970816,
+        "target": "0c90204f7bf622b768cc1fd9ebc0ec5c6cf8e60ea84911c0fdc7ffcbb2119ba8",
+        "target_bytes": 7970816
+      },
+      "e06506ed68c29af699770fd2f761e004a5dd2804ae4dfca58b552dc1a610f984": {
+        "bytes": 7970816,
+        "target": "0c90204f7bf622b768cc1fd9ebc0ec5c6cf8e60ea84911c0fdc7ffcbb2119ba8",
+        "target_bytes": 7970816
+      },
+      "0c90204f7bf622b768cc1fd9ebc0ec5c6cf8e60ea84911c0fdc7ffcbb2119ba8": {
+        "bytes": 7970816,
+        "target": "0c90204f7bf622b768cc1fd9ebc0ec5c6cf8e60ea84911c0fdc7ffcbb2119ba8",
+        "target_bytes": 7970816
+      }
+    }
+  },
+  "languages": {
+    "sh.tex": {
+      "b87216dbcf2cce0a66949b8688644ea0c6ab0d617d940d7f6e56e16505a76887": {
+        "tag": "ru",
+        "name": "Русский"
+      },
+      "12752bb4958117cbd6b4e1a14c3200aa6a72e5176a03b6b49f0ed884cf2484b5": {
+        "tag": "en",
+        "name": "English"
+      },
+      "6702e795afb58ee66a33338e92cc253263c9d6be38fcd005fb20575ff4566317": {
+        "tag": "zh-Hans",
+        "name": "简体中文"
+      },
+      "39b2f99f77e2c2db6329b4e58d60bb39e370220c8804fcb63f4a8b82ef0c6ca3": {
+        "tag": "fr",
+        "name": "Français"
+      },
+      "309d7562bf8c3b41d3b1e265b6ef905a95b5646c1e536eb119401e6912121b79": {
+        "tag": "de",
+        "name": "Deutsch"
+      },
+      "92bb46a2a26be0fbfd967fd611dee5f22c3a5f8915d486e13afb798e654d55b3": {
+        "tag": "it",
+        "name": "Italiano"
+      },
+      "5a4454cd3cde9d9cbe0326906fdba4250a1364fef159f04fc71cd558ddf2bc69": {
+        "tag": "ja",
+        "name": "日本語"
+      },
+      "da5534f3929189bc27d5947e14a52beb72be7e25569a520d3ada0ee9ff98618c": {
+        "tag": "pl",
+        "name": "Polski"
+      },
+      "381372fea3932b10ba07f7628c848797912ec8163a39e97ded614358fbb5c02e": {
+        "tag": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      "9db60a08b434cd5d7302a40e613a821827b45f825a558d1774e75d038ad5bf86": {
+        "tag": "es",
+        "name": "Español"
+      }
+    },
+    "cr.tex": {
+      "ab423bec4dab75595f9568564137584e72189bc0c95851abfe54058aa2f2ff68": {
+        "tag": "en",
+        "name": "English",
+        "bytes": 351040
+      },
+      "0a16fc690ccc0067d4d9084e93afc5965f47538f07e00daf54eb39aa521b301f": {
+        "tag": "zh-Hans",
+        "name": "简体中文",
+        "bytes": 351040
+      },
+      "b67d9daaa1e3e61fce82b30fc9078729c63c5eb4d3d1afd5a4e594f20f77350e": {
+        "tag": "fr",
+        "name": "Français",
+        "bytes": 351040
+      },
+      "6716ffe38391012f04ce32017eb65e52eeddbeb4acc76268d726786c8bfb9dc3": {
+        "tag": "de",
+        "name": "Deutsch",
+        "bytes": 351040
+      },
+      "743af08f64cab9f4834dbbff8f2100fb0390742a76e242b7f8fd1f081d1c91d7": {
+        "tag": "it",
+        "name": "Italiano",
+        "bytes": 351040
+      },
+      "e353362097303bef4f8fa7272c5f2c9306912965bcbb82457cc8de7f881456fa": {
+        "tag": "ja",
+        "name": "日本語",
+        "bytes": 351040
+      },
+      "08603fe6fc4b8b533d99a39215c0cb6dd8383efe957ddb045d343c17ab1ee710": {
+        "tag": "pl",
+        "name": "Polski",
+        "bytes": 351040
+      },
+      "989ddcb13e27bc045ab390f42a68b71b53bdf66462753cf6a66c343d1d5e264c": {
+        "tag": "ru",
+        "name": "Русский",
+        "bytes": 351040
+      },
+      "cedf413f39fb890eb015081a70ebcf09d5d7abf591296cb92be082881e633d8a": {
+        "tag": "es",
+        "name": "Español",
+        "bytes": 351040
+      },
+      "b10ad23b146de08840cf3db17c7cad782005f2c5cf70d2bd2068f44a698feac5": {
+        "tag": "uk",
+        "name": "Українська",
+        "bytes": 351040
+      }
+    }
+  },
+  "installers": {}
+}

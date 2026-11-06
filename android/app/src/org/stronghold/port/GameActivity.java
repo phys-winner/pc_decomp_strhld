@@ -55,6 +55,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private static native void nativeMouseButton(int button, boolean down);
     private static native void nativeMouseEdges(int edges);
     private static native void nativePause(boolean paused);
+    private static native String nativeMods(String path);
     private static native void nativeRenderScale(float scale);
     private static native void nativeFilters(int world, int ui, float sharpness, boolean deband, boolean crispText);
     private static native void nativeMagnifier(boolean active, float x, float y, int size, int zoom);
@@ -103,12 +104,13 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         }
     };
     private String edition;
-    private String gamePath;
+    private String gamePath, imagePath;
     private boolean skipMovies, rememberedSuccess;
     private SharedPreferences preferences;
     private FrameLayout root;
     private LinearLayout editorBar;
     private final java.util.LinkedHashMap<String, View> commandViews = new java.util.LinkedHashMap<>();
+    private final java.util.Map<String, android.graphics.Bitmap> commandIcons = new java.util.HashMap<>();
     private final CommandZoneView[] commandZones = new CommandZoneView[2];
     private LinearLayout zoneCommands;
     private CommandZoneView openZone, bookZone;
@@ -193,10 +195,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 }
                 if((event&8)!=0) {
                     releaseControls();nativePause(true);
-                    new AlertDialog.Builder(GameActivity.this).setTitle("Соединение LAN потеряно")
-                            .setMessage("Матч больше не синхронизируется с другими игроками. Для новой сетевой игры вернитесь в лобби.")
-                            .setPositiveButton("Открыть меню",(dialog,n)->{nativePause(false);tapKey(0x01);})
-                            .setNegativeButton("Остаться",(dialog,n)->nativePause(false))
+                    new AlertDialog.Builder(GameActivity.this).setTitle(I18n.t("Соединение LAN потеряно"))
+                            .setMessage(I18n.t("Матч больше не синхронизируется с другими игроками. Для новой сетевой игры вернитесь в лобби."))
+                            .setPositiveButton(I18n.t("Открыть меню"),(dialog,n)->{nativePause(false);tapKey(0x01);})
+                            .setNegativeButton(I18n.t("Остаться"),(dialog,n)->nativePause(false))
                             .setOnCancelListener(dialog->nativePause(false)).show();
                 }
                 int[] next=nativeControlState();
@@ -206,11 +208,11 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                         GameFiles.rememberSuccess(getFilesDir(), edition, gamePath);
                         java.nio.file.Files.deleteIfExists(GameFiles.pending(getFilesDir(), edition).toPath());
                         rememberedSuccess = true;
-                    } catch (java.io.IOException error) { Log.e(TAG, "Не удалось сохранить последнюю игру", error); }
+                    } catch (java.io.IOException error) { Log.e(TAG, I18n.t("Не удалось сохранить последнюю игру"), error); }
                 }
                 /* Confirm view toggles whose effect may be invisible, e.g. radar colours without rivals. */
-                if((event&16)!=0)hint((next[8]&1)!=0?"Радар: окраска «свои / чужие»":"Радар: цвета лордов");
-                if((event&32)!=0)hint((next[8]&2)!=0?"Рельеф выровнен":"Рельеф показан");
+                if((event&16)!=0)hint((next[8]&1)!=0?I18n.t("Радар: окраска «свои / чужие»"):I18n.t("Радар: цвета лордов"));
+                if((event&32)!=0)hint((next[8]&2)!=0?I18n.t("Рельеф выровнен"):I18n.t("Рельеф показан"));
                 if((next[0]&4)!=0&&lanDiscovery==null) {
                     android.net.wifi.WifiManager wifi=(android.net.wifi.WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
                     if(wifi!=null){lanDiscovery=wifi.createMulticastLock("stronghold-lan");lanDiscovery.setReferenceCounted(false);lanDiscovery.acquire();}
@@ -252,8 +254,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        I18n.apply(this);
         edition = gameEdition();
         gamePath = getIntent().getStringExtra("game");
+        imagePath = getIntent().getStringExtra("images");
         if (gamePath == null) gamePath = GameFiles.DEFAULT_GAME;
         skipMovies = getIntent().getBooleanExtra("skipMovies", false);
         String fileError = GameFiles.validate(new File(gamePath), edition, false);
@@ -261,18 +265,18 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (loadedEdition != null && !loadedEdition.equals(edition)) { chooseEdition(); return; }
         try {
             if (loadedEdition == null) {
-                System.loadLibrary(GameFiles.library(edition));
+                NativeLibrary.load(this, GameFiles.library(edition));
                 loadedEdition = edition;
             }
             ready = true;
-        } catch (UnsatisfiedLinkError error) {
-            launchError("Не удалось загрузить библиотеку игры: " + error.getMessage());
+        } catch (java.io.IOException | UnsatisfiedLinkError error) {
+            launchError(I18n.t("Не удалось загрузить библиотеку игры: ") + error.getMessage());
             return;
         }
         try {
             java.nio.file.Files.write(new File(getFilesDir(), "game-pid-" + edition).toPath(),
                     Integer.toString(android.os.Process.myPid()).getBytes(java.nio.charset.StandardCharsets.US_ASCII));
-        } catch (java.io.IOException error) { launchError("Не удалось записать состояние процесса игры: " + error.getMessage()); return; }
+        } catch (java.io.IOException error) { launchError(I18n.t("Не удалось записать состояние процесса игры: ") + error.getMessage()); return; }
         preferences = getSharedPreferences("controls-" + edition, MODE_PRIVATE);
         /* The shared pre-0.4 controls belonged to Crusader; Stronghold HD starts fresh. */
         if (!preferences.contains("uiScale") && !GameFiles.original(edition)) {
@@ -382,8 +386,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             public void command(int key, int modifiers) {
                 if ((controlState[0] & 1) != 0) {
                     nativeCommand(key, modifiers);
-                    if (key >= '1' && key <= '9') hint((modifiers % 2 == 1 ? "Записать " : "Вызвать ") +
-                            (modifiers >= 2 ? "точку " : "отряд ") + (char)key);
+                    if (key >= '1' && key <= '9') hint((modifiers % 2 == 1 ? I18n.t("Записать ") : I18n.t("Вызвать ")) +
+                            (modifiers >= 2 ? I18n.t("точку ") : I18n.t("отряд ")) + (char)key);
                 }
             }
             public void action(int action) {
@@ -474,19 +478,21 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         requestedWidth = size[0]; requestedHeight = size[1];
         File base = new File(Environment.getExternalStorageDirectory(), "Stronghold");
         File data = new File(base, GameFiles.userdata(edition));
-        if ((!data.isDirectory() && !data.mkdirs()) || !data.canWrite()) { launchError("Не удалось открыть папку профиля: " + data); return; }
+        if ((!data.isDirectory() && !data.mkdirs()) || !data.canWrite()) { launchError(I18n.t("Не удалось открыть папку профиля: ") + data); return; }
         try {
             File pending = GameFiles.pending(getFilesDir(), edition);
-            if (!pending.exists() && !pending.createNewFile()) throw new java.io.IOException("Не удалось записать состояние запуска");
+            if (!pending.exists() && !pending.createNewFile()) throw new java.io.IOException(I18n.t("Не удалось записать состояние запуска"));
         } catch (java.io.IOException error) { launchError(error.getMessage()); return; }
         /* The former world downscale gave no speed (the original raster still
          * draws every tile) and only lost detail; presentation filters replace it. */
         nativeRenderScale(1f);
         applyFilters();
         applyGameSettings();
-        if (!nativeStart(gamePath, data.getAbsolutePath(), GameFiles.images(new File(gamePath), edition).getAbsolutePath(),
+        String modError = nativeMods(new File(getFilesDir(), "mods-" + edition + ".cfg").getAbsolutePath());
+        if (modError != null) { launchError(I18n.t("Не удалось применить моды: ") + modError); return; }
+        if (!nativeStart(gamePath, data.getAbsolutePath(), imagePath == null ? GameFiles.images(new File(gamePath), edition).getAbsolutePath() : imagePath,
                 GameFiles.pending(getFilesDir(), edition).getAbsolutePath(), requestedWidth, requestedHeight,
-                new File(base, "verbose").exists(), skipMovies)) { launchError("Не удалось создать поток игры."); return; }
+                new File(base, "verbose").exists(), skipMovies)) { launchError(I18n.t("Не удалось создать поток игры.")); return; }
         started = true;
         preferences.edit().putString("activeResolution", preferences.getString("resolution", "auto")).apply();
         nativeTouch(SemanticTouchControls.UI_SCALE, 0, 0, 0, 0, 0, uiScale / 100f);
@@ -562,7 +568,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         String size = next[0] + "×" + next[1];
         if ((next[0] != requestedWidth || next[1] != requestedHeight) && !size.equals(autoPlusToast)) {
             autoPlusToast = size;
-            Toast.makeText(this, "Авто+: со следующего запуска игры " + size, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, I18n.t("Авто+: со следующего запуска игры ") + size, Toast.LENGTH_SHORT).show();
         }
     }
     /* Stronghold HD frame heights (its mode table) and their own 16:9 widths (600 rows: 4:3). */
@@ -600,7 +606,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     /* Every Android control follows the chosen size and visibility. */
     private TextView button(String title) {
-        TextView v = arrow(new TextView(this)); v.setText(title); v.setTextColor(0xffffffff);
+        TextView v = arrow(new CommandButton()); v.setText(title); v.setTextColor(0xffffffff);
         v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13 * controls());
         v.setGravity(Gravity.CENTER); v.setContentDescription(title); v.setBackground(panel(0xf029333e)); v.setAlpha(opacity);
         int height = dp(Math.max(34, 44 * controls()));
@@ -611,6 +617,37 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private TextView action(LinearLayout row, String title, Runnable action) {
         TextView v = button(title); v.setOnClickListener(ignored -> action.run()); row.addView(v); return v;
     }
+    private final class CommandButton extends TextView {
+        android.graphics.Bitmap icon;
+        final Paint iconPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+        CommandButton() { super(GameActivity.this); }
+        @Override protected void onDraw(Canvas canvas) {
+            if (icon == null) { super.onDraw(canvas); return; }
+            float fit = Math.min((float)(getWidth() - getPaddingLeft() - getPaddingRight()) / icon.getWidth(),
+                    (float)(getHeight() - getPaddingTop() - getPaddingBottom()) / icon.getHeight());
+            float w = Math.max(0, icon.getWidth() * fit), h = Math.max(0, icon.getHeight() * fit);
+            canvas.drawBitmap(icon, null, new android.graphics.RectF((getWidth()-w)/2, (getHeight()-h)/2,
+                    (getWidth()+w)/2, (getHeight()+h)/2), iconPaint);
+        }
+    }
+    private void commandIcon(TextView view, String id) {
+        if (!(view instanceof CommandButton) || gamePath == null || GameIcons.file(id) == null) return;
+        if (!commandIcons.containsKey(id)) {
+            GameIcons sprite = GameIcons.load(new File(gamePath), id);
+            android.graphics.Bitmap bitmap = sprite == null ? null : android.graphics.Bitmap.createBitmap(
+                    sprite.argb, sprite.width, sprite.height, android.graphics.Bitmap.Config.ARGB_8888);
+            if (bitmap != null && sprite.mirrored) {
+                android.graphics.Matrix mirror = new android.graphics.Matrix(); mirror.setScale(-1, 1);
+                bitmap = android.graphics.Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mirror, true);
+            }
+            commandIcons.put(id, bitmap);
+        }
+        CommandButton button = (CommandButton)view; button.icon = commandIcons.get(id);
+        if (button.icon != null) {
+            button.setText(""); int padding = dp(4 * controls()); button.setPadding(padding, padding, padding, padding);
+            button.setTooltipText(I18n.t(ControlLayout.label(id)));
+        }
+    }
     private void updateZoomIndicator() {
         if (zoomIndicator == null) return;
         int zoom = started ? Math.round(nativeWorldZoom() * 100) : 100;
@@ -618,7 +655,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         displayedZoom = zoom;
         String text = zoom + "%";
         zoomIndicator.setText(text);
-        zoomIndicator.setContentDescription("Масштаб карты " + text + ". Нажмите, чтобы вернуть 100%");
+        zoomIndicator.setContentDescription(I18n.t("Масштаб карты ") + text + I18n.t(". Нажмите, чтобы вернуть 100%"));
         zoomIndicator.setVisibility(placement("zoom_value") != ControlLayout.SCREEN ||
                 (!layoutEdit && (controlState[0] & 1) == 0) ? View.GONE : View.VISIBLE);
         positionZoom();
@@ -628,10 +665,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         displayedSpeed = controlState[9];
         /* Hide the value until the original simulation has initialized it. */
         speedValue.setVisibility(displayedSpeed > 0 || layoutEdit ? View.VISIBLE : View.GONE);
-        speedValue.setText(displayedSpeed > 0 ? Integer.toString(displayedSpeed) : "Скорость");
-        speedValue.setContentDescription("Скорость игры " + displayedSpeed);
+        speedValue.setText(displayedSpeed > 0 ? Integer.toString(displayedSpeed) : I18n.t("Скорость"));
+        speedValue.setContentDescription(I18n.t("Скорость игры ") + displayedSpeed);
     }
-    private String switchLabel() { return otherEditions.isEmpty() ? "Лаунчер" : otherEditions.size() == 1 ? title(otherEditions.get(0)) : "Другая игра"; }
+    private String switchLabel() { return otherEditions.isEmpty() ? I18n.t("Лаунчер") : otherEditions.size() == 1 ? title(otherEditions.get(0)) : I18n.t("Другая игра"); }
     private static String title(String edition) { return GameFiles.title(edition); }
     private SharedPreferences layoutPreferences() { return layoutEdit && layoutDraft != null ? layoutDraft : preferences; }
     private float[] saved(String key) {
@@ -715,6 +752,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             if ((placement(id) != ControlLayout.SCREEN && !menuSwitch) || !availableCommand(id) ||
                     "groups".equals(id) || "markers".equals(id) || "zoom_value".equals(id)) continue;
             LinearLayout holder = row(); TextView view = command(holder, id); holder.removeView(view);
+            commandIcon(view, id);
             view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
             if (x > startX && x + view.getMeasuredWidth() > root.getWidth() - dp(12)) { x = startX; y += lineHeight + dp(4); lineHeight = 0; }
             place(view, id, Gravity.TOP | Gravity.LEFT, x, y);
@@ -751,13 +789,13 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             sizeControls = column(); widthLabel = editorSizeLabel(sizeControls); widthSlider = editorSizeSlider(sizeControls, true);
             heightLabel = editorSizeLabel(sizeControls); heightSlider = editorSizeSlider(sizeControls, false); editorBar.addView(sizeControls);
             LinearLayout actions = row();
-            action(actions, "Кнопки", () -> SettingsActivity.controlChoices(this, layoutPreferences(), this::rebuildTools));
-            action(actions, "Действия зон", () -> new AlertDialog.Builder(this).setTitle("Боковые зоны")
-                    .setItems(new String[]{"Левая зона", "Правая зона"}, (dialog, side) ->
+            action(actions, I18n.t("Кнопки"), () -> SettingsActivity.controlChoices(this, layoutPreferences(), this::rebuildTools));
+            action(actions, I18n.t("Действия зон"), () -> new AlertDialog.Builder(this).setTitle(I18n.t("Боковые зоны"))
+                    .setItems(new String[]{I18n.t("Левая зона"), I18n.t("Правая зона")}, (dialog, side) ->
                             SettingsActivity.zoneChoices(this, layoutPreferences(), side, this::rebuildTools))
-                    .setNegativeButton("Назад", null).show());
-            action(actions, "Сброс", this::confirmLayoutReset); action(actions, "Отмена", () -> finishLayout(false));
-            action(actions, "Сохранить", () -> finishLayout(true));
+                    .setNegativeButton(I18n.t("Назад"), null).show());
+            action(actions, I18n.t("Сброс"), this::confirmLayoutReset); action(actions, I18n.t("Отмена"), () -> finishLayout(false));
+            action(actions, I18n.t("Сохранить"), () -> finishLayout(true));
             android.widget.HorizontalScrollView strip = new android.widget.HorizontalScrollView(this); strip.addView(actions); editorBar.addView(strip);
             FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(Math.min(root.getWidth()-dp(16),dp(560)), -2, Gravity.TOP | Gravity.CENTER_HORIZONTAL);
             root.addView(editorBar, p); layoutEditor.post(layoutEditor::restoreSelection);
@@ -803,22 +841,22 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         return edit;
     }
     private void confirmLayoutReset() {
-        String[] choices = selectedControl == null ? new String[]{"Все кнопки и зоны"} : new String[]{"Выбранный элемент", "Все кнопки и зоны"};
-        new AlertDialog.Builder(this).setTitle("Сбросить в предпросмотре")
+        String[] choices = selectedControl == null ? new String[]{I18n.t("Все кнопки и зоны")} : new String[]{I18n.t("Выбранный элемент"), I18n.t("Все кнопки и зоны")};
+        new AlertDialog.Builder(this).setTitle(I18n.t("Сбросить в предпросмотре"))
                 .setItems(choices,(dialog,index)->{
                     if (selectedControl != null && index == 0) {
                         SharedPreferences.Editor edit=layoutPreferences().edit();
                         for(String key:layoutPreferences().getAll().keySet()) if(key.startsWith("pos-"+selectedControl+"-"))edit.remove(key);
                         edit.apply(); rebuildTools();
                     } else resetLayout();
-                }).setNegativeButton("Отмена",null).show();
+                }).setNegativeButton(I18n.t("Отмена"),null).show();
     }
     private TextView editorSizeLabel(LinearLayout parent) {
         TextView label = new TextView(this); label.setTextColor(0xffeeeeee); label.setTextSize(12); parent.addView(label); return label;
     }
     private SeekBar editorSizeSlider(LinearLayout parent, boolean width) {
         SeekBar slider = new SeekBar(this); slider.setMax(100);
-        slider.setContentDescription(width?"Размер или ширина выбранного элемента":"Высота выбранной зоны");
+        slider.setContentDescription(width?I18n.t("Размер или ширина выбранного элемента"):I18n.t("Высота выбранной зоны"));
         slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             public void onStartTrackingTouch(SeekBar bar){}
             public void onStopTrackingTouch(SeekBar bar){}
@@ -831,15 +869,15 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private int placement(String id) { return SettingsActivity.controlPlacement(layoutPreferences(), id); }
     private boolean availableCommand(String id) {
         if ("gamepad_help".equals(id)) return gamepadConnected && ((controlState[0] & 8) != 0 || layoutEdit);
-        return !("editor".equals(id) || id.startsWith("editor_")) || (controlState[0] & 2) != 0;
+        return !"editor".equals(id) || (controlState[0] & 3) == 3;
     }
     private TextView command(LinearLayout row, String id) {
-        String label = ControlLayout.label(id); int scan = ControlLayout.scan(id);
+        String label = I18n.t(ControlLayout.label(id)); int scan = ControlLayout.scan(id);
         if (scan != 0) {
             if ("ctrl".equals(id) || "shift".equals(id)) return modifier(row, label, scan);
             TextView view = holdKey(row, label, scan);
-            if ("slower".equals(id)) view.setContentDescription("Медленнее");
-            if ("faster".equals(id)) view.setContentDescription("Быстрее");
+            if ("slower".equals(id)) view.setContentDescription(I18n.t("Медленнее"));
+            if ("faster".equals(id)) view.setContentDescription(I18n.t("Быстрее"));
             return view;
         }
         if ("lmb".equals(id) || "rmb".equals(id)) return mouseButton(row, label, "lmb".equals(id) ? 0 : 1);
@@ -851,8 +889,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             dismissZoneCommands();
             runCommand(id);
         });
-        if ("rotate_left".equals(id)) view.setContentDescription("Повернуть карту против часовой стрелки");
-        if ("rotate_right".equals(id)) view.setContentDescription("Повернуть карту по часовой стрелке");
+        if ("rotate_left".equals(id)) view.setContentDescription(I18n.t("Повернуть карту против часовой стрелки"));
+        if ("rotate_right".equals(id)) view.setContentDescription(I18n.t("Повернуть карту по часовой стрелке"));
         if ("groups".equals(id) || "markers".equals(id)) view.setOnLongClickListener(v -> {
             dismissZoneCommands(); runCommand(id); wheelAssign = "markers".equals(id); touch.invalidate(); return true;
         });
@@ -876,12 +914,6 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             case "groups": case "markers":
                 openWheel("groups".equals(id) ? 1 : 2, touch.getWidth() / 2f, touch.getHeight() / 2f);
                 wheelPinned = true; root.removeCallbacks(wheelHold); break;
-            case "editor_pause": nativeCommand('H', 2); break;
-            case "editor_resources": nativeCommand(0xDE, 2); break;
-            case "editor_lord": nativeCommand('V', 2); break;
-            case "editor_type": nativeCommand(0xBC, 2); break;
-            case "editor_animals": nativeCommand('E', 2); break;
-            case "editor_seams": nativeCommand('D', 2); break;
         }
     }
     private java.util.ArrayList<String> zoneIds(int side) {
@@ -931,8 +963,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         int width = Math.max(dp(80), Math.min(root.getWidth() - dp(16), Math.round(root.getWidth() * .65f)));
         for (String id : ids) {
             TextView item = command(content, id);
-            if (zone.side == 2 && "layout".equals(id)) item.setText("Настроить управление");
-            if (zone.side == 2 && "menu".equals(id)) item.setText("Меню паузы");
+            if (zone.side == 2 && "layout".equals(id)) item.setText(I18n.t("Настроить управление"));
+            if (zone.side == 2 && "menu".equals(id)) item.setText(I18n.t("Меню паузы"));
             LinearLayout.LayoutParams margins = (LinearLayout.LayoutParams)item.getLayoutParams();
             margins.width = LinearLayout.LayoutParams.MATCH_PARENT; item.setLayoutParams(margins);
             item.setMaxWidth(width - margins.leftMargin - margins.rightMargin);
@@ -978,11 +1010,11 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         };
         CommandZoneView(int side) {
             super(GameActivity.this); this.side = side; key = side == 0 ? "zone_left" : "zone_right"; arrow(this);
-            setContentDescription((side == 0 ? "Левая" : "Правая") + " зона команд: нажмите, чтобы показать или скрыть; удерживайте и выберите жестом");
+            setContentDescription((side == 0 ? I18n.t("Левая") : I18n.t("Правая")) + I18n.t(" зона команд: нажмите, чтобы показать или скрыть; удерживайте и выберите жестом"));
             if (side < 2 && ControlLayout.zoneDirect(layoutPreferences().getAll(), side)) {
                 String tap = ControlLayout.zoneAction(layoutPreferences().getAll(), side, false), hold = ControlLayout.zoneAction(layoutPreferences().getAll(), side, true);
-                setContentDescription((side == 0 ? "Левая" : "Правая") + " зона команд. Тап: " + (tap.isEmpty() ? "Ничего" : ControlLayout.label(tap)) +
-                        "; удержание: " + (hold.isEmpty() ? "Ничего" : ControlLayout.label(hold)));
+                setContentDescription((side == 0 ? I18n.t("Левая") : I18n.t("Правая")) + I18n.t(" зона команд. Тап: ") + (tap.isEmpty() ? I18n.t("Ничего") : I18n.t(ControlLayout.label(tap))) +
+                        I18n.t("; удержание: ") + (hold.isEmpty() ? I18n.t("Ничего") : I18n.t(ControlLayout.label(hold))));
             }
             setOnClickListener(view -> {
                 if (side < 2 && ControlLayout.zoneDirect(layoutPreferences().getAll(), side)) fireDirectAction(false);
@@ -1092,15 +1124,18 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private void switchEdition() {
         releaseControls();
         String[] editions = otherEditions.toArray(new String[0]);
-        String[] names = new String[editions.length + 1];
+        boolean ucp = !GameFiles.original(edition) && (controlState[0] & 8) != 0;
+        String[] names = new String[editions.length + (ucp ? 2 : 1)];
         for (int i = 0; i < editions.length; i++) names[i] = title(editions[i]);
-        names[editions.length] = "Открыть лаунчер";
-        new AlertDialog.Builder(this).setTitle("Перейти · " + title(edition) + " закроется")
+        names[editions.length] = I18n.t("Открыть лаунчер");
+        if (ucp) names[editions.length + 1] = I18n.t("Настройки Unofficial Crusader Patch");
+        new AlertDialog.Builder(this).setTitle(I18n.t("Перейти · ") + title(edition) + I18n.t(" закроется"))
                 .setItems(names, (dialog, which) -> {
-                    if (which == editions.length) returnToLauncher();
+                    if (which == editions.length + 1) UcpOptions.show(this, edition, true, () -> launchEdition(edition));
+                    else if (which == editions.length) returnToLauncher();
                     else launchEdition(editions[which]);
                 })
-                .setNegativeButton("Остаться", null).setOnDismissListener(dialog -> immersive()).show();
+                .setNegativeButton(I18n.t("Остаться"), null).setOnDismissListener(dialog -> immersive()).show();
     }
     private void launchEdition(String other) {
         GameFiles.pending(getFilesDir(), edition).delete();
@@ -1140,9 +1175,9 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (zoomIndicator.getY() != top) zoomIndicator.setY(top);
     }
     private void editorCommands() {
-        String[] names={"Пауза / продолжить","Налоги, деньги и рацион","Восстановить лорда","Тип карты","Удалить животных","Швы местности"};
+        String[] names={I18n.t("Пауза / продолжить"),I18n.t("Налоги, деньги и рацион"),I18n.t("Восстановить лорда"),I18n.t("Тип карты"),I18n.t("Удалить животных"),I18n.t("Швы местности")};
         int[] keys={'H',0xDE,'V',0xBC,'E','D'};
-        new AlertDialog.Builder(this).setTitle("Редактор карты").setItems(names,(d,n)->nativeCommand(keys[n],2)).setNegativeButton("Закрыть",null).show();
+        new AlertDialog.Builder(this).setTitle(I18n.t("Редактор карты")).setItems(names,(d,n)->nativeCommand(keys[n],2)).setNegativeButton(I18n.t("Закрыть"),null).show();
     }
     private TextView modifier(LinearLayout row, String label, int scan) {
         TextView v = action(row, label, () -> {});
@@ -1151,7 +1186,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             setKey(scan, !held.contains(scan)); v.setSelected(held.contains(scan));
             ((GradientDrawable)v.getBackground()).setColor(held.contains(scan) ? 0xf080552a : 0xf029333e);
         });
-        v.setContentDescription(label + ": нажмите для удержания, повторно для отпускания");
+        v.setContentDescription(label + I18n.t(": нажмите для удержания, повторно для отпускания"));
         return v;
     }
     private TextView holdKey(LinearLayout row, String title, int scan) {
@@ -1171,7 +1206,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     private TextView mouseButton(LinearLayout row, String title, int button) {
         TextView v = action(row, title, () -> { gestures.syncCursor(); clickMouse(button); });
-        v.setContentDescription(title + ": удерживайте и двигайте курсор другим пальцем");
+        v.setContentDescription(title + I18n.t(": удерживайте и двигайте курсор другим пальцем"));
         v.setOnTouchListener((view, event) -> {
             int a = event.getActionMasked();
             if (a == MotionEvent.ACTION_DOWN) { gestures.syncCursor(); mouseGate.hold(button, true); v.setAlpha(1); }
@@ -1306,15 +1341,15 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         releaseControls();
         LinearLayout columns = row(); columns.setPadding(dp(20), dp(4), dp(20), dp(4));
         String[] text = {
-            "Левый стик — курсор\nПравый стик — камера\nA / B — ЛКМ / ПКМ (можно удерживать)\nX — рельеф · Y — пауза\nLB / RB — масштаб / прокрутка списка\nLT — точное наведение · RT — Shift\nКрестовина ↑ / ↓ — скорость\nКрестовина ← / → — поворот карты\nL3 — масштаб 100% · R3 — замок (F1)\nStart — меню · Select / Back — раскладка",
-            "Удерживайте Select для комбинаций:\n↑ → ↓ ← — отряды 1–4\nA B X Y — отряды 5–8 · LB — отряд 9\nДобавьте RT — записать отряд\nДобавьте LT — точки карты 1–9\nLT + RT — записать точку карты\nRB — цвета радара · L3 — команды книги\nR3 — клавиатура · Start — настройки\n\nКурсор скрывается через 30 с бездействия.\nЗакрыть: A, B, Start или Select."
+            I18n.t("Левый стик — курсор\nПравый стик — камера\nA / B — ЛКМ / ПКМ (можно удерживать)\nX — рельеф · Y — пауза\nLB / RB — масштаб / прокрутка списка\nLT — точное наведение · RT — Shift\nКрестовина ↑ / ↓ — скорость\nКрестовина ← / → — поворот карты\nL3 — масштаб 100% · R3 — замок (F1)\nStart — меню · Select / Back — раскладка"),
+            I18n.t("Удерживайте Select для комбинаций:\n↑ → ↓ ← — отряды 1–4\nA B X Y — отряды 5–8 · LB — отряд 9\nДобавьте RT — записать отряд\nДобавьте LT — точки карты 1–9\nLT + RT — записать точку карты\nRB — цвета радара · L3 — команды книги\nR3 — клавиатура · Start — настройки\n\nКурсор скрывается через 30 с бездействия.\nЗакрыть: A, B, Start или Select.")
         };
         for (String value : text) {
             TextView column = Theme.text(this, value, 13, Theme.TEXT, false);
             column.setPadding(dp(4), 0, dp(12), 0); columns.addView(column, new LinearLayout.LayoutParams(0, -2, 1));
         }
         ScrollView scroll = new ScrollView(this); scroll.addView(columns);
-        gamepadHelp = new AlertDialog.Builder(this).setTitle("Геймпад · раскладка").setView(scroll).setPositiveButton("Закрыть", null).create();
+        gamepadHelp = new AlertDialog.Builder(this).setTitle(I18n.t("Геймпад · раскладка")).setView(scroll).setPositiveButton(I18n.t("Закрыть"), null).create();
         boolean[] armed = {false};
         gamepadHelp.setOnKeyListener((dialog, code, event) -> {
             if (!controller(event.getDevice()) || !GamepadControls.handles(code)) return false;
@@ -1635,7 +1670,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         private String gestureKey;
         private java.util.Map<String,Object> gesturePositions;
         private TouchLayoutGeometry.Rect gestureBefore,pinchBefore;
-        LayoutEditor() { super(GameActivity.this); setContentDescription("Редактор расположения: выберите и перетащите элемент, размер — двумя пальцами"); arrow(this); }
+        LayoutEditor() { super(GameActivity.this); setContentDescription(I18n.t("Редактор расположения: выберите и перетащите элемент, размер — двумя пальцами")); arrow(this); }
         private View selectedView() {
             if("zone_left".equals(selectedControl))return commandZones[0];
             if("zone_right".equals(selectedControl))return commandZones[1];
@@ -1687,17 +1722,17 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         }
         private void updateSizes() {
             TouchLayoutGeometry.Rect r=selectionRect();updatingSizes=true;
-            selectionLabel.setText(r==null?"Выберите элемент. Перетаскивайте; размер — щипком или ползунком.":
-                    zone()?("zone_left".equals(selectedControl)?"Левая зона":"Правая зона"):
-                    selectedWheel()!=0?(selectedWheel()==1?"Отряд":"Точки"):ControlLayout.label(selectedControl));
+            selectionLabel.setText(r==null?I18n.t("Выберите элемент. Перетаскивайте; размер — щипком или ползунком."):
+                    zone()?("zone_left".equals(selectedControl)?I18n.t("Левая зона"):I18n.t("Правая зона")):
+                    selectedWheel()!=0?(selectedWheel()==1?I18n.t("Отряд"):I18n.t("Точки")):I18n.t(ControlLayout.label(selectedControl)));
             sizeControls.setVisibility(r==null?GONE:VISIBLE);
             if(r!=null){
                 float density=getResources().getDisplayMetrics().density;
-                widthLabel.setText(zone()?"Ширина: "+Math.round(r.width/getWidth()*100)+"%":"Размер: "+Math.round(r.height/density)+" dp");
+                widthLabel.setText(zone()?I18n.t("Ширина: ")+Math.round(r.width/getWidth()*100)+"%":I18n.t("Размер: ")+Math.round(r.height/density)+" dp");
                 widthSlider.setProgress(Math.round(zone()?(r.width-dp(24))/Math.max(1,getWidth()-dp(24))*100:
                         (r.height/density-36)/92*100));
                 heightLabel.setVisibility(zone()?VISIBLE:GONE);heightSlider.setVisibility(zone()?VISIBLE:GONE);
-                heightLabel.setText("Высота: "+Math.round(r.height/getHeight()*100)+"%");
+                heightLabel.setText(I18n.t("Высота: ")+Math.round(r.height/getHeight()*100)+"%");
                 heightSlider.setProgress(Math.round((r.height-dp(24))/Math.max(1,getHeight()-dp(24))*100));
             }
             updatingSizes=false;
@@ -1730,7 +1765,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 pen.setStyle(Paint.Style.FILL);pen.setColor(0x3342a5f5);canvas.drawRect(v.getX(),v.getY(),v.getX()+v.getWidth(),v.getY()+v.getHeight(),pen);
                 pen.setStyle(Paint.Style.STROKE);pen.setColor(0xffbd9f67);canvas.drawRect(v.getX(),v.getY(),v.getX()+v.getWidth(),v.getY()+v.getHeight(),pen);
                 pen.setStyle(Paint.Style.FILL);pen.setTextSize(dp(12));pen.setTextAlign(Paint.Align.LEFT);
-                canvas.drawText(v.side==0?"Левая зона":"Правая зона",v.getX()+dp(4),v.getY()+dp(16),pen);
+                canvas.drawText(v.side==0?I18n.t("Левая зона"):I18n.t("Правая зона"),v.getX()+dp(4),v.getY()+dp(16),pen);
             }
             TouchLayoutGeometry.Rect r=selectionRect();if(r!=null){
                 pen.setStyle(Paint.Style.STROKE);pen.setStrokeWidth(dp(3));pen.setColor(0xffffd45b);
@@ -1809,7 +1844,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         android.graphics.Bitmap cursorImage;
         float hotX, hotY;
         PointerView() {
-            super(GameActivity.this); setContentDescription("Игровое поле: касание, выделение перетаскиванием, два пальца для карты");
+            super(GameActivity.this); setContentDescription(I18n.t("Игровое поле: касание, выделение перетаскиванием, два пальца для карты"));
             setPointerIcon(PointerIcon.getSystemIcon(GameActivity.this, PointerIcon.TYPE_ARROW)); /* until the game's cursor is read */
         }
         @Override public void invalidate() {
@@ -1821,7 +1856,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         @Override public void onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo info) {
             super.onInitializeAccessibilityNodeInfo(info);
             if((controlState[0]&1)==0)return;
-            String[] labels={"Вызвать отряд","Записать выделенный отряд","Перейти к точке карты","Записать точку карты"};
+            String[] labels={I18n.t("Вызвать отряд"),I18n.t("Записать выделенный отряд"),I18n.t("Перейти к точке карты"),I18n.t("Записать точку карты")};
             for(int i=0;i<4;i++)if((i<2?groupWheel:markerWheel)&&(i!=1||controlState[1]>0))
                 info.addAction(new android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(0x01020000+i,labels[i]));
         }
@@ -1834,9 +1869,9 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             java.util.ArrayList<Integer> slots=new java.util.ArrayList<>();
             java.util.ArrayList<String> labels=new java.util.ArrayList<>();
             for(int i=0;i<9;i++)if(wheelAvailable(i)){slots.add(i);labels.add(Integer.toString(i+1));}
-            new AlertDialog.Builder(GameActivity.this).setTitle(wheelAssign?"Записать в ячейку":"Выбрать ячейку")
+            new AlertDialog.Builder(GameActivity.this).setTitle(wheelAssign?I18n.t("Записать в ячейку"):I18n.t("Выбрать ячейку"))
                     .setItems(labels.toArray(new String[0]),(dialog,n)->chooseWheel(slots.get(n)))
-                    .setNegativeButton("Отмена",(dialog,n)->chooseWheel(-1)).setOnCancelListener(dialog->chooseWheel(-1)).show();
+                    .setNegativeButton(I18n.t("Отмена"),(dialog,n)->chooseWheel(-1)).setOnCancelListener(dialog->chooseWheel(-1)).show();
             return true;
         }
         @Override protected void onDraw(Canvas canvas) {
@@ -1845,7 +1880,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 float bx=wheelButtonX(kind),by=wheelButtonY(kind),r=wheelButtonRadius(kind),s=r/dp(25);
                 pen.setStyle(Paint.Style.FILL);pen.setColor(0xf029333e);pen.setAlpha(alpha);canvas.drawCircle(bx,by,r,pen);
                 pen.setColor(0xffffe08a);pen.setAlpha(alpha);pen.setTextSize(dp(11*s));pen.setTextAlign(Paint.Align.CENTER);
-                canvas.drawText(kind==1?"Отряд":"Точки",bx,by+dp(4*s),pen);
+                canvas.drawText(kind==1?I18n.t("Отряд"):I18n.t("Точки"),bx,by+dp(4*s),pen);
                 pen.setTextSize(dp(9*s));canvas.drawText(Integer.toString(Integer.bitCount(controlState[kind==1?2:3])),bx+dp(18*s),by-dp(15*s),pen);
                 pen.setAlpha(255);
             }
@@ -1863,8 +1898,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 }
                 pen.setColor(0xff18212a);canvas.drawCircle(wheelX,wheelY,wheelRadius*.44f,pen);
                 pen.setColor(0xffffe08a);pen.setTextSize(dp(11));
-                canvas.drawText(wheelAssign?"Записать":"Вызвать",wheelX,wheelY-dp(2),pen);
-                pen.setTextSize(dp(9));canvas.drawText("Центр: отмена",wheelX,wheelY+dp(13),pen);
+                canvas.drawText(wheelAssign?I18n.t("Записать"):I18n.t("Вызвать"),wheelX,wheelY-dp(2),pen);
+                pen.setTextSize(dp(9));canvas.drawText(I18n.t("Центр: отмена"),wheelX,wheelY+dp(13),pen);
             }
             pen.setTextAlign(Paint.Align.LEFT);
             boolean padCursor = gamepadMode && gamepad.cursorVisible(SystemClock.uptimeMillis());
@@ -1877,9 +1912,9 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             }
             if (diagnostics && semantic != null) {
                 String state = "Touch #" + semantic.sequence() + " " + semantic.phase() + " / " + semantic.classificationName() +
-                        (magnifierShown ? " · лупа" : "");
-                String point = gamepadMode ? String.format(java.util.Locale.ROOT, "Геймпад %.0f, %.0f", mouseX, mouseY) : mouseMode ? "Мышь" : touchpad ? "Тачпад" :
-                        String.format(java.util.Locale.ROOT, "Палец %.0f, %.0f", semantic.fingerX(), semantic.fingerY());
+                        (magnifierShown ? I18n.t(" · лупа") : "");
+                String point = gamepadMode ? String.format(java.util.Locale.ROOT, I18n.t("Геймпад %.0f, %.0f"), mouseX, mouseY) : mouseMode ? I18n.t("Мышь") : touchpad ? I18n.t("Тачпад") :
+                        String.format(java.util.Locale.ROOT, I18n.t("Палец %.0f, %.0f"), semantic.fingerX(), semantic.fingerY());
                 pen.setStyle(Paint.Style.FILL); pen.setTextSize(dp(12));
                 float w = Math.max(dp(230), pen.measureText(state) + dp(16));
                 float l = Math.max(dp(4), getWidth() - w - dp(60)), t = dp(6);
@@ -1920,17 +1955,17 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         startActivity(new Intent(this, SettingsActivity.settingsClass(edition)).putExtra("section", section));
     }
     private void help() {
-        String zonesHelp = "\n\nКнига писаря: удерживайте, чтобы открыть список, затем нажмите команду или выберите её свайпом и отпустите. Повторный тап по книге скрывает список. Назначения меняются через каталог кнопок.\n\nБоковые зоны по умолчанию пусты. Назначьте команды в левую или правую зону: тап открывает вертикальный список, повторный тап по той же зоне скрывает его. Удерживайте около трети секунды и ведите палец к команде, отпустите для выполнения.\n\nРедактор расположения показывает паузу: выберите и перетащите кнопку или зону, меняйте размер двумя пальцами, ползунком или за угол. «Кнопки» задаёт размещение команд на экране, в книге и в боковых зонах. «Действия зон» переключает список либо отдельные назначения тапа и удержания. Изменения применяются только через «Сохранить»; «Отмена» или Android «Назад» возвращает прежнюю раскладку.";
+        String zonesHelp = I18n.t("\n\nКнига писаря: удерживайте, чтобы открыть список, затем нажмите команду или выберите её свайпом и отпустите. Повторный тап по книге скрывает список. Назначения меняются через каталог кнопок.\n\nБоковые зоны по умолчанию пусты. Назначьте команды в левую или правую зону: тап открывает вертикальный список, повторный тап по той же зоне скрывает его. Удерживайте около трети секунды и ведите палец к команде, отпустите для выполнения.\n\nРедактор расположения показывает паузу: выберите и перетащите кнопку или зону, меняйте размер двумя пальцами, ползунком или за угол. «Кнопки» задаёт размещение команд на экране, в книге и в боковых зонах. «Действия зон» переключает список либо отдельные назначения тапа и удержания. Изменения применяются только через «Сохранить»; «Отмена» или Android «Назад» возвращает прежнюю раскладку.");
         releaseControls();
         if (GameFiles.original(edition)) {
-            new AlertDialog.Builder(this).setTitle("Управление · Stronghold HD")
-                    .setMessage("На карте тап выбирает войска или отдаёт приказ, сдвиг пальца двигает камеру. Чтобы выделить войска рамкой или провести стену, удерживайте палец около трети секунды, затем тяните. Удержание отменяет постройку или выделение.\n\nДва пальца: сдвиг — камера, сведение или разведение — плавное приближение вокруг середины жеста. Тап по процентам над радаром возвращает 100%, поворот примерно на четверть оборота — поворот карты (C / X), короткий тап — отмена. Удержание радара переключает рельеф, короткий тап двумя пальцами над ним — окраску «свои / чужие».\n\nВ меню и окнах тап нажимает кнопку или открывает клавиатуру для текстового поля; перетаскивание тянет ползунки и списки. Удержание книги писаря открывает вертикальный список команд. По умолчанию в нём настройка управления и меню паузы. Android «Назад» открывает меню игры (Esc).\n\nСвайп по панели построек переключает доступные разделы. Выбранная постройка подсвечивается, рядом показываются её название и стоимость. Лупа при выборе места выключена по умолчанию; её размер и приближение меняются в настройках.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nВ настройках доступны скорость игры, звук, прокрутка, размер интерфейса, чёткий текст, тачпад и расположение кнопок. «Во весь экран» выбирает пропорции устройства. Кнопка «⇄» открывает переход между играми и лаунчером." + zonesHelp)
-                    .setPositiveButton("Понятно", null).show();
+            new AlertDialog.Builder(this).setTitle(I18n.t("Управление · Stronghold HD"))
+                    .setMessage(I18n.t("На карте тап выбирает войска или отдаёт приказ, сдвиг пальца двигает камеру. Чтобы выделить войска рамкой или провести стену, удерживайте палец около трети секунды, затем тяните. Удержание отменяет постройку или выделение.\n\nДва пальца: сдвиг — камера, сведение или разведение — плавное приближение вокруг середины жеста. Тап по процентам над радаром возвращает 100%, поворот примерно на четверть оборота — поворот карты (C / X), короткий тап — отмена. Удержание радара переключает рельеф, короткий тап двумя пальцами над ним — окраску «свои / чужие».\n\nВ меню и окнах тап нажимает кнопку или открывает клавиатуру для текстового поля; перетаскивание тянет ползунки и списки. Удержание книги писаря открывает вертикальный список команд. По умолчанию в нём настройка управления и меню паузы. Android «Назад» открывает меню игры (Esc).\n\nСвайп по панели построек переключает доступные разделы. Выбранная постройка подсвечивается, рядом показываются её название и стоимость. Лупа при выборе места выключена по умолчанию; её размер и приближение меняются в настройках.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nВ настройках доступны скорость игры, звук, прокрутка, размер интерфейса, чёткий текст, тачпад и расположение кнопок. «Во весь экран» выбирает пропорции устройства. Кнопка «⇄» открывает переход между играми и лаунчером.") + zonesHelp)
+                    .setPositiveButton(I18n.t("Понятно"), null).show();
             return;
         }
-        new AlertDialog.Builder(this).setTitle("Управление")
-                .setMessage("На карте: тап — выбор или приказ, двойной тап — отряд одного типа. Сдвиг пальца двигает камеру; для рамки сначала удерживайте палец около трети секунды, затем тяните.\n\nУдержание на карте отменяет выделение, постройку или способность; если отменять нечего — выравнивает рельеф. Удержание радара тоже переключает рельеф.\n\nДва пальца двигают камеру и меняют приближение. Поворот двумя пальцами примерно на четверть оборота поворачивает карту на 90°. Короткий тап двумя пальцами — отмена; над радаром — окраска «свои / чужие». Тап по значению масштаба над радаром возвращает 100%.\n\nВ меню тап нажимает кнопку, удержание показывает описание; слайдеры и списки можно тянуть. Удержание книги писаря открывает вертикальный список команд; в редакторе удерживайте перо слева от панели. Кнопка «Расположение» позволяет перетащить каждую кнопку отдельно. Android «Назад» открывает игровое меню.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nСвайп по панели построек листает доступные разделы: влево — следующий, вправо — предыдущий; из подраздела свайп в любую сторону открывает следующий раздел. Выбранная постройка подсвечивается на своей кнопке.\n\nЛупа: пока палец выбирает место для постройки, стены, сноса или способности, рядом показывается увеличенный участок карты. Короткий тап ставит сразу, без лупы.\n\nВибрация отмечает привязку масштаба к 100%, смену раздела построек, удержание, поворот и выбор отрядов и точек карты. Лупу и вибрацию можно выключить в настройках.\n\nМышь и клавиатура (USB или Bluetooth): с мышью игра работает как на ПК — наведение, ЛКМ и ПКМ, прокрутка камеры у края экрана. Колесо в матче меняет масштаб вокруг курсора, в меню и списках прокручивает их. Перетаскивание средней кнопкой двигает карту, щелчок средней кнопкой возвращает 100%. Клавиши — как в оригинале: Esc — меню, пробел — рельеф, +/− цифрового блока — скорость, X/C — поворот. Касание экрана снова включает сенсорное управление.\n\nТачпад — дополнительный режим курсора. Касание выполняет ЛКМ; отдельную кнопку ЛКМ можно включить в настройках управления." + zonesHelp)
-                .setPositiveButton("Понятно", null).show();
+        new AlertDialog.Builder(this).setTitle(I18n.t("Управление"))
+                .setMessage(I18n.t("На карте: тап — выбор или приказ, двойной тап — отряд одного типа. Сдвиг пальца двигает камеру; для рамки сначала удерживайте палец около трети секунды, затем тяните.\n\nУдержание на карте отменяет выделение, постройку или способность; если отменять нечего — выравнивает рельеф. Удержание радара тоже переключает рельеф.\n\nДва пальца двигают камеру и меняют приближение. Поворот двумя пальцами примерно на четверть оборота поворачивает карту на 90°. Короткий тап двумя пальцами — отмена; над радаром — окраска «свои / чужие». Тап по значению масштаба над радаром возвращает 100%.\n\nВ меню тап нажимает кнопку, удержание показывает описание; слайдеры и списки можно тянуть. Удержание книги писаря открывает вертикальный список команд; в редакторе удерживайте перо слева от панели. Кнопка «Расположение» позволяет перетащить каждую кнопку отдельно. Android «Назад» открывает игровое меню.\n\nКнопки «Отряд» и «Точки» добавляются через каталог кнопок в редакторе расположения. Группы: тап при выбранных войсках — записать, удержание — вызвать; повторный вызов центрирует камеру. Точки: тап — перейти, удержание — записать текущий вид. Центр или область за кругом отменяет выбор.\n\nСвайп по панели построек листает доступные разделы: влево — следующий, вправо — предыдущий; из подраздела свайп в любую сторону открывает следующий раздел. Выбранная постройка подсвечивается на своей кнопке.\n\nЛупа: пока палец выбирает место для постройки, стены, сноса или способности, рядом показывается увеличенный участок карты. Короткий тап ставит сразу, без лупы.\n\nВибрация отмечает привязку масштаба к 100%, смену раздела построек, удержание, поворот и выбор отрядов и точек карты. Лупу и вибрацию можно выключить в настройках.\n\nМышь и клавиатура (USB или Bluetooth): с мышью игра работает как на ПК — наведение, ЛКМ и ПКМ, прокрутка камеры у края экрана. Колесо в матче меняет масштаб вокруг курсора, в меню и списках прокручивает их. Перетаскивание средней кнопкой двигает карту, щелчок средней кнопкой возвращает 100%. Клавиши — как в оригинале: Esc — меню, пробел — рельеф, +/− цифрового блока — скорость, X/C — поворот. Касание экрана снова включает сенсорное управление.\n\nТачпад — дополнительный режим курсора. Касание выполняет ЛКМ; отдельную кнопку ЛКМ можно включить в настройках управления.") + zonesHelp)
+                .setPositiveButton(I18n.t("Понятно"), null).show();
     }
     private void showTextInput() { nativeEditorRequest(); }
     private void showEditor() {
@@ -1949,13 +1984,13 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             else if (bank == 6 || bank == 7) input.setInputType(InputType.TYPE_CLASS_NUMBER);
             input.setText(editor[0]); input.setSelection(input.length());
         }
-        input.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI); input.setHint("Текст в выбранное поле");
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Ввод текста").setView(input)
-                .setPositiveButton("Готово", null).setNegativeButton("Отмена", null).create();
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI); input.setHint(I18n.t("Текст в выбранное поле"));
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(I18n.t("Ввод текста")).setView(input)
+                .setPositiveButton(I18n.t("Готово"), null).setNegativeButton(I18n.t("Отмена"), null).create();
         dialog.setOnShowListener(ignored -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 if (nativeEdit(input.getText().toString(), token)) dialog.dismiss();
-                else Toast.makeText(this, "Не удалось передать текст. Повторите.", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(this, I18n.t("Не удалось передать текст. Повторите."), Toast.LENGTH_SHORT).show();
             }); input.requestFocus();
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             input.postDelayed(() -> ((android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE))
@@ -1995,10 +2030,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (gamePath != null && gamePath.equals(nextPath) && intent.getBooleanExtra("skipMovies", false) == skipMovies)
             rememberedSuccess = false;
         if (nextPath != null && (!nextPath.equals(gamePath) || intent.getBooleanExtra("skipMovies", false) != skipMovies)) {
-            new AlertDialog.Builder(this).setTitle("Нужен перезапуск игры")
-                    .setMessage("Параметры запуска изменены. Если матч ещё не сохранён, вернитесь в игру и сохраните его. Затем закройте игру и запустите её из лаунчера.")
-                    .setPositiveButton("Закрыть игру", (d, which) -> returnToLauncher())
-                    .setNegativeButton("Вернуться в игру", null).show();
+            new AlertDialog.Builder(this).setTitle(I18n.t("Нужен перезапуск игры"))
+                    .setMessage(I18n.t("Параметры запуска изменены. Если матч ещё не сохранён, вернитесь в игру и сохраните его. Затем закройте игру и запустите её из лаунчера."))
+                    .setPositiveButton(I18n.t("Закрыть игру"), (d, which) -> returnToLauncher())
+                    .setNegativeButton(I18n.t("Вернуться в игру"), null).show();
         }
     }
     private void immersive() { getWindow().getDecorView().setSystemUiVisibility(5894); }
@@ -2018,6 +2053,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     @Override protected void onResume() {
         super.onResume();
+        I18n.apply(this);
         if (inputManager != null) { inputManager.registerInputDeviceListener(this, null); refreshGamepads(); }
         if (root != null) discoverEditions();
         if (ready) nativePause(layoutEdit);
@@ -2032,7 +2068,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
             if (gestures != null) gestures.mode(touchpad, sensitivity);
             if (semantic != null) semantic.buildingSwipes(preferences.getBoolean("buildingSwipes",true));
             if (started && (oldWide != wide || !oldResolution.equals(preferences.getString("resolution", "auto"))))
-                Toast.makeText(this, "Разрешение изменится при новом запуске игры. Сначала сохраните матч.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, I18n.t("Разрешение изменится при новом запуске игры. Сначала сохраните матч."), Toast.LENGTH_LONG).show();
             if (preferences.getBoolean("layoutEditRequest", false)) {
                 preferences.edit().remove("layoutEditRequest").apply();
                 if (!layoutEdit && root != null) root.post(() -> editLayout(true));

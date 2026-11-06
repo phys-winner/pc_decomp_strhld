@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="text_9c3f3eda" formatted="false">"Twierdza HD, Crusader i Crusader Extreme Android ARM64"</string>
+  <string name="text_73226756" formatted="false">"Wybierz grę"</string>
+  <string name="text_bf25f362" formatted="false">"Pliki gry"</string>
+  <string name="text_780ea472" formatted="false">"Sprawdzanie zainstalowanych gier..."</string>
+  <string name="text_3eccf7d" formatted="false">"Wybierz folder…"</string>
+  <string name="text_beab1997" formatted="false">"Rozpakuj ZIP…"</string>
+  <string name="text_16342f65" formatted="false">"Zainstaluj z GOG..."</string>
+  <string name="text_997ffce7" formatted="false">"Zmień pliki gry..."</string>
+  <string name="text_37a30576" formatted="false">"Uruchamianie"</string>
+  <string name="text_cfea62c8" formatted="false">"Pomiń filmy, reklamy i ostrzeżenia online"</string>
+  <string name="text_fca6a79b" formatted="false">"Opcje uruchamiania zostaną zastosowane po ponownym uruchomieniu procesu gry. Zapisz mecz przed ponownym uruchomieniem."</string>
+  <string name="text_452078ee" formatted="false">"Język interfejsu..."</string>
+  <string name="text_c688c5f2" formatted="false">"UCP na GitHubie"</string>
+  <string name="text_a7a66ff6" formatted="false">"Wyłącz wszystkie funkcje UCP"</string>
+  <string name="text_5b4d7f78" formatted="false">"Ukończ uruchomioną grę przed zmianą modów. Nowe ustawienia zostaną zastosowane przy następnym uruchomieniu."</string>
+  <string name="text_7e32e4c9" formatted="false">"Wszystkie funkcje UCP są wyłączone. Pakiety danych i lokalizacji są zapisywane."</string>
+  <string name="text_d584799a" formatted="false">"Sprawdzam pliki..."</string>
+  <string name="text_398251d5" formatted="false">"Zagraj"</string>
+  <string name="text_65aed1e5" formatted="false">"Ustawienia"</string>
+  <string name="text_3be6ad8d" formatted="false">"Mody…"</string>
+  <string name="text_1eea9b9" formatted="false">"Mody"</string>
+  <string name="text_dc795e10" formatted="false">"Mody · "</string>
+  <string name="text_8604996b" formatted="false">"Funkcje nieoficjalnej łatki Crusader"</string>
+  <string name="text_235cc110" formatted="false">"Pakiety danych i lokalizacji"</string>
+  <string name="text_d773e353" formatted="false">"Wersja i kompatybilność"</string>
+  <string name="text_be822985" formatted="false">"Naprawiona wersja UCP3:\n"</string>
+  <string name="text_93c07082" formatted="false">"\n\nAndroid korzysta z przygotowanych funkcji i pakietów danych UCP2 Legacy. Na liście znajduje się wsparcie dla każdej funkcji. Windows DLL, ASI i dowolne wtyczki Lua wymagają osobnej adaptacji.\n\nOryginalne pliki gry zostały zachowane. Jeśli pliki są zgodne, pierwszeństwo ma pierwszy dołączony pakiet na liście."</string>
+  <string name="text_bc760176" formatted="false">"Zamknij"</string>
+  <string name="text_e5255a4e" formatted="false">"Nie udało się sprawdzić języka modów"</string>
+  <string name="text_7fd9ff17" formatted="false">"Pakiety · przytrzymaj, aby usunąć"</string>
+  <string name="text_2559db35" formatted="false">"Zastosuj"</string>
+  <string name="text_449106b0" formatted="false">"Anuluj"</string>
+  <string name="text_7e140f28" formatted="false">"Zainstaluj ZIP-a..."</string>
+  <string name="text_ef231dd1" formatted="false">"Usuń \""</string>
+  <string name="text_702d414b" formatted="false">"Gra i pliki zapisu zostaną zapisane."</string>
+  <string name="text_3d84b2c6" formatted="false">"Usuń"</string>
+  <string name="text_b2eb0c03" formatted="false">"Instalowanie moda..."</string>
+  <string name="text_f7d7ea15" formatted="false">"Sprawdzanie i rozpakowywanie ZIP"</string>
+  <string name="text_6041b138" formatted="false">"Archiwum niedostępne"</string>
+  <string name="text_4ac71ec" formatted="false">"Zainstalowano moda"</string>
+  <string name="text_dbcaedd6" formatted="false">"» dostępne na liście modów dla "</string>
+  <string name="text_26dcbf3d" formatted="false">"Określ folder ręcznie..."</string>
+  <string name="text_827c9d62" formatted="false">"Sprawdź ponownie"</string>
+  <string name="text_32d1af36" formatted="false">"Folder gier lub udostępniony folder gier"</string>
+  <string name="text_4303cf88" formatted="false">"Folder z plikami gry"</string>
+  <string name="text_51b025a2" formatted="false">"Sprawdź"</string>
+  <string name="text_215eb3ac" formatted="false">"Pliki gry w formacie "</string>
+  <string name="text_bb517237" formatted="false">"Gotowy do uruchomienia · "</string>
+  <string name="text_1b4e6798" formatted="false">"Wszystkie trzy gry zostały znalezione i przetestowane."</string>
+  <string name="text_86848d19" formatted="false">"Dodaj pliki: "</string>
+  <string name="text_a35721c5" formatted="false">". Folder lub plik ZIP jest rozpoznawany automatycznie; Możesz wybrać folder współdzielony z grami."</string>
+  <string name="text_ce68736f" formatted="false">"Zezwól na dostęp do plików"</string>
+  <string name="text_8216fca" formatted="false">"Wybór folderu systemowego nie jest dostępny na tym urządzeniu."</string>
+  <string name="text_4b88cede" formatted="false">"Wybór plików systemowych nie jest dostępny na tym urządzeniu."</string>
+  <string name="text_79599422" formatted="false">"W folderze nie znaleziono instalatorów setup_*.exe. Wszystkie BIN-y muszą znajdować się obok pliku EXE."</string>
+  <string name="text_634d6aab" formatted="false">"Instalator GOG · wybierz język"</string>
+  <string name="text_bb39e0dd" formatted="false">"Czytanie instalatora GOG..."</string>
+  <string name="text_a35f8320" formatted="false">"\nPliki gry: "</string>
+  <string name="text_b22fddf3" formatted="false">". Po instalacji: "</string>
+  <string name="text_579559c3" formatted="false">".\nSkompresowane bloki: "</string>
+  <string name="text_1ee4e1" formatted="false">" od "</string>
+  <string name="text_53bd09" formatted="false">"\nDo instalacji potrzebujesz EXE i wszystkich BINów z tego samego folderu."</string>
+  <string name="text_4d92cf4d" formatted="false">"\n\nFolder instalacyjny: "</string>
+  <string name="text_8d934598" formatted="false">"\nOryginalny instalator zostaje zachowany. Zapisy gier są przechowywane osobno."</string>
+  <string name="text_410e21c" formatted="false">"Zainstaluj GOG-a"</string>
+  <string name="text_8cfeb85d" formatted="false">"Zainstaluj"</string>
+  <string name="text_be9830ba" formatted="false">"Instalacja GOG-a"</string>
+  <string name="text_fb4cb106" formatted="false">"GOG zainstalowany dla "</string>
+  <string name="text_e88699f0" formatted="false">" s. Język: "</string>
+  <string name="text_5637065a" formatted="false">"W przypadku GOG wybierz folder w pamięci urządzenia z plikiem EXE i wszystkimi sąsiadującymi BINami."</string>
+  <string name="text_f6993e58" formatted="false">"%.0f KB"</string>
+  <string name="text_f6993e96" formatted="false">"%.0f MB"</string>
+  <string name="text_660e6a9a" formatted="false">"Archiwum «"</string>
+  <string name="text_d1bd702e" formatted="false">" zostanie rozpakowany\n"</string>
+  <string name="text_a8d6d121" formatted="false">"\n\nDostępne: "</string>
+  <string name="text_c5347de1" formatted="false">". Rozpakowana gra zajmuje około 1 GB."</string>
+  <string name="text_4f09e1af" formatted="false">"Rozpakować grę?"</string>
+  <string name="text_e758a48e" formatted="false">"Rozpakuj"</string>
+  <string name="text_a8ab15f" formatted="false">"Rozpakowywanie archiwum"</string>
+  <string name="text_4163fe5" formatted="false">"Skopiować grę?"</string>
+  <string name="text_1d870e8e" formatted="false">"Do folderu \""</string>
+  <string name="text_d8eccaca" formatted="false">"» brak bezpośredniego dojazdu po drodze. Skopiuj to do\n"</string>
+  <string name="text_fbbd6344" formatted="false">"Kopiuj"</string>
+  <string name="text_bc4d084d" formatted="false">"Kopiowanie folderu"</string>
+  <string name="text_3aaea5ba" formatted="false">"Przygotowanie..."</string>
+  <string name="text_d1f4a247" formatted="false">" pliki · "</string>
+  <string name="text_89d586e4" formatted="false">"Nie udało się utworzyć folderu "</string>
+  <string name="text_4d3c8d8" formatted="false">"Anulowano. Częściowo skopiowane pliki pozostają w pliku "</string>
+  <string name="text_9ac267bf" formatted="false">"Błąd: "</string>
+  <string name="text_927d6d18" formatted="false">"archiwum niedostępne"</string>
+  <string name="text_3fb73205" formatted="false">"nieprawidłowa ścieżka archiwum: "</string>
+  <string name="text_82970e9b" formatted="false">"nie udało się utworzyć "</string>
+  <string name="text_57596e60" formatted="false">"nieprawidłowa nazwa po odzyskaniu: "</string>
+  <string name="text_62ed0e4a" formatted="false">"Nie udało się przywrócić nazwy karty: "</string>
+  <string name="text_cb6f0ae5" formatted="false">"nazwy plików w archiwum nie są w formacie UTF-8; przepakuj grę za pomocą standardowego ZIP-a"</string>
+  <string name="text_2c7db8e6" formatted="false">"archiwum jest puste lub nie jest to plik ZIP"</string>
+  <string name="text_9584175b" formatted="false">"\nNazwiska zagubione w archiwum "</string>
+  <string name="text_6f044b61" formatted="false">" mapy: są zapisywane jako „Mapa...”. Wszystkie pliki są zapisywane osobno."</string>
+  <string name="text_a5ac9a61" formatted="false">"dostawca pliku nie zwrócił zawartości folderu"</string>
+  <string name="text_24605ef0" formatted="false">"nie udało się otworzyć "</string>
+  <string name="text_d3ca647b" formatted="false">"Do uruchomienia potrzebny jest dostęp do plików gry."</string>
+  <string name="text_ab5540f3" formatted="false">"Nie udało się przygotować gry: "</string>
+  <string name="text_2bbd5d5e" formatted="false">"Ostrzeżenie dotyczące zgodności"</string>
+  <string name="text_a9002c9" formatted="false">"Mimo wszystko biegnij"</string>
+  <string name="text_e6290764" formatted="false">"Nie udało się zaktualizować stanu uruchamiania"</string>
+  <string name="text_50c87387" formatted="false">"Nie udało się zapisać stanu uruchamiania"</string>
+  <string name="text_3c32a8fb" formatted="false">"Nie udało się uruchomić gry: "</string>
+  <string name="text_6df9977b" formatted="false">"Mecz zakończył się błędem. Sprawdź folder i spróbuj ponownie. Log: /sdcard/Twierdza/"</string>
+  <string name="text_bcbda96a" formatted="false">"Uruchamianie "</string>
+  <string name="text_f2fc3664" formatted="false">"Ustawienia · "</string>
+  <string name="text_39f3c6d" formatted="false">"Grafika"</string>
+  <string name="text_674b0c2" formatted="false">"Rozdzielczość, rozmiar interfejsu i jakość obrazu"</string>
+  <string name="text_1ec3892" formatted="false">"Dźwięk"</string>
+  <string name="text_e1fcef4c" formatted="false">"Muzyka, efekty i mowa"</string>
+  <string name="text_1ecb04b" formatted="false">"Gra"</string>
+  <string name="text_66aca461" formatted="false">"Szybkość gry, wskazówki i sterowanie"</string>
+  <string name="text_7bdceb3f" formatted="false">"Launcher i foldery z grami"</string>
+  <string name="text_a2356111" formatted="false">"Rozdzielczość"</string>
+  <string name="text_1e909de" formatted="false">"Automatycznie"</string>
+  <string name="text_77737898" formatted="false">"Minimalne"</string>
+  <string name="text_dcd7c4a4" formatted="false">"Urządzenie"</string>
+  <string name="text_7ae310b2" formatted="false">"Rozdzielczość i współczynnik proporcji zostaną zastosowane przy ponownym uruchomieniu gry"</string>
+  <string name="text_dcfb5f04" formatted="false">"Zapisz mecz przed ponownym uruchomieniem. „Minimum” - 600 linii, najmniejsza rama silnika, z proporcjami ekranu. "</string>
+  <string name="text_53607ee6" formatted="false">"Rozdzielczość nie zmienia się automatycznie podczas rozgrywki."</string>
+  <string name="text_2b870dec" formatted="false">"Użyj proporcji urządzenia"</string>
+  <string name="text_8329db6f" formatted="false">"Rozmiar interfejsu"</string>
+  <string name="text_97402fea" formatted="false">"Rozmiar panelu mocy"</string>
+  <string name="text_e82aaf5f" formatted="false">"dwusześcienny"</string>
+  <string name="text_d874e791" formatted="false">"Ostre piksele"</string>
+  <string name="text_f8faebee" formatted="false">"Dwuliniowy"</string>
+  <string name="text_3278c869" formatted="false">"Filtr świata"</string>
+  <string name="text_7451d9ec" formatted="false">"Filtr interfejsu"</string>
+  <string name="text_7c3ae905" formatted="false">"Ostrość"</string>
+  <string name="text_560f76b4" formatted="false">"Wygładzanie gradientów"</string>
+  <string name="text_7e78b3ab" formatted="false">"Wyczyść tekst"</string>
+  <string name="text_2768014e" formatted="false">"FSR 1.0 zachowuje ostre krawędzie, bicubic jest bardziej miękki, Clear Pixels zachowuje postrzępiony, pikselowany wygląd, bilinear jest najmiększy. Zastosuj natychmiast."</string>
+  <string name="text_4e53c7f9" formatted="false">"Mapa jest powiększona tak, aby pasowała do ekranu niezależnie od interfejsu. "</string>
+  <string name="text_308cf9d6" formatted="false">"Interfejs został powiększony, aby dopasować się do ekranu oddzielnie od mapy. "</string>
+  <string name="text_83e093cf" formatted="false">"Moc wyostrzania obrazu. Zastosuj natychmiast."</string>
+  <string name="text_1122e28" formatted="false">"Usuwa 16-bitowe kroki kolorów z nieba i wody. Zastosuj natychmiast."</string>
+  <string name="text_8c127489" formatted="false">"Przerysowuje etykiety w rozdzielczości ekranu. Zastosuj natychmiast."</string>
+  <string name="text_8823e982" formatted="false">"Rozmiar panelu, okien, zasobów i podpowiedzi w grze. Ograniczony tak, aby cały interfejs mieścił się na ekranie. Zmiana działa od razu."</string>
+  <string name="text_b35280b9" formatted="false">"Rozmiar paska bocznego wymusza niezależnie od głównego interfejsu. Zastosuj natychmiast."</string>
+  <string name="text_9e69e9de" formatted="false">"Szybkość gry"</string>
+  <string name="text_2fec8049" formatted="false">"Podpowiedzi"</string>
+  <string name="text_3a0deda" formatted="false">"Płynny ruch kamery"</string>
+  <string name="text_1a976048" formatted="false">"Szybkość przewijania"</string>
+  <string name="text_d7a19c29" formatted="false">"Powoli"</string>
+  <string name="text_d3f969a5" formatted="false">"Normalne"</string>
+  <string name="text_2ee35139" formatted="false">"Szybko"</string>
+  <string name="text_3dcdba6c" formatted="false">"Kursor"</string>
+  <string name="text_ec7adcfb" formatted="false">"Strzałka"</string>
+  <string name="text_ff3ce" formatted="false">"Miecz"</string>
+  <string name="text_3b44416a" formatted="false">"Włącz dźwięk"</string>
+  <string name="text_166c3f7d" formatted="false">"Głośność muzyki"</string>
+  <string name="text_5c2e3288" formatted="false">"Głośność efektów"</string>
+  <string name="text_f62c5aca" formatted="false">"Głośność mowy"</string>
+  <string name="text_3b723ff6" formatted="false">"Dżin"</string>
+  <string name="text_81c559da" formatted="false">"Zarządzanie"</string>
+  <string name="text_c16adbbf" formatted="false">"Touchpad z kursorem"</string>
+  <string name="text_b99001af" formatted="false">"Czułość touchpada"</string>
+  <string name="text_5d0828c0" formatted="false">"Rozmiar przycisku"</string>
+  <string name="text_e4f123e1" formatted="false">"Nieprzezroczystość przycisków"</string>
+  <string name="text_5f6b07f0" formatted="false">"Dotykowe przyciski sterujące"</string>
+  <string name="text_4064640" formatted="false">"Oddzielne przyciski na ekranie, w listach bocznych i książce urzędnika. Każdy przycisk można ukryć; LMB jest domyślnie ukryty."</string>
+  <string name="text_7ce69eca" formatted="false">"Strefy boczne"</string>
+  <string name="text_82162e12" formatted="false">"Lista poleceń lub osobne akcje typu „dotknij i przytrzymaj” dla każdej strefy"</string>
+  <string name="text_5e1fff23" formatted="false">"Lewa strefa"</string>
+  <string name="text_61e3d6f8" formatted="false">"Prawa strefa"</string>
+  <string name="text_31963493" formatted="false">"Gotowe"</string>
+  <string name="text_fdaf9ab1" formatted="false">"Przełączaj sekcje budynków, przesuwając palcem"</string>
+  <string name="text_62ae5442" formatted="false">"Wibracje"</string>
+  <string name="text_d6ec4c34" formatted="false">"Diagnostyka dotykowa"</string>
+  <string name="text_b7c1cc15" formatted="false">"Zmień układ przycisków"</string>
+  <string name="text_9c62f9a0" formatted="false">"Podgląd bez pauzy: przesuwaj, ściskaj lub przesuwaj rozmiar suwaka, zapisz i anuluj"</string>
+  <string name="text_8d8b72a0" formatted="false">"Najpierw uruchom grę: układ zmieni się na górze ekranu gry."</string>
+  <string name="text_7452e6e7" formatted="false">"Resetuj układ przycisków"</string>
+  <string name="text_f63bb278" formatted="false">"Przywrócono pierwotną lokalizację"</string>
+  <string name="text_e075984c" formatted="false">"Lista poleceń"</string>
+  <string name="text_ff22ffb8" formatted="false">"Kliknij i przytrzymaj czynności"</string>
+  <string name="text_a0d9976b" formatted="false">"Tryb: "</string>
+  <string name="text_3c346897" formatted="false">"Kliknij: "</string>
+  <string name="text_425441f4" formatted="false">"Nic"</string>
+  <string name="text_18219bca" formatted="false">"Przytrzymaj: "</string>
+  <string name="text_e4e01701" formatted="false">"Lista poleceń"</string>
+  <string name="text_79a043" formatted="false">"Strefa lewej strony"</string>
+  <string name="text_6766d318" formatted="false">"Strefa prawej strony"</string>
+  <string name="text_280c7d94" formatted="false">"Tryb strefy bocznej"</string>
+  <string name="text_3bee53e8" formatted="false">"Wstecz"</string>
+  <string name="text_c93e0a86" formatted="false">"Akcja zatrzymania"</string>
+  <string name="text_ea1afa49" formatted="false">"Akcja poprzez dotknięcie"</string>
+  <string name="text_d85b3a2" formatted="false">"Na ekranie"</string>
+  <string name="text_4940f932" formatted="false">"Ukryty"</string>
+  <string name="text_940437ba" formatted="false">"W lewej strefie"</string>
+  <string name="text_850bf3f3" formatted="false">"W odpowiedniej strefie"</string>
+  <string name="text_be0cece" formatted="false">"W księdze pisarza"</string>
+  <string name="text_381c15a5" formatted="false">"Wybierz przycisk"</string>
+  <string name="text_6930c0ed" formatted="false">"Oryginalne guziki"</string>
+  <string name="text_58dee6e2" formatted="false">"Pełny ekran"</string>
+  <string name="text_21fe03e4" formatted="false">"Obowiązuje przy ponownym uruchomieniu gry"</string>
+  <string name="text_a8f56f96" formatted="false">"Wysokość ramki wynika z samych trybów gry. „Pełny ekran”: szerokość ramki w proporcjach ekranu, bez marginesów po bokach. "</string>
+  <string name="text_535e0f4c" formatted="false">"Wyłączone – tryby gry 16:9 (600 linii – 4:3) z marginesami."</string>
+  <string name="text_1c807936" formatted="false">"Filtr mapy"</string>
+  <string name="text_b4a6b086" formatted="false">"Filtr interfejsu i menu"</string>
+  <string name="text_9d5299a9" formatted="false">"Ustaw minimalną grafikę"</string>
+  <string name="text_18318ed4" formatted="false">"Minimalna rozdzielczość, filtry dwuliniowe, brak wyostrzania, brak wygładzania gradientu, brak wyraźnego tekstu. Rozwiązanie - po ponownym uruchomieniu gry."</string>
+  <string name="text_d009bb6" formatted="false">"Ustawić minimalną grafikę?"</string>
+  <string name="text_e169a424" formatted="false">"Wybrana zostanie minimalna rozdzielczość i filtry dwuliniowe, wyostrzanie, wygładzanie gradientu i wyraźny tekst zostaną wyłączone. Rozdzielczość zmieni się po ponownym uruchomieniu gry; zapisz mecz przed nim."</string>
+  <string name="text_50c0fca2" formatted="false">"Minimalny zestaw graficzny. Zapisz mecz przed ponownym uruchomieniem."</string>
+  <string name="text_134c4b51" formatted="false">"Szkło powiększające w trakcie budowy"</string>
+  <string name="text_bdc49d14" formatted="false">"Rozmiar lupy"</string>
+  <string name="text_d4381850" formatted="false">"Powiększanie za pomocą szkła powiększającego"</string>
+  <string name="text_2802cc6e" formatted="false">" linie · "</string>
+  <string name="text_a491b1c" formatted="false">" (zalecane)"</string>
+  <string name="text_ed627e79" formatted="false">" (minimum)"</string>
+  <string name="text_4df3cfcb" formatted="false">"Automatycznie · "</string>
+  <string name="text_a67f2ed1" formatted="false">"Minimalna · "</string>
+  <string name="text_b92cd745" formatted="false">"Urządzenie · "</string>
+  <string name="text_1ea4f7a" formatted="false">"Wyłączone"</string>
+  <string name="text_9cc4fef4" formatted="false">"Zresetuj ustawienia"</string>
+  <string name="text_13c03dbd" formatted="false">"Grafika, dźwięk, rozgrywka, sterowanie i układ przycisków tej edycji"</string>
+  <string name="text_fbdadfcb" formatted="false">"Zresetować ustawienia?"</string>
+  <string name="text_5c9aa70f" formatted="false">"Przywróć oryginalne ustawienia grafiki, dźwięku, gry i sterowania dla „"</string>
+  <string name="text_2212d98f" formatted="false">"„? Układ przycisków również zostanie zresetowany. Folder z zapisami i grami pozostanie."</string>
+  <string name="text_20185fcf" formatted="false">"Zresetuj"</string>
+  <string name="text_95756cc3" formatted="false">"Przywrócono oryginalne ustawienia. Rozwiązanie - po ponownym uruchomieniu gry."</string>
+  <string name="text_e9b3ed23" formatted="false">"Utracono połączenie LAN"</string>
+  <string name="text_8c56b252" formatted="false">"Mecz nie synchronizuje się już z innymi graczami. Aby rozpocząć nową grę online, wróć do lobby."</string>
+  <string name="text_cd2e947f" formatted="false">"Otwórz menu"</string>
+  <string name="text_397db4c9" formatted="false">"Zostań"</string>
+  <string name="text_e17e86d7" formatted="false">"Nie udało się zapisać ostatniej gry"</string>
+  <string name="text_e361570e" formatted="false">"Radar: kolorowanie „przyjaciel/wróg”."</string>
+  <string name="text_9e26dc2e" formatted="false">"Radar: kolory panów"</string>
+  <string name="text_5426ab15" formatted="false">"Ulga jest wyrównana"</string>
+  <string name="text_b4a44764" formatted="false">"Pokazano ulgę"</string>
+  <string name="text_2d0109a6" formatted="false">"Nie udało się załadować biblioteki gier: "</string>
+  <string name="text_4cb18659" formatted="false">"Nie udało się zarejestrować stanu procesu gry: "</string>
+  <string name="text_713f2555" formatted="false">"Zapisz "</string>
+  <string name="text_593c73fa" formatted="false">"Zadzwoń "</string>
+  <string name="text_81cc2e8c" formatted="false">"punkt "</string>
+  <string name="text_7b2e487f" formatted="false">"skład "</string>
+  <string name="text_9f626b72" formatted="false">"Nie udało się otworzyć folderu profilu: "</string>
+  <string name="text_cef3e0b" formatted="false">"Nie udało się zapisać statusu uruchamiania"</string>
+  <string name="text_f6705b85" formatted="false">"Nie udało się zastosować modów: "</string>
+  <string name="text_9b698f2c" formatted="false">"Nie udało się utworzyć strumienia gry."</string>
+  <string name="text_b73264df" formatted="false">"Auto+: od następnego uruchomienia gry "</string>
+  <string name="text_94178ee5" formatted="false">"Skala mapy "</string>
+  <string name="text_dbdce9de" formatted="false">". Kliknij, aby zwrócić 100%"</string>
+  <string name="text_f8e1b788" formatted="false">"Prędkość"</string>
+  <string name="text_2ed35202" formatted="false">"Szybkość gry "</string>
+  <string name="text_908c5443" formatted="false">"Program uruchamiający"</string>
+  <string name="text_6505de10" formatted="false">"Kolejna gra"</string>
+  <string name="text_3d783ca2" formatted="false">"Guziki"</string>
+  <string name="text_b242fa66" formatted="false">"Działania Strefy"</string>
+  <string name="text_3c2749d3" formatted="false">"Zresetuj"</string>
+  <string name="text_345e4ebd" formatted="false">"Zapisz"</string>
+  <string name="text_771c4a21" formatted="false">"Wszystkie przyciski i strefy"</string>
+  <string name="text_6da7435b" formatted="false">"Wybrany element"</string>
+  <string name="text_2bb11c12" formatted="false">"Zresetuj w podglądzie"</string>
+  <string name="text_cbea86b0" formatted="false">"Rozmiar lub szerokość wybranego elementu"</string>
+  <string name="text_7d09312e" formatted="false">"Wysokość wybranej strefy"</string>
+  <string name="text_1c91ec15" formatted="false">"Wolniej"</string>
+  <string name="text_ad86d905" formatted="false">"Szybciej"</string>
+  <string name="text_25736bb0" formatted="false">"Obróć mapę w kierunku przeciwnym do ruchu wskazówek zegara"</string>
+  <string name="text_deee81ed" formatted="false">"Obróć mapę zgodnie z ruchem wskazówek zegara"</string>
+  <string name="text_9f22a8aa" formatted="false">"Skonfiguruj elementy sterujące"</string>
+  <string name="text_128ace70" formatted="false">"Wstrzymaj menu"</string>
+  <string name="text_3bd45817" formatted="false">"Lewy"</string>
+  <string name="text_46242f22" formatted="false">"Jasne"</string>
+  <string name="text_372daac6" formatted="false">" obszar poleceń: kliknij, aby pokazać lub ukryć; przytrzymaj i wybierz gestem"</string>
+  <string name="text_10846330" formatted="false">" strefa dowodzenia. Kliknij: "</string>
+  <string name="text_a31f1f85" formatted="false">"; przytrzymaj: "</string>
+  <string name="text_28198ae" formatted="false">"Otwórz program uruchamiający"</string>
+  <string name="text_47d71fc6" formatted="false">"Nieoficjalne ustawienia łatek Crusader"</string>
+  <string name="text_f6b7f63e" formatted="false">"Gra · "</string>
+  <string name="text_76a9fba6" formatted="false">"Wstrzymaj / kontynuuj"</string>
+  <string name="text_ef035265" formatted="false">"Podatki, pieniądze i dieta"</string>
+  <string name="text_366d1184" formatted="false">"Przywróć Pana"</string>
+  <string name="text_127fdd5c" formatted="false">"Typ karty"</string>
+  <string name="text_40f8487d" formatted="false">"Usuń zwierzęta"</string>
+  <string name="text_b40852fd" formatted="false">"Szwy terenowe"</string>
+  <string name="text_b214cb0e" formatted="false">"Edytor map"</string>
+  <string name="text_996eed65" formatted="false">": Naciśnij, aby przytrzymać, naciśnij ponownie, aby zwolnić"</string>
+  <string name="text_84a2a892" formatted="false">": Przytrzymaj i przesuń kursor innym palcem"</string>
+  <string name="text_c5ff77a4" formatted="false">"Lewy drążek - kursor\nPrawy drążek - kamera\nA / B - LMB / RMB (można przytrzymać)\nX - teren Y - pauza\nLB / RB - skala / przewijanie listy\nLT - precyzyjne naprowadzanie RT - Shift\nD-pad ↑ / ↓ - prędkość\nD-pad ← / → - obrót mapy\nL3 - skala 100% R3 - blokada (F1)\nStart - menu Wybierz / Wstecz - układ"</string>
+  <string name="text_5bdffeb8" formatted="false">"Przytrzymaj Wybierz dla kombinacji:\n↑ → ↓ ← - oddziały 1-4\nA B X Y - oddziały 5-8 LB - oddział 9\nDodaj RT - zapisz oddział\nDodaj LT - punkty na mapie 1-9\nLT + RT - zapisz punkt na mapie\nRB - kolory radaru L3 - polecenia książki\nR3 - Start klawiatury - ustawienia\n\nKursor znika po 30 sekundach bezczynności.\nZamknij: A, B, Start lub Wybierz."</string>
+  <string name="text_feb3681" formatted="false">"Gamepad · układ"</string>
+  <string name="text_2a77e835" formatted="false">"Edytor aranżacji: wybierz i przeciągnij element, zmień rozmiar dwoma palcami"</string>
+  <string name="text_9824700e" formatted="false">"Wybierz element. Ciągnąć; rozmiar - szczypta lub suwak."</string>
+  <string name="text_3c04bfa1" formatted="false">"Grupy"</string>
+  <string name="text_3c3b63e9" formatted="false">"Zakładki"</string>
+  <string name="text_69353b01" formatted="false">"Szerokość: "</string>
+  <string name="text_73d35386" formatted="false">"Rozmiar: "</string>
+  <string name="text_6afd712a" formatted="false">"Wysokość: "</string>
+  <string name="text_6663223b" formatted="false">"Pole gry: dotknij, przeciągnij zaznaczenie, dwa palce, aby wyświetlić mapę"</string>
+  <string name="text_31f6a807" formatted="false">"Zadzwoń po oddział"</string>
+  <string name="text_c147bfd8" formatted="false">"Nagraj wybrany skład"</string>
+  <string name="text_62460ad7" formatted="false">"Przejdź do punktu na mapie"</string>
+  <string name="text_4551ce12" formatted="false">"Zapisz punkt na mapie"</string>
+  <string name="text_e4ea7ac8" formatted="false">"Napisz do komórki"</string>
+  <string name="text_2079c993" formatted="false">"Wybierz komórkę"</string>
+  <string name="text_da5ce02b" formatted="false">"Przypisz"</string>
+  <string name="text_e1d8a8e6" formatted="false">"Przywołaj"</string>
+  <string name="text_c3b66742" formatted="false">"Centrum: anuluj"</string>
+  <string name="text_d8ce0722" formatted="false">" · szkło powiększające"</string>
+  <string name="text_c975cf94" formatted="false">"Gamepad %.0f, %.0f"</string>
+  <string name="text_1eedcf3" formatted="false">"Mysz"</string>
+  <string name="text_4a6be62a" formatted="false">"Touchpad"</string>
+  <string name="text_1cf2a817" formatted="false">"Palec %.0f, %.0f"</string>
+  <string name="text_2e32007a" formatted="false">"\n\nKsiążka urzędnika: Przytrzymaj, aby otworzyć listę, a następnie naciśnij polecenie lub przesuń, aby je wybrać i zwolnij. Ponowne dotknięcie książki powoduje ukrycie listy. Przypisania zmienia się poprzez katalog przycisków.\n\nStrefy boczne są domyślnie puste. Przypisz polecenia do lewej lub prawej strefy: dotknięcie otwiera listę pionową, ponowne dotknięcie tej samej strefy powoduje jej ukrycie. Przytrzymaj przez około jedną trzecią sekundy i przesuń palec w stronę polecenia, zwolnij, aby wykonać.\n\nEdytor układu pokazuje pauzę: wybierz i przeciągnij przycisk lub strefę, zmień rozmiar dwoma palcami, suwakiem lub rogiem. „Przyciski” określają rozmieszczenie poleceń na ekranie, w książce i w obszarach bocznych. „Akcje strefy” przełącza listę lub indywidualne przypisania poprzez dotknięcie i przytrzymanie. Zmiany są stosowane wyłącznie poprzez „Zapisz”; „Anuluj” lub „Wstecz” w systemie Android przywraca poprzedni układ."</string>
+  <string name="text_8d249b77" formatted="false">"Kontroluje Twierdzę HD"</string>
+  <string name="text_fd0b4522" formatted="false">"Na mapie dotknij wybiera żołnierzy lub wydaje rozkazy, przesuwając palcem przesuwasz kamerę. Aby otoczyć żołnierzy lub narysować ścianę, przytrzymaj palec przez około jedną trzecią sekundy, a następnie przeciągnij. Przytrzymanie anuluje konstrukcję lub wybór.\n\nDwa palce: przesunięcie – kamera, zsunięcie lub rozsunięcie – płynne przybliżenie w okolicach środka gestu. Dotknięcie procentu nad radarem przywraca 100%, obrócenie go o około ćwierć obrotu - obróć mapę (C / X), krótkie dotknięcie - anuluj. Przytrzymanie radaru przełącza teren, krótkie dotknięcie dwoma palcami nad nim - kolorowanie „przyjaciele / wrogowie”.\n\nW menu i oknach dotknięcie powoduje naciśnięcie przycisku lub otwarcie klawiatury dla pola tekstowego; przeciąganie powoduje przeciągnięcie suwaków i list. Przytrzymanie księgi skryby otwiera pionową listę poleceń. Domyślnie posiada ustawienia sterowania oraz menu pauzy. Android „Wstecz” otwiera menu gry (Esc).\n\nPrzesuwanie panelu budynku przełącza dostępne sekcje. Wybrany budynek zostanie podświetlony, a obok niego zostanie wyświetlona jego nazwa i koszt. Domyślnie lupa przy wyborze lokalizacji jest wyłączona; jego rozmiar i bliskość można zmienić w ustawieniach.\n\nPrzyciski Oddziału i Punktu są dodawane poprzez katalog przycisków w edytorze układu. Grupy: dotknij wybranych żołnierzy - nagraj, zatrzymaj - zadzwoń; ponowne połączenie powoduje wyśrodkowanie aparatu. Kropki: dotknij – idź, przytrzymaj – zapisz aktualny widok. Środek lub obszar za okręgiem zostanie odznaczony.\n\nSzybkość gry, dźwięk, przewijanie, rozmiar interfejsu, wyraźny tekst, touchpad i układ przycisków są dostępne w ustawieniach. „Pełny ekran” wybiera współczynnik kształtu urządzenia. Przycisk „⇄” otwiera przejście między grami a programem uruchamiającym."</string>
+  <string name="text_7bbca9d2" formatted="false">"Widzę"</string>
+  <string name="text_7b305f23" formatted="false">"Na mapie: dotknij - wybór lub zamówienie, kliknij dwukrotnie - jednostka tego samego typu. Przesuwając palcem poruszasz kamerą; w przypadku ramki najpierw przytrzymaj palec przez około jedną trzecią sekundy, a następnie pociągnij.\n\nPrzytrzymanie mapy anuluje podświetlenie, budowlę lub zdolność; jeśli nie ma nic do anulowania, wyrównuje to ulgę. Trzymanie radaru powoduje także zmianę terenu.\n\nDwa palce przesuwają kamerę i zmieniają zoom. Obrót dwoma palcami o około ćwierć obrotu powoduje obrót karty o 90°. Krótkie dotknięcie dwoma palcami - anuluj; nad radarem znajduje się kolor „przyjaciel/wróg”. Dotknięcie wartości skali nad radarem zwraca 100%.\n\nW menu dotknięcie powoduje naciśnięcie przycisku, przytrzymanie powoduje wyświetlenie opisu; Suwaki i listy można przeciągać. Trzymanie księgi skryby otwiera pionową listę poleceń; w edytorze przytrzymaj pióro po lewej stronie panelu. Przycisk Aranżacja umożliwia przeciąganie każdego przycisku osobno. Android „Wstecz” otwiera menu gry.\n\nPrzyciski Oddziału i Punktu są dodawane poprzez katalog przycisków w edytorze układu. Grupy: dotknij wybranych żołnierzy - nagraj, zatrzymaj - zadzwoń; ponowne połączenie powoduje wyśrodkowanie aparatu. Kropki: dotknij – idź, przytrzymaj – zapisz aktualny widok. Środek lub obszar za okręgiem zostanie odznaczony.\n\nPrzesuwanie panelu budynków powoduje przewijanie dostępnych sekcji: lewa – następna, prawa – poprzednia; W podsekcji przeciągnięcie w dowolnym kierunku otwiera następną sekcję. Wybrany budynek zostanie podświetlony na jego przycisku.\n\nSzkło powiększające: Gdy palcem wybierasz lokalizację budynku, ściany, rozbiórki lub zdolności, w pobliżu wyświetlana jest powiększona część mapy. Krótkie dotknięcie umieszcza to od razu, bez lupy.\n\nWibracja oznacza ustawienie zoomu na 100%, zmianę przekroju budynków, przytrzymanie, obracanie i wybieranie jednostek oraz punktów na mapie. Szkło powiększające i wibracje można wyłączyć w ustawieniach.\n\nMysz i klawiatura (USB lub Bluetooth): za pomocą myszki gra działa jak na komputerze PC - wskazywanie, LMB i RMB, przewijanie kamerą na krawędzi ekranu. Koło dopasowania zmienia skalę wokół kursora i przewija menu i listy. Przeciągnięcie środkowym przyciskiem przesuwa mapę, kliknięcie środkowym przyciskiem zwraca 100%. Klawisze - jak w oryginale: Esc - menu, spacja - relief, +/− klawiatura numeryczna - prędkość, X/C - obrót. Dotknięcie ekranu ponownie aktywuje sterowanie dotykowe.\n\nTouchpad - dodatkowy tryb kursora. Dotyk jest wykonywany przez LMB; W ustawieniach sterowania można włączyć oddzielny przycisk LMB."</string>
+  <string name="text_3974cee0" formatted="false">"Tekst w wybranym polu"</string>
+  <string name="text_9dcaa1b2" formatted="false">"Wprowadzanie tekstu"</string>
+  <string name="text_156c037a" formatted="false">"Nie udało się wysłać SMS-a. Powtarzać."</string>
+  <string name="text_e75a395d" formatted="false">"Należy ponownie uruchomić grę"</string>
+  <string name="text_8eb11e4d" formatted="false">"Opcje uruchamiania zostały zmienione. Jeżeli mecz nie został jeszcze zapisany, wróć do gry i zapisz go. Następnie zamknij grę i uruchom ją z poziomu programu uruchamiającego."</string>
+  <string name="text_1f3ca4a8" formatted="false">"Zamknij grę"</string>
+  <string name="text_7aa86411" formatted="false">"Wróć do gry"</string>
+  <string name="text_7bda8a8" formatted="false">"Rozdzielczość zmieni się po ponownym uruchomieniu gry. Najpierw zapisz mecz."</string>
+  <string name="text_6bbeeed" formatted="false">"Nie udało się otworzyć folderu: "</string>
+  <string name="text_700a6ce" formatted="false">"W wybranym folderze nie znaleziono obsługiwanych plików gier (sh.tex lub cr.tex, gfx, maps, EXE i DLL)."</string>
+  <string name="text_a4644fc1" formatted="false">"Mapa %08X.map"</string>
+  <string name="text_ab4773ef" formatted="false">"Nieznany język ("</string>
+  <string name="text_fb8eb11f" formatted="false">"Plik językowy jest niedostępny"</string>
+  <string name="text_7fefc6fe" formatted="false">"Podaj bezwzględną ścieżkę do folderu z grą (krótszą niż 512 bajtów)."</string>
+  <string name="text_9f82bc76" formatted="false">"Folder gry niedostępny: "</string>
+  <string name="text_77e593d2" formatted="false">"Brakujące lub niedostępne w folderze gry: "</string>
+  <string name="text_1d7e051d" formatted="false">"Extreme wymaga folderu mapsExtreme."</string>
+  <string name="text_28b1d162" formatted="false">"Nie znaleziono "</string>
+  <string name="text_27fd156" formatted="false">"\nWybierz rozpakowaną grę za pomocą EXE i DLL lub zapisz sąsiedni folder "</string>
+  <string name="text_b8a27c7e" formatted="false">"Wersja EXE różni się od tej użytej do zbudowania portu: "</string>
+  <string name="text_9d1f8785" formatted="false">"\nKompatybilność nie jest gwarantowana: mogą wystąpić błędy lub awarie."</string>
+  <string name="text_6e53cedb" formatted="false">"Nieobsługiwana wersja pliku: "</string>
+  <string name="text_5bd43a34" formatted="false">". Wymagane oryginalne pliki "</string>
+  <string name="text_1cc40d25" formatted="false">", używany podczas montażu portu."</string>
+  <string name="text_5bb3e0b9" formatted="false">"Nie udało się sprawdzić "</string>
+  <string name="text_1c8469ed" formatted="false">"Nieprawidłowe właściwości modu: potrzebny identyfikator, nazwa i edycja"</string>
+  <string name="text_b2bafaf5" formatted="false">"Brak właściwości mod"</string>
+  <string name="text_eb403ade" formatted="false">"W modzie nie ma folderu z plikami"</string>
+  <string name="text_a50d5f02" formatted="false">"Identyfikator moda nie pasuje do folderu"</string>
+  <string name="text_bf68a7c2" formatted="false">"Nie udało się utworzyć folderu modów"</string>
+  <string name="text_e301efe5" formatted="false">"Instalacja moda została anulowana"</string>
+  <string name="text_da0f7a1b" formatted="false">"W modzie jest za dużo plików"</string>
+  <string name="text_1d86aacf" formatted="false">"Nieprawidłowa ścieżka moda: "</string>
+  <string name="text_ac61087a" formatted="false">"Ścieżka poza folderem mod"</string>
+  <string name="text_2dbc90bc" formatted="false">"Nie udało się utworzyć folderu"</string>
+  <string name="text_4806bcdb" formatted="false">"Mod jest za duży lub za mało miejsca"</string>
+  <string name="text_c0c24538" formatted="false">"Mod z identyfikatorem "</string>
+  <string name="text_589d7d1e" formatted="false">" już zainstalowany; najpierw odinstaluj starą wersję"</string>
+  <string name="text_dfc00caa" formatted="false">"Ścieżka poza folderem mods"</string>
+  <string name="text_dcab549e" formatted="false">"Plik ustawień UCP jest za duży"</string>
+  <string name="text_3885cbb8" formatted="false">"Niekompatybilna wersja ustawień UCP"</string>
+  <string name="text_37ee1202" formatted="false">"Niepoprawna wersja UCP"</string>
+  <string name="text_21477ff3" formatted="false">"Nieprawidłowy identyfikator UCP"</string>
+  <string name="text_d8f45539" formatted="false">"Nie udało się połączyć folderu mod"</string>
+  <string name="text_9eb924ea" formatted="false">"Nieprawidłowe dane instalatora"</string>
+  <string name="text_bb7b574e" formatted="false">"Nieobsługiwany instalator GOG"</string>
+  <string name="text_a7626e40" formatted="false">"Nieprawidłowy rozmiar instalatora"</string>
+  <string name="text_935d7c39" formatted="false">"Nieprawidłowa nazwa pliku instalatora"</string>
+  <string name="text_3a38ea3a" formatted="false">"Nie udało się odczytać instalatora GOG"</string>
+  <string name="text_e9f593c1" formatted="false">"Instalator niedostępny"</string>
+  <string name="text_71aaf593" formatted="false">"Instalator jest uszkodzony lub nie został jeszcze pobrany"</string>
+  <string name="text_fe6aedd5" formatted="false">"Nie udało się odczytać instalatora w ciągu 30 sekund"</string>
+  <string name="text_b941bd0a" formatted="false">"Za dużo danych instalatora"</string>
+  <string name="text_8650ed8e" formatted="false">"Nie udało się odczytać GOG EXE. Sprawdź ładowanie EXE i sąsiednich BINów.\n"</string>
+  <string name="text_a028f060" formatted="false">"Za mało miejsca na instalację"</string>
+  <string name="text_8daf5f21" formatted="false">"Ciąg instalatora jest za długi"</string>
+  <string name="text_cb58dac1" formatted="false">"Katalog UCP jest za duży"</string>
+  <string name="text_baeab032" formatted="false">"Opis i ograniczenia"</string>
+  <string name="text_d4663468" formatted="false">"Naciśnij i przytrzymaj linię, aby przeczytać opis funkcji.\n\nParametry wykorzystują przygotowane wartości profilu Androida. Wszystkie funkcje są początkowo wyłączone.\n\nJeszcze niedostępne:\n"</string>
+  <string name="text_c4ca9a3e" formatted="false">"Zmiany zostaną zastosowane po ponownym uruchomieniu gry."</string>
+  <string name="text_761ec6a6" formatted="false">"Ta funkcja powoduje konflikt z już włączoną. Wybierz jeden z nich."</string>
+  <string name="text_894c55a6" formatted="false">"Zastosuj i uruchom ponownie"</string>
+  <string name="text_c1d8dcca" formatted="false">"Wyłącz wszystko"</string>
+  <string name="text_5eac72ff" formatted="false">"Język urządzenia"</string>
+  <string name="text_4c8d6e38" formatted="false">"Język interfejsu"</string>
+  <string name="text_1ee890a" formatted="false">"Menu"</string>
+  <string name="text_3c0ab0cb" formatted="false">"Pauza"</string>
+  <string name="text_1e9f216" formatted="false">"Wprowadzanie tekstu"</string>
+  <string name="text_e72d2f88" formatted="false">"Układ"</string>
+  <string name="text_2f4b6762" formatted="false">"Inna gra/program uruchamiający"</string>
+  <string name="text_6de00461" formatted="false">"F1 · zamek"</string>
+  <string name="text_47436775" formatted="false">"Teren"</string>
+  <string name="text_c55b4d28" formatted="false">"Przybliżenie"</string>
+  <string name="text_789ab605" formatted="false">"Działania redaktora"</string>
+  <string name="text_fec9d" formatted="false">"LPM"</string>
+  <string name="text_ffba1" formatted="false">"PPM"</string>
+  <string name="text_b2b43e17" formatted="false">"Przybliżenie mapy"</string>
+  <string name="text_1feddd8" formatted="false">"Brak niszczenia niedostępnych budynków"</string>
+  <string name="text_452ad1bd" formatted="false">"Ta opcja zapobiega niszczeniu budynków, do których nie ma dojścia. Dzięki temu\nSztuczna Inteligencja przestanie ciągle niszczyć i odbudowywać budynki, do których\nnie da się dojść."</string>
+  <string name="text_ac28330" formatted="false">"Zwiększenie liczby dodatkowych jednostek w kolejnych atakach SI"</string>
+  <string name="text_defb6765" formatted="false">"W oryginalnej grze liczba żołnierzy wzrasta po każdym ataku średnio o 5\njednostek. Ta wartość jest taka sama dla wszystkich przeciwników komputerowych i można ją zmienić\ntutaj."</string>
+  <string name="text_c8794600" formatted="false">"Brak zmiany celu podczas oblężenia"</string>
+  <string name="text_ea7d305f" formatted="false">"Przeciwnicy komputerowi, którzy atakują najlepszego albo najsłabszego wroga,\nczasami wysyłają swoich żołnierzy w trakcie oblężenia do innego\nzamku. Ta opcja to uniemożliwia,\ngdy atak już się rozpocznie. Jeżeli atak jeszcze się nie rozpoczął, np. w momencie\nzbierania armii przed zamkiem, zmiana może nastąpić."</string>
+  <string name="text_3a58fc20" formatted="false">"Zwiększenie limitu ataku przeciwników komputerowych"</string>
+  <string name="text_9f0fa654" formatted="false">"Liczba dodatkowych jednostek dodawanych po pierwszym ataku jest\nograniczona do 200 w oryginalnej grze. Tutaj możesz zmienić ten limit."</string>
+  <string name="text_e53043e9" formatted="false">"Ustaw cel ataku graczy komputerowych"</string>
+  <string name="text_c1544a8a" formatted="false">"Popraw fale ataków"</string>
+  <string name="text_56bf559c" formatted="false">"W oryginalnej grze sztuczna inteligencja wysyła tylko tyle żołnierzy za jednym razem, ile jest wolnych\nkawałków murów. Powoduje to, że jednostki poruszają się w małych grupach,\ngdy atakowany zamek ma wiele budynków bezpośrednio przy murach.\nTa opcja sprawia, że żołnierze atakują również budynki cywilne i fortyfikacyjne, a także\nte części murów, które są już atakowane przez inną jednostkę. Dodatkowo\nSI wysyła więcej jednostek do wrogiego lorda, gdy przełamie mury."</string>
+  <string name="text_87f0374c" formatted="false">"Kupuj wystarczającą ilość drewna"</string>
+  <string name="text_1a97404f" formatted="false">"Aby uniemożliwić złodziejskim rzemieślnikom kradzież drewna, które gracz komputerowy właśnie kupił, aby postawić\nbudynki, boty będą kupować o 2 deski więcej za każdym razem."</string>
+  <string name="text_9d075c1d" formatted="false">"Usprawnione wysyłanie posiłków do obrony"</string>
+  <string name="text_8ff5c08c" formatted="false">"Naprawniono błąd, który uniemożliwiał SI dosyłanie brakujących jednostek\nna mury i wieże w momencie, gdy patrole defensywne były ciągle obecne."</string>
+  <string name="text_285bc551" formatted="false">"Dezaktywuj burzenie budynków dla pieniędzy przez przeciwników komputerowych"</string>
+  <string name="text_dd03c78" formatted="false">"Napraw błąd z brakiem podpalania smoły przez łuczników europejskich"</string>
+  <string name="text_dc18c73c" formatted="false">"Łucznicy europejscy zarządzani przez SI nie podpalali smoły. Ta opcja naprawia ten błąd."</string>
+  <string name="text_3b8c03e6" formatted="false">"Napraw błąd, który powoduje, że komputer nie korzysta z drabiniarzy, gdy ma otoczoną siedzibę"</string>
+  <string name="text_48597cd" formatted="false">"Komputer (głównie Wąż) będzie od teraz korzystał z drabiniarzy, gdy jego siedziba zostanie otoczona."</string>
+  <string name="text_65f9d31a" formatted="false">"Mądrzejsze budowanie domów przez boty"</string>
+  <string name="text_bce08238" formatted="false">"Wyłącz usypianie budynków z powodu braku zasobów"</string>
+  <string name="text_5436458" formatted="false">"Sztuczna inteligencja zwykle usypia budynki produkcyjne, gdy tylko\nbrakuje wymaganego zasobu. Odbywa się to bez względu na to,\nczy straci produkty, które są już w drodze, np. do zbrojowni.\nTę funkcję można tutaj całkowicie wyłączyć."</string>
+  <string name="text_dae17703" formatted="false">"Ulepszona naprawa budynków przez graczy komputerowych"</string>
+  <string name="text_b470fb65" formatted="false">"Gracze komputerowi będą naprawiać ruiny wież, trochę zniszczone mury oraz\nzniszczone cechy inżynierów i kopaczy, a także kotły z olejem, których punkt zbiórki\ndalej istnieje. Dodatkowo gracze komputerowi mogą teraz budować na składach kamienia\nz kamieniołomów."</string>
+  <string name="text_c6d39296" formatted="false">"Zwiększona prędkość rekrutacji"</string>
+  <string name="text_81a08df1" formatted="false">"Ustawia odstęp między rekrutacją jednostek przez wszystkich przeciwników komputerowych na najniższą wartość\n(poziom Szczura/Ryszarda)"</string>
+  <string name="text_5852fbee" formatted="false">"Ustaw botom czas do rekrutacji jednostek zgodnie z parametrami AIC"</string>
+  <string name="text_98504523" formatted="false">"Improve AI restocking of needed goods"</string>
+  <string name="text_e5362373" formatted="false">"The AI often doesn\'t restock goods even if it has the gold for it, leaving its production chains running dry. This option reduces the amount of time the AI waits for its stocks to be empty before restocking the necessary goods."</string>
+  <string name="text_411fb045" formatted="false">"Wyłącz niepotrzebne stawianie wołów pociągowych przez przeciwników komputerowych"</string>
+  <string name="text_b0668156" formatted="false">"Zazwyczaj sztuczna inteligencja buduje dla każdego nowego kamieniołomu kolejne\nwoły, niezależnie od tego, ile już postawiła wcześniej. Można to wyłączyć tutaj, ponieważ\nprowadzi to do spamu wołami pociągowymi, gdy kamieniołomy sztucznej inteligencji są wielokrotnie niszczone."</string>
+  <string name="text_58c13e33" formatted="false">"Brak ograniczeń dla machin oblężniczych na wieżach"</string>
+  <string name="text_fd22b83d" formatted="false">"Zazwyczaj sztuczna inteligencja buduje maksymalnie trzy mangonele i balisty na swoich wieżach.\nTen limit można tutaj znieść."</string>
+  <string name="text_75701bbb" formatted="false">"Zmniejsz rozmiar budowy sadów jabłoni"</string>
+  <string name="text_1155fd0d" formatted="false">"Opcja zmniejsza rozmiar budowy sadów jabłoni, aby był taki sam, jak rzeczywisty rozmiar całego budynku. Zaoszczędzi to miejsce na trawie i pomoże botom na lepszy rozwój."</string>
+  <string name="text_399176b3" formatted="false">"Ustaw broń na targowisku i w zbrojowni w tej samej kolejności"</string>
+  <string name="text_729e4f00" formatted="false">"Ustawia broń na targowisku i w zbrojowni w tej samej kolejności. Zbroja skórzana na targowisku zostaje przesunięta między wekiery i kusze, natomiast zbroja metalowa między piki i miecze."</string>
+  <string name="text_b7349c41" formatted="false">"Wyśrodkuj pozycję pojawiania się machin oblężniczych"</string>
+  <string name="text_1c8fc28d" formatted="false">"Machiny oblężnicze będą pojawiać się na środku miejsca, w którym stał namiot oblężniczy."</string>
+  <string name="text_9644382a" formatted="false">"Ustaw domyślną prędkość gry multiplayer."</string>
+  <string name="text_589c7e28" formatted="false">"Brak anulowania wybranego namiotu oblężniczego"</string>
+  <string name="text_18b28856" formatted="false">"Przy tym ustawieniu gra nie odznacza wybranej machiny oblężniczej\npo umieszczeniu już jednego namiotu. W ten sposób możesz stworzyć kilka namiotów\nbez konieczności ponownego wybierania tego samego sprzętu oblężniczego za każdym razem."</string>
+  <string name="text_4feb7c60" formatted="false">"Fast placing"</string>
+  <string name="text_1ef65230" formatted="false">"Wydłuż czas, po którym budynek może ponownie się zapalić"</string>
+  <string name="text_cc03f437" formatted="false">"Można tutaj wydłużyć czas, po którym budynek może ponownie się zapalić po ugaszeniu."</string>
+  <string name="text_6e6b12a1" formatted="false">"Napraw błąd ze znikającym piekarzem"</string>
+  <string name="text_fccb5bb" formatted="false">"Piekarze nie będą znikać, gdy dojdą do składu zapasów, w którym nie ma już mąki."</string>
+  <string name="text_cf14e917" formatted="false">"Napraw błąd łuczarza"</string>
+  <string name="text_8361dffd" formatted="false">"Naprawia błąd, który powoduje, że łuczarz idzie do swojego budynku po odniesieniu broni do zbrojowni. Zamiast tego będzie teraz szedł od razu do składu zapasów po deski."</string>
+  <string name="text_ca54190c" formatted="false">"Napraw błąd związany z wchodzeniem po drabinie"</string>
+  <string name="text_eb50f98e" formatted="false">"Jednostki nie będą już gubić się po wejściu na mury po drabinie i nie będą schodzić od razu na dół."</string>
+  <string name="text_61a70c46" formatted="false">"Enable map sending in multiplayer"</string>
+  <string name="text_9e950ce" formatted="false">"Reduces the length of the sent map name, to make map sending possible again!"</string>
+  <string name="text_159da4d9" formatted="false">"Napraw błąd ze znikającymi jednostkami kopiącymi fosę"</string>
+  <string name="text_c2d9827d" formatted="false">"Naprawia błąd, który powodował losowe znikanie jednostek kopiących fosę. Uwaga: jednostki mogą dalej znikać, jeśli każesz im przemieścić się w momencie, gdy stoją w miejscu, z którego nie da się normalnie ruszyć!"</string>
+  <string name="text_863b3398" formatted="false">"Fix resources rapid deletion"</string>
+  <string name="text_f103a852" formatted="false">"Deleting buildings with a fast auto clicker no longer gives resources for more than one deletion."</string>
+  <string name="text_325c982e" formatted="false">"Darmowe targowisko"</string>
+  <string name="text_8f03ccd2" formatted="false">"Czasami sztuczna inteligencja może nic nie robić, gdy nie ma drewna, a targowisko\nzostało zniszczone. Aby temu zapobiec, można włączyć tę opcję, dzięki czemu targowisko będzie darmowe."</string>
+  <string name="text_f069c318" formatted="false">"Jeszcze większa prędkość gry"</string>
+  <string name="text_fc01c356" formatted="false">"Szybkość gry można teraz zmienić w następujący sposób:\n - Od 10 do 90 w odstępach 5\n - Od 90 do 200 w odstępach 10\n - Od 200 do 1000 w odstępach 100\nNowe wartości są dostępne w grze wyłącznie za pomocą klawiszy + i -, suwak w menu\ngry pozostaje niezmieniony."</string>
+  <string name="text_678f0452" formatted="false">"Zielarz leczy rannych"</string>
+  <string name="text_d80b35ab" formatted="false">"Zielarz będzie teraz szukał rannych żołnierzy,\nzwierzęta i mieszkańców, aby ich uleczyć. Zielarz zaczyna leczyć od najbliższego celu. Każda\nanimacja leczenia leczy 1/3 życia włócznika. Chodzenie po ogrodach\ni pozbywanie się zarazy nie zostało zastąpione! Zielarz pomija jedynie chodzenie\npo zamku, dopóki nie wyleczy wszystkich rannych."</string>
+  <string name="text_5537ff62" formatted="false">"Zwiększ częstotliwość odświeżania możliwych ścieżek"</string>
+  <string name="text_c2320354" formatted="false">"W oryginale jednostki potrzebowały dużo czasu, zanim mogły zrozumieć, że można wejść do zamku po zniszczeniu bramy lub wieży..\n\nTa opcja zwiększa czterokrotnie częstotliwość odświeżania możliwych ścieżek wykrywanych przez jednostki, dzięki czemu szybciej zrozumieją, że można już wejść do zamku."</string>
+  <string name="text_7b910129" formatted="false">"Klawisze WASD i szybki zapis"</string>
+  <string name="text_da9cb22e" formatted="false">"Klawisze WASD mogą być używane do poruszania kamerą. Dodatkowo\nkombinacja klawiszy CTRL-S i CTRL-L służy do szybkiego zapisania i wczytania gry."</string>
+  <string name="text_663f3a2c" formatted="false">"Zawsze pokazuj zaplanowaną fosę"</string>
+  <string name="text_c57cf934" formatted="false">"Zaplanowana, ale jeszcze nie wykopana fosa będzie zawsze pokazywana z tym\nustawieniem, nawet jeśli odznaczysz opcję rozmieszczania fosy."</string>
+  <string name="text_c3793199" formatted="false">"Aktywuj tryb Obserwatora [możliwy błąd]"</string>
+  <string name="text_980be06e" formatted="false">"Usuwa głównego gracza, dzięki czemu możesz tylko obserwować i tworzyć\npojedynki między ośmioma botami. Zapisy gry ładują się teraz poprawnie w tym\ntrybie. Czasami pojawia się błąd, w którym losowe obiekty pojawiają się na całej mapie.\nJest to tylko wizualny błąd i można go usunąć zapisując grę, kończąc misję i\nponownie wczytując zapis."</string>
+  <string name="text_b5130776" formatted="false">"Dodaje nowe funkcje do opcji ustawień tożsamości"</string>
+  <string name="text_346aae56" formatted="false">"Dodaje jednostki do własnego ustawienia w opcji dostosowania tożsamości. TYLKO W NORMALNYM TRYBIE GRY!"</string>
+  <string name="text_8951aea4" formatted="false">"Zmiana koloru pierwszego gracza"</string>
+  <string name="text_e5c92bd" formatted="false">"Szybsza reakcja bram"</string>
+  <string name="text_796f1f14" formatted="false">"Bramy zamykają się później, gdy wrogowie znajdą się w zasięgu i otworzą się szybciej,\nkiedy niebezpieczeństwo zniknie. Odległość wroga od bramy, która wpływa na jej automatyczne zamykanie się\nzostanie zmniejszona z 200 do 140. Czas, po którym otwierają się bramy, gdy\nwszyscy wrogowie znikną, zostaje zmniejszony z 1200 do 100."</string>
+  <string name="text_e11c16a2" formatted="false">"Przywróć arabskie teksty inżynierów"</string>
+  <string name="text_47bf4b5e" formatted="false">"Ta opcja pozwala inżynierom na korzystanie z nagranych arabskich tekstów, gdy gracz gra jako arabski lord.\n\nTekstów nie ma zbyt wielu, więc mogą być irytujące po dłuższej chwili."</string>
+  <string name="text_ccbd6746" formatted="false">"Strongholdify"</string>
+  <string name="text_b9c448ff" formatted="false">"Odwróć siedziby graczy"</string>
+  <string name="text_c6a03e85" formatted="false">"Siedziby graczy będą odwracać się ogniskiem (wejściem) w stronę krańca mapy."</string>
+  <string name="text_7431cbf3" formatted="false">"Usuń pasek mocy w wersji Extreme"</string>
+  <string name="text_732ad036" formatted="false">"Usuwa pasek umiejętności w Twierdzy Krzyżowiec Extreme."</string>
+  <string name="text_40f0ed66" formatted="false">"u_arabwall"</string>
+  <string name="text_40f165ee" formatted="false">"u_arabxbow"</string>
+  <string name="text_fc37c472" formatted="false">"- Arabscy zbrojni umierają po 6 strzałach z kuszy zamiast 3"</string>
+  <string name="text_ea90a6d6" formatted="false">"Balista ogniowa strzela do mnichów i kopaczy"</string>
+  <string name="text_c2f7c701" formatted="false">"Balista ogniowa automatycznie strzela w mnichów i kopaczy."</string>
+  <string name="text_6b6a494d" formatted="false">"Napraw blokowanie sadów jabłoni"</string>
+  <string name="text_395fdc85" formatted="false">"Farmerzy nie będą już blokowani, gdy postawi się budynek w lewej, górnej stronie farmy."</string>
+  <string name="text_51c1fc58" formatted="false">"Zresetuj animację lorda po zniszczeniu budynku"</string>
+  <string name="text_6a6653f" formatted="false">"Opcja pozwala zresetować animację lorda, gdy każemu mu zniszczyć budynek. Zazwyczaj po wykonaniu zadania stał w dziwnej pozie."</string>
+  <string name="text_e40f72c0" formatted="false">"Zwiększona obrona drabiniarzy przeciwko jednostkom strzelającym"</string>
+  <string name="text_fcd33444" formatted="false">"- Drabiniarz ginie po 12 strzałach z łuku zamiast po 5\n - Drabiniarz ginie po 5 trafieniach z kuszy lub procy zamiast 2\n - Drabiniarz kosztuje 20 złota zamiast 4"</string>
+  <string name="text_8e5eeb6c" formatted="false">"Zwiększona obrona włóczników przeciwko jednostkom strzelającym"</string>
+  <string name="text_c3e8d497" formatted="false">"- Włócznicy giną po 5 strzałach z łuku zamiast 3\n - Włócznicy ledwie przeżywają jeden strzał z kuszy, zamiast od razu ginąć"</string>
+  <string name="text_73d4b3b4" formatted="false">"Biegający włócznicy"</string>
+  <string name="text_ee55b088" formatted="false">"Włócznicy będą cały czas biegać."</string>
+  <string name="text_528a62c4" formatted="false">"Zwiększ wydajność garbarzy"</string>
+  <string name="text_997e4ebf" formatted="false">"Garbarze nie będą już wracać do budynku, gdy ktoś inny zabrał krowę, po którą szli. Zamiast tego postoją chwilę w miejscu i wyruszą po kolejną krowę."</string>
+  <string name="text_b06cab43" formatted="false">"Nie udało się przygotować pliku EXE"</string>
+  <string name="text_d9afbeb9" formatted="false">"Nieprawidłowy format adaptacji EXE"</string>
+  <string name="text_b1da8da8" formatted="false">"EXE nie pasuje do adaptacji"</string>
+  <string name="text_db07b86e" formatted="false">"EXE jest obcięty"</string>
+  <string name="text_b570e58e" formatted="false">"Dodatkowe dane adaptacyjne EXE"</string>
+  <string name="text_709de14b" formatted="false">"Suma kontrolna dostosowanego pliku EXE nie jest zgodna"</string>
+  <string name="text_fab87405" formatted="false">"Idź · "</string>
+  <string name="text_87fac83a" formatted="false">" zamknie się"</string>
+  <string name="text_402982c5" formatted="false">"SI · poprawki"</string>
+  <string name="text_4c783982" formatted="false">"SI · ulepszenia"</string>
+  <string name="text_73372df1" formatted="false">"Poprawki błędów"</string>
+  <string name="text_2d63d878" formatted="false">"Balans"</string>
+  <string name="text_8a6cac11" formatted="false">"Wygoda gry"</string>
+  <string name="text_462adbaa" formatted="false">"Pozostałe"</string>
+  <string name="text_ec7e9b17" formatted="false">"Kategoria poprawek"</string>
+  <string name="text_a418107d" formatted="false">"Autorzy: %s"</string>
+</resources>

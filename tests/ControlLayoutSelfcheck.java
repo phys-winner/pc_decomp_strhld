@@ -11,6 +11,17 @@ public final class ControlLayoutSelfcheck {
         check(ControlLayout.SCREEN == 0 && ControlLayout.HIDDEN == 2 && ControlLayout.LEFT_ZONE == 3 && ControlLayout.RIGHT_ZONE == 4 && ControlLayout.BOOK_ZONE == 5,
                 "Saved placement numbers keep their gap at the removed menu");
         check(!ControlLayout.known("more"), "Removed command menu is absent from the catalog");
+        check(ControlLayout.defaultPlacement("editor", false, false, false, false) == ControlLayout.SCREEN,
+                "One editor actions button is visible by default in the map editor");
+        Map<String, Object> oldEditor = new HashMap<>();
+        for (String id : new String[]{"editor_pause", "editor_resources", "editor_lord", "editor_type", "editor_animals", "editor_seams"}) {
+            check(!ControlLayout.known(id) && !ControlLayout.inZone(id), "Editor actions stay inside their menu: " + id);
+            oldEditor.put("control-" + id, ControlLayout.SCREEN); oldEditor.put("pos-" + id + "-x", .3f);
+        }
+        oldEditor.put("zone-left-tap", "editor_pause"); oldEditor.put("zone-right-hold", "editor_resources");
+        oldEditor.put("control-editor", ControlLayout.LEFT_ZONE);
+        check(ControlLayout.cleanRemovedMenu(oldEditor) && oldEditor.size() == 1 &&
+                oldEditor.get("control-editor").equals(ControlLayout.LEFT_ZONE), "Migrate old editor buttons and bindings, keep the menu placement");
         HashSet<String> unique = new HashSet<>();
         for (String id : ControlLayout.IDS) {
             check(unique.add(id), "Unique saved key: " + id);
@@ -34,7 +45,7 @@ public final class ControlLayoutSelfcheck {
         check(ControlLayout.placement("lmb", ControlLayout.SCREEN, ControlLayout.HIDDEN) == ControlLayout.SCREEN, "Manual LMB override");
         for (String id : ControlLayout.IDS) for (boolean cursor : new boolean[]{false, true})
             check(ControlLayout.defaultPlacement(id, false, cursor, false, false) ==
-                    ("zoom_value".equals(id) || "gamepad_help".equals(id) || ("rmb".equals(id) && cursor) ? ControlLayout.SCREEN :
+                    ("zoom_value".equals(id) || "gamepad_help".equals(id) || "editor".equals(id) || ("rmb".equals(id) && cursor) ? ControlLayout.SCREEN :
                             "menu".equals(id) || "layout".equals(id) ? ControlLayout.BOOK_ZONE : ControlLayout.HIDDEN),
                     "Default controls retain readout, context-sensitive gamepad help and cursor-mode RMB: " + id);
         check(ControlLayout.defaultPlacement("pause", true, false, false, false) == ControlLayout.SCREEN, "Old optional panel remains available");

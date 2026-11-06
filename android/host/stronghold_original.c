@@ -221,8 +221,7 @@ int stronghold_original_edge(uint32_t stack)
  * panel overhang draw into raster-shaped layer buffers pre-filled with the
  * transparent colour; their opaque raster stores, GDI text and DirectDraw
  * blits report coverage (stronghold_display_written / _blended). Dialogs are
- * drawn into the world raster as usual, so their translucent backgrounds keep
- * the real map, and lifted out afterwards. */
+ * composited by the engine and lifted from the world raster afterwards. */
 typedef struct {
     uint32_t guest;                 /* raster-shaped redirect target, allocated on first use */
     uint16_t *pixels;               /* published, width x height */
@@ -431,6 +430,32 @@ void stronghold_original_item(uint32_t item, int before)
 /* 532F60, after 490160: the drag box and markers that follow draw into the world. */
 void stronghold_original_items_end(void) { close_layer(); }
 
+/* Smooth zoom renders only a source-sized corner of the world raster. The
+ * original dialog shader still reads full-frame coordinates; prepare that
+ * background before either dialog, retaining the raw world for the GPU. */
+static void dialog_background(void)
+{
+    float scale = render_world_zoom * (MEM32(CAMERA + 0x8C) ? 2.f : 1.f);
+    if (scale <= 1.001f || !isfinite(scale)) return;
+    const uint32_t dialogs[] = {0x1503CB8u, 0x18ECCE8u};
+    float inverse = 1.f / scale;
+    for (size_t n=0; n<sizeof dialogs/sizeof *dialogs; n++) {
+        uint32_t object = dialogs[n];
+        if (MEM32(object + 0x2C) == UINT32_MAX) continue;
+        int x = (int32_t)MEM32(object + 8), y = (int32_t)MEM32(object + 12);
+        int64_t right = (int64_t)x + (int32_t)MEM32(object + 16) + 1;
+        int64_t bottom = (int64_t)y + (int32_t)MEM32(object + 20) + 1;
+        if (x < 0) x = 0; if (y < 0) y = 0;
+        if (right > frame_width) right = frame_width;
+        if (bottom > frame_height) bottom = frame_height;
+        for (int row=y; row<bottom; row++) {
+            uint16_t *target = raster_row(MEM32(WORLD_PIXELS), row);
+            const uint16_t *source = world_copy + (size_t)(int)(row * inverse) * frame_width;
+            for (int column=x; column<right; column++) target[column] = source[(int)(column * inverse)];
+        }
+    }
+}
+
 /* Before the dialogs (533122): the world raster now holds the finished world. */
 void stronghold_original_freeze(void)
 {
@@ -440,6 +465,7 @@ void stronghold_original_freeze(void)
     for (int y = 0; y < frame_height; ++y)
         memcpy(world_copy + (size_t)y * frame_width, raster_row(MEM32(WORLD_PIXELS), y), (size_t)frame_width * 2);
     world_frozen = 1;
+    dialog_background();
 }
 
 /* After 4912F0 drew its box (+2C id, -1 closed; +8/+C/+10/+14 frame rectangle). */
@@ -1082,6 +1108,7 @@ void stronghold_game_control_state(int *values)
     memset(values, 0, SH_CONTROL_STATE * sizeof *values);
     if (!void_vm_readable(STATE, 4) || !void_vm_readable(DIALOG, 4)) return;
     values[0] = in_game() ? 1 : MEM32(STATE) == 41 && MEM32(DIALOG) == UINT32_MAX ? 8 : 0;
+    if (MEM32(STATE) == 16) values[0] |= 2;
     if (values[0] & 1) {
         if (MEM32(0x1503D84u) == 1) values[0] |= 2;
         uint32_t units = 0xD47148u, count = MEM32(units), player = MEM32(0x1008144u);
@@ -1143,9 +1170,29 @@ static void original_commands(void)
     count = command_count; command_count = 0;
     memcpy(keys, command_keys, sizeof keys); memcpy(modifiers, command_modifiers, sizeof modifiers);
     pthread_mutex_unlock(&lock);
-    if (!in_game() || MEM32(DIALOG) != UINT32_MAX) return;
+    uint32_t state = MEM32(STATE);
+    int editor = MEM32(0x1503D84u) == 1;
+    if ((!in_game() && !(editor && (state == 17 || state == 1002))) || MEM32(DIALOG) != UINT32_MAX) return;
     for (int i = 0; i < count; ++i) {
         if(keys[i]=='R'&&modifiers[i]==2){stronghold_original_radar_toggle();continue;}
+        if (editor && modifiers[i] == 2 && ((keys[i] == 0xDE && state != 1002) ||
+                ((keys[i] == 0xBC || keys[i] == 'E') && state != 17))) {
+            void_regs saved; void_regs_save(&saved);
+            uint32_t target;
+            if (keys[i] == 0xDE) {
+                target = 1002;
+                const uint32_t section = 25;
+                void_call_guest(0x4394E0u, 1, &section, 0);
+            } else {
+                target = 17;
+                const uint32_t args[] = {17, 0};
+                void_call_guest_this(0x45BEB0u, 0x1503D30u, 2, args);
+            }
+            void_regs_load(&saved);
+            /* The original transition commits on the next frame. */
+            if (MEM32(STATE + 12) == target) stronghold_game_command(keys[i], modifiers[i]);
+            continue;
+        }
         const uint32_t ctrl = 0xAB49BCu, shift = ctrl + 4, alt = ctrl + 8;
         uint32_t saved[] = {MEM32(ctrl), MEM32(shift), MEM32(alt)};
         MEM32(ctrl) = !!(modifiers[i] & 1); MEM32(shift) = 0; MEM32(alt) = !!(modifiers[i] & 2);

@@ -14,7 +14,7 @@ respective owners.
 
 ## Status and features
 
-Current application version: **0.3-dev**. All three editions are packaged into
+Current application version: **1.0-release**. All three editions are packaged into
 one APK, with separate Android processes, settings and save directories.
 
 - The original game logic is translated ahead of time with
@@ -41,6 +41,20 @@ one APK, with separate Android processes, settings and save directories.
   four times faster than in 0.22.
 - The launcher supports selecting a game folder or importing a ZIP, choosing an
   edition, graphics and audio settings, and returning to the last played game.
+- Original GOG offline installers can be unpacked directly on Android. Select
+  the folder containing `setup_*.exe` and all adjacent BIN parts, choose the
+  language, then confirm the size and destination. Progress and cancellation
+  are supported; extraction uses a fresh directory and preserves the installer.
+- Language detection uses SHA-256 of `cr.tex` (Crusader/Extreme) or `sh.tex`
+  (Stronghold HD), with ten known localizations of each game. Known localized
+  EXEs use checked normalization into a private cache, sharing one compiled
+  engine per edition while preserving localized assets and original files.
+- Matching on-screen controls use sprites from the original game's GM1 assets,
+  retaining accessible descriptions. The map editor has one actions button;
+  its six individual commands remain inside that menu.
+- Per-edition mod management offers pinned Unofficial Crusader Patch functions
+  and reversible ZIP asset packs, including localization packs. See below for
+  the supported UCP scope and pack format.
 - The host supports Android systems with 4 KB or 16 KB memory pages.
 - LAN support targets compatible Android builds; compatibility with the original
   Windows networking stack is not established.
@@ -64,16 +78,17 @@ not required if the command-line toolchains are already installed.
 | Android SDK Platform | `platforms;android-36` |
 | Android SDK Build Tools | `build-tools;36.1.0` |
 | Android NDK | `27.2.12479018` (r27c) |
+| Android CMake | `cmake;3.22.1` |
 | Android Platform Tools | Needed for optional ADB deployment |
 | Target device | Android 9 / API 28 or later, `arm64-v8a`, OpenGL ES 3.0 |
 
 Install the Android components with the SDK Manager or `sdkmanager.bat`:
 
 ```powershell
-sdkmanager.bat "platforms;android-36" "build-tools;36.1.0" "ndk;27.2.12479018" "platform-tools"
+sdkmanager.bat "platforms;android-36" "build-tools;36.1.0" "ndk;27.2.12479018" "cmake;3.22.1" "platform-tools"
 ```
 
-The APK currently targets API 28 and is a development build for sideloading.
+The APK targets API 28 and is distributed for sideloading.
 
 ## Original game inputs
 
@@ -83,11 +98,14 @@ Supported game distributions are available on GOG:
 - [Stronghold HD](https://www.gog.com/en/game/stronghold)
 - [Stronghold Crusader HD / Extreme HD](https://www.gog.com/en/game/stronghold_crusader)
 
-Use your own legally obtained installations. The current address hooks and
-function seeds are built for the exact Russian-version inputs listed below.
-The launcher warns about a different EXE and offers **Launch anyway**; patches,
-other localizations and modified executables may still fail in the native engine.
-Missing files and incompatible Miles or Bink DLLs still block launch.
+Use your own legally obtained installations. The address hooks and function
+seeds are built for the exact Russian-version engines listed below. The known
+GOG HD 1.41 localizations listed in [config/compatibility.json](config/compatibility.json)
+are also accepted. Their EXEs are normalized in a private cache using bounded
+gzip/XOR deltas, verifying both source and result SHA-256; the installation and
+its language assets are preserved. Unknown or modified EXEs still produce a
+warning and may fail if launched anyway. Missing files and incompatible Miles
+or Bink DLLs still block launch.
 
 | File | SHA-256 |
 | --- | --- |
@@ -145,6 +163,9 @@ Run the following commands from the root of a clone named `pc_decomp_strhld`.
 
    ```powershell
    python tools/lift.py bink mss game classic stronghold
+   python tools/ucp.py --fetch
+   python tools/build_innoextract.py --fetch
+   python tools/prepare_compat.py --inputs build/gog-locales
    python tools/build_apk.py
    ```
 
@@ -154,6 +175,32 @@ Run the following commands from the root of a clone named `pc_decomp_strhld`.
    table per edition. The APK builder compiles the three libraries and Java
    launcher, packages them, aligns and signs the APK. Native object reuse is
    checked against source, header, compiler and option fingerprints.
+
+   Packaging strips separate copies of all native libraries and compresses the
+   three game engines as ARM64-filtered XZ streams in 16 MiB chunks. XZ Utils
+   5.4 or newer is required (`xz` on PATH, the `XZ` environment variable, or the
+   copy bundled with Git for Windows). The existing pinned liblzma builds the
+   small decoder; no extra upstream dependency is needed. The launcher prepares
+   only the selected edition on its background worker, checks SHA-256, and
+   atomically installs a read-only private copy. Allow about 65 MB of free
+   internal storage per edition; the first launch takes longer to unpack.
+   Later launches verify and reuse the copy. Packaging checks unchanged dynamic
+   exports and loaded ELF bytes, 16 KiB segment alignment, and full XZ round trips
+   from the signed APK. Unstripped libraries remain in `build/arm64` for debugging.
+
+   Before preparing compatibility deltas, put the original localized game EXEs
+   from your own GOG installers anywhere under `build/gog-locales` (subdirectories
+   are searched). The catalog contains four unique EXE hashes per edition: the
+   canonical one and three normalization inputs. Generated deltas are private
+   build outputs under `generated/compatibility` and are excluded from Git.
+   Existing deltas can be reused; all nine noncanonical inputs are needed for a
+   clean build with the complete compatibility catalog.
+
+   UCP, innoextract, XZ, bzip2 and Boost are pinned by revision or archive SHA-256
+   in [dependencies.json](dependencies.json). Fetch scripts verify the pins;
+   Android adaptations are kept outside the unmodified upstream checkouts.
+   Rerun `tools/ucp.py` after changing its Android profile, then rebuild native
+   libraries. `--skip-native` only packages the libraries already built.
 
 Output: **`build/android-game/stronghold-crusader.apk`**.
 
@@ -170,8 +217,12 @@ python tools/build_apk.py --skip-native
 ## Install and supply game data
 
 Install your built APK on an ARM64 device, open Stronghold Launcher and grant the
-requested file access. Select a complete original game folder or import a ZIP
-of your own installation. Keep Crusader/Extreme and Stronghold HD in separate
+requested file access. Select a complete original game folder, import a ZIP
+of your own installation, or choose **Install from GOG** and the folder with
+the offline installer and every BIN part. The launcher displays compressed
+block counts and installed size before extracting; most files in these GOG
+builds are compressed, but both complete installations took about 30 seconds
+on the test phone. Keep Crusader/Extreme and Stronghold HD in separate
 folders; the launcher discovers editions from their executables.
 
 An optional ADB workflow copies the allowlisted game files and verified PE
@@ -191,6 +242,73 @@ With multiple connected devices, set `ANDROID_SERIAL` locally or pass
 `--serial SERIAL` to each deployment command. No device identifier is required
 in tracked configuration. Deployment is optional; building the APK does not
 contact a phone.
+
+## Mods and localization packs
+
+Open **Mods** on the Crusader or Extreme launcher tile while all games are closed.
+Stronghold HD has no Mods button: UCP only targets Crusader. The launcher links
+to the upstream UCP repository and can disable all UCP functions for both editions
+without disabling localization or other asset packs. The selector also has a
+**Disable all** action for its current edition. Changes apply at the next launch
+and are stored separately for each edition. In the game's main menu, the edition
+switch dialog also opens the same UCP selector; applying it restarts the current
+edition. Newly created player profiles, including Japanese names, are saved when
+the main menu opens, so an Android process restart does not discard the profile.
+UCP functions start disabled. Hold a function to read its description; parameters
+use the prepared Android profile in [config/ucp-android.json](config/ucp-android.json).
+The selector groups patches into AI fixes, AI improvements, bug fixes, balance,
+quality of life and miscellaneous, following the pinned upstream options. Switching
+categories keeps pending selections until Apply or Cancel. Long-press descriptions
+include verified original authors and explicit co-authors where known; attribution
+sources are recorded in [config/ucp-credits.json](config/ucp-credits.json).
+Russian patch titles and existing descriptions have been reviewed against the
+English upstream text and patch code; titles have no trailing sentence punctuation.
+
+This build adapts **52 of the 55 UCP2 Legacy parent features** for Crusader and
+Extreme from the pinned UCP3 distribution. The umbrella revision is
+`db6755fbfa55a4abeb2d1231487d1e9f3e434413`, framework revision
+`fd326a41d8927eaee42dfb542658843138c15867`, and Legacy module revision
+`04e826d00f1a5f8a623e15acffc743f115ee7fb1`. The generated catalog records
+availability and conflicts per edition. `o_fix_map_sending`, `o_playercolor`
+and `o_xtreme` remain unavailable because their original patch signatures do
+not match these exact engines. Existing Stronghold HD localization assets remain
+compatible; its game language can be supplied by its GOG installer or `sh.tex`.
+
+The launcher, port settings and UCP selector support English, Russian, Ukrainian,
+German, French, Spanish, Italian, Polish, Brazilian Portuguese, Japanese and
+Simplified Chinese. **Interface language** in the launcher follows the device by
+default and can select any of these languages independently of the game's TEX.
+Translations are Android string resources; the UCP text reuses upstream English,
+German, Polish and Chinese translations where available.
+The remaining text uses machine translation with a reviewed glossary for controls
+and settings; full proofreading by native speakers is still pending.
+
+The build runs the pinned Lua patch scripts against checked PE data, translates
+supported instructions to guarded ARM64 code and applies verified data writes
+at startup. It does not include a runtime capable of arbitrary UCP3 Lua plugins,
+Windows DLL or ASI mods; those need individual Android adaptations. Original
+upstream sources stay under `reference/ucp`; port code is in `tools/ucp.py` and
+`android/host/mods.c`, with the profile and signature adjustments kept separately.
+
+An asset-pack ZIP has `mod.properties` and a `files/` directory at its root:
+
+```properties
+id=my-localization
+name=My localization
+edition=crusader
+```
+
+`edition` accepts `classic`, `extreme`, `crusader` (both) or `stronghold`. Use
+UTF-8 for the manifest. Put `files/cr.tex` or `files/sh.tex` in a localization
+pack; other supported data includes GM1 graphics, maps, AIV, sound and videos.
+Code files and unsafe paths are rejected. Install a ZIP, check its row and
+apply. Hold a pack to delete it. If packs replace the same asset, the first
+enabled pack in the sorted list wins. Reads use the overlay; saves and other
+writes continue to use the original installation/profile. Disabling a pack
+restores the original assets on the next launch without rewriting them.
+
+The launcher identifies the language of the first enabled TEX overlay. An
+unknown TEX remains usable and is displayed as an unknown localization.
 
 | Content | Default location on the device |
 | --- | --- |

@@ -36,13 +36,19 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /** The launcher never loads JNI; each game process loads exactly one edition. */
 public final class LauncherActivity extends Activity {
-    private static final int PICK_GAME_FOLDER = 11, PICK_ARCHIVE = 13;
+    private static final int PICK_GAME_FOLDER = 11, PICK_ARCHIVE = 13, PICK_MOD = 14;
     /* Tile order: Crusader, Crusader Extreme, the original Stronghold HD. */
     private static final String[] EDITIONS = GameFiles.EDITIONS;
     private static final String EXTERNAL_STORAGE = "com.android.externalstorage.documents";
@@ -50,7 +56,7 @@ public final class LauncherActivity extends Activity {
     private LinearLayout setupActions;
     private Button changeFiles;
     private TextView filesHint;
-    private boolean showingLauncher, selectingFiles;
+    private boolean showingLauncher, selectingFiles, pickingGog;
     private Switch skip;
     private TextView status;
     private final TextView[] gameStatus = new TextView[3];
@@ -59,13 +65,20 @@ public final class LauncherActivity extends Activity {
     private int scanVersion;
     private boolean checking;
     private volatile boolean transferCancelled;
+    private volatile Process gogProcess;
     private String transferNotice;
+    private String modEdition;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        I18n.apply(this);
         Theme.edgeToEdge(this);
         preferences = getSharedPreferences("LauncherActivity", MODE_PRIVATE);
+        if (state != null) modEdition = state.getString("modEdition");
         handleIntent(getIntent());
+    }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state); state.putString("modEdition", modEdition);
     }
     @Override public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
@@ -109,7 +122,7 @@ public final class LauncherActivity extends Activity {
         header.addView(logo, new LinearLayout.LayoutParams(dp(52), dp(52)));
         LinearLayout titles = new LinearLayout(this); titles.setOrientation(LinearLayout.VERTICAL); titles.setPadding(dp(14), 0, 0, 0);
         titles.addView(Theme.text(this, "Stronghold Launcher", 25, Theme.ACCENT, true));
-        titles.addView(Theme.text(this, "Stronghold HD, Crusader и Crusader Extreme · Android ARM64", 13, Theme.MUTED, false));
+        titles.addView(Theme.text(this, I18n.t("Stronghold HD, Crusader и Crusader Extreme · Android ARM64"), 13, Theme.MUTED, false));
         header.addView(titles, new LinearLayout.LayoutParams(0, -2, 1));
         access = Theme.button(this, "", false); access.setOnClickListener(v -> openStorageSettings());
         if (wide) header.addView(access, new LinearLayout.LayoutParams(-2, -2));
@@ -117,20 +130,23 @@ public final class LauncherActivity extends Activity {
         if (!wide) { gap(page, 8); page.addView(access, new LinearLayout.LayoutParams(-1, -2)); }
         gap(page, 14);
 
-        status = Theme.text(this, error == null ? "Выберите игру" : error, 14, error == null ? Theme.MUTED : Theme.BAD, false);
+        status = Theme.text(this, error == null ? I18n.t("Выберите игру") : error, 14, error == null ? Theme.MUTED : Theme.BAD, false);
         status.setPadding(dp(4), 0, dp(4), dp(10)); page.addView(status);
 
         LinearLayout source = Theme.card(this);
-        heading(source, "Файлы игр");
-        filesHint = note(source, "Проверка установленных игр…");
+        heading(source, I18n.t("Файлы игр"));
+        filesHint = note(source, I18n.t("Проверка установленных игр…"));
         setupActions = Theme.row(this);
-        Button choose = Theme.button(this, "Выбрать папку…", false);
+        Button choose = Theme.button(this, I18n.t("Выбрать папку…"), false);
         choose.setOnClickListener(v -> { if (!requestStorage()) pickFolder(); });
-        Button archive = Theme.button(this, "Распаковать ZIP…", false);
+        Button archive = Theme.button(this, I18n.t("Распаковать ZIP…"), false);
         archive.setOnClickListener(v -> { if (!requestStorage()) pickArchive(); });
         setupActions.addView(choose, Theme.weight(this, 1, 0)); setupActions.addView(archive, Theme.weight(this, 1, 8));
         source.addView(setupActions);
-        changeFiles = Theme.button(this, "Изменить файлы игр…", false);
+        Button gog = Theme.button(this, I18n.t("Установить из GOG…"), false);
+        gog.setOnClickListener(v -> { if (!requestStorage()) { pickingGog = true; pickFolder(); } });
+        source.addView(gog, new LinearLayout.LayoutParams(-1, -2));
+        changeFiles = Theme.button(this, I18n.t("Изменить файлы игр…"), false);
         changeFiles.setVisibility(View.GONE); changeFiles.setOnClickListener(v -> fileActions());
         source.addView(changeFiles, new LinearLayout.LayoutParams(-1, -2));
         page.addView(source);
@@ -144,13 +160,38 @@ public final class LauncherActivity extends Activity {
         for (int i = 0; i < EDITIONS.length; i++) games.addView(gameTile(i));
 
         LinearLayout options = Theme.card(this);
-        heading(options, "Запуск");
-        skip = new Switch(this); skip.setText("Пропускать ролики, рекламу и предупреждение об онлайне");
+        heading(options, I18n.t("Запуск"));
+        skip = new Switch(this); skip.setText(I18n.t("Пропускать ролики, рекламу и предупреждение об онлайне"));
         skip.setTextColor(Theme.TEXT); skip.setChecked(preferences.getBoolean("skipMovies", false)); skip.setPadding(0, dp(6), 0, dp(6));
         skip.setOnCheckedChangeListener((button, checked) -> preferences.edit().putBoolean("skipMovies", checked).apply());
         options.addView(skip);
-        note(options, "Параметры запуска применяются при новом запуске процесса игры. Перед перезапуском сохраните матч.");
+        note(options, I18n.t("Параметры запуска применяются при новом запуске процесса игры. Перед перезапуском сохраните матч."));
         files.addView(options);
+        Button language = Theme.button(this, I18n.t("Язык интерфейса…"), false);
+        language.setOnClickListener(v -> I18n.choose(this, () -> showLauncher(null)));
+        options.addView(language);
+
+        LinearLayout ucp = Theme.card(this);
+        heading(ucp, "Unofficial Crusader Patch");
+        Button github = Theme.button(this, I18n.t("UCP на GitHub"), false);
+        github.setOnClickListener(v -> {
+            try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(UcpOptions.WEBSITE))); }
+            catch (ActivityNotFoundException unavailable) { setStatus(UcpOptions.WEBSITE, false); }
+        });
+        ucp.addView(github);
+        Button disable = Theme.button(this, I18n.t("Отключить все функции UCP"), false);
+        disable.setOnClickListener(v -> {
+            for (String game : EDITIONS) if (running(game)) {
+                modProblem(new IOException(I18n.t("Завершите запущенную игру перед изменением модов. Новые настройки применяются при следующем запуске."))); return;
+            }
+            try {
+                String revision = modCatalog().getJSONObject("upstream").getString("framework_revision");
+                for (String game : new String[]{"classic", "extreme"})
+                    GameMods.configureFeatures(UcpOptions.config(this, game), revision, java.util.Collections.emptySet());
+                setStatus(I18n.t("Все функции UCP отключены. Пакеты данных и локализации сохранены."), false);
+            } catch (Exception failure) { modProblem(failure); }
+        });
+        ucp.addView(disable); files.addView(ucp);
 
         frame.setOnApplyWindowInsetsListener((view, insets) -> Theme.padInsets(page, insets, dp(20), dp(14), dp(20), dp(20)));
         setContentView(frame);
@@ -166,23 +207,127 @@ public final class LauncherActivity extends Activity {
         top.addView(icon, new LinearLayout.LayoutParams(dp(56), dp(56)));
         LinearLayout titles = new LinearLayout(this); titles.setOrientation(LinearLayout.VERTICAL); titles.setPadding(dp(12), 0, 0, 0);
         titles.addView(Theme.text(this, index == 0 ? "Stronghold Crusader" : index == 1 ? "Crusader Extreme" : "Stronghold HD", 19, Theme.TEXT, true));
-        gameStatus[index] = Theme.text(this, "Проверка файлов…", 13, Theme.MUTED, false);
+        gameStatus[index] = Theme.text(this, I18n.t("Проверка файлов…"), 13, Theme.MUTED, false);
         titles.addView(gameStatus[index]);
         top.addView(titles, new LinearLayout.LayoutParams(0, -2, 1));
         card.addView(top);
         gap(card, 10);
         LinearLayout actions = Theme.row(this);
-        Button button = Theme.button(this, "Играть", true); play[index] = button; Theme.enable(button, false);
+        Button button = Theme.button(this, I18n.t("Играть"), true); play[index] = button; Theme.enable(button, false);
         button.setOnClickListener(v -> attempt(item, gamePath(item), skip.isChecked()));
-        Button settings = Theme.button(this, "Настройки", false);
+        Button settings = Theme.button(this, I18n.t("Настройки"), false);
         settings.setOnClickListener(v -> startActivity(new Intent(this, settingsClass(item))));
         actions.addView(button, Theme.weight(this, 1.3f, 0)); actions.addView(settings, Theme.weight(this, 1, 8));
         card.addView(actions);
+        if (!GameFiles.original(item)) {
+            Button mods = Theme.button(this, I18n.t("Моды…"), false);
+            mods.setOnClickListener(v -> modsMenu(item));
+            card.addView(mods, new LinearLayout.LayoutParams(-1, -2));
+        }
         return card;
     }
+    private File modsFolder() { return new File(getFilesDir(), "mods"); }
+    private Set<String> modSelection(String key, String edition) throws IOException {
+        if (key.equals("ucp-")) return GameMods.features(UcpOptions.config(this, edition));
+        return new HashSet<>(preferences.getStringSet(key + edition, java.util.Collections.emptySet()));
+    }
+    private JSONObject modCatalog() throws Exception { return UcpOptions.catalog(this); }
+    private void modProblem(Exception error) {
+        new AlertDialog.Builder(this).setTitle(I18n.t("Моды")).setMessage(error.getMessage()).setPositiveButton("OK", null).show();
+    }
+    private void modsMenu(String edition) {
+        if (GameFiles.original(edition)) return;
+        if (checking) return;
+        for (String game : EDITIONS) if (running(game)) {
+            new AlertDialog.Builder(this).setTitle(I18n.t("Моды")).setMessage(I18n.t("Завершите запущенную игру перед изменением модов. Новые настройки применяются при следующем запуске."))
+                    .setPositiveButton("OK", null).show(); return;
+        }
+        try {
+            JSONObject catalog = modCatalog();
+            String revision = catalog.getJSONObject("upstream").getString("framework_revision");
+            new AlertDialog.Builder(this).setTitle(I18n.t("Моды · ") + GameFiles.title(edition))
+                    .setItems(new String[] {I18n.t("Функции Unofficial Crusader Patch"), I18n.t("Пакеты данных и локализации"), I18n.t("Версия и совместимость")}, (d, item) -> {
+                        if (item == 0) ucpOptions(edition, catalog);
+                        else if (item == 1) assetMods(edition, catalog);
+                        else new AlertDialog.Builder(this).setTitle("Unofficial Crusader Patch")
+                                .setMessage(I18n.t("Зафиксированная версия UCP3:\n") + revision + I18n.t("\n\nAndroid использует подготовленные функции UCP2 Legacy и пакеты данных. Поддержка каждой функции указана в списке. Windows DLL, ASI и произвольные Lua-плагины требуют отдельной адаптации.\n\nОригинальные файлы игры сохраняются. При совпадении файлов приоритет имеет первый включённый пакет в списке."))
+                                .setPositiveButton("OK", null).show();
+                    }).setNegativeButton(I18n.t("Закрыть"), null).show();
+        } catch (Exception error) { modProblem(error); }
+    }
+    private void saveMods(String edition, JSONObject catalog, Set<String> features, Set<String> packs) throws Exception {
+        GameMods.configure(new File(getFilesDir(), "mods-" + edition + ".cfg"), catalog.getJSONObject("upstream").getString("framework_revision"),
+                features, GameMods.packs(modsFolder(), edition), packs);
+        preferences.edit().putStringSet("ucp-"+edition, features).putStringSet("packs-"+edition, packs).apply();
+        detectGames();
+    }
+    private String gameLanguage(File game, String edition) {
+        try {
+            Set<String> selected = modSelection("packs-", edition);
+            String name = GameFiles.original(edition) ? "sh.tex" : "cr.tex";
+            for (GameMods.Pack pack : GameMods.packs(modsFolder(), edition)) if (selected.contains(pack.id)) {
+                File[] files = pack.assets().listFiles();
+                if (files != null) for (File file : files) if (file.isFile() && file.getName().equalsIgnoreCase(name)) return GameFiles.languageFile(file);
+            }
+            return GameFiles.language(game, edition);
+        } catch (IOException unavailable) { return I18n.t("Не удалось проверить язык мода"); }
+    }
+    private void ucpOptions(String edition, JSONObject catalog) { UcpOptions.show(this, edition, false, this::detectGames); }
+    private void assetMods(String edition, JSONObject catalog) {
+        try {
+            List<GameMods.Pack> packs = GameMods.packs(modsFolder(), edition); Set<String> selected = modSelection("packs-", edition);
+            String[] names = new String[packs.size()]; boolean[] checked = new boolean[packs.size()];
+            for (int n=0; n<names.length; n++) { names[n] = packs.get(n).name; checked[n] = selected.contains(packs.get(n).id); }
+            AlertDialog dialog = new AlertDialog.Builder(this).setTitle(I18n.t("Пакеты · удерживайте для удаления"))
+                    .setMultiChoiceItems(names, checked, (d, item, enabled) -> { if (enabled) selected.add(packs.get(item).id); else selected.remove(packs.get(item).id); })
+                    .setPositiveButton(I18n.t("Применить"), (d, which) -> { try { saveMods(edition, catalog, modSelection("ucp-", edition), selected); } catch (Exception error) { modProblem(error); } })
+                    .setNegativeButton(I18n.t("Отмена"), null).setNeutralButton(I18n.t("Установить ZIP…"), (d, which) -> {
+                        modEdition = edition;
+                        try { startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/zip").addCategory(Intent.CATEGORY_OPENABLE), PICK_MOD); }
+                        catch (ActivityNotFoundException error) { modProblem(error); }
+                    }).show();
+            dialog.getListView().setOnItemLongClickListener((list, view, item, id) -> {
+                GameMods.Pack pack = packs.get(item);
+                new AlertDialog.Builder(this).setTitle(I18n.t("Удалить «")+pack.name+"»?").setMessage(I18n.t("Файлы игры и сохранения сохранятся."))
+                        .setPositiveButton(I18n.t("Удалить"), (d, which) -> {
+                            try {
+                                for (String game : EDITIONS) {
+                                    Set<String> enabled = modSelection("packs-", game); enabled.remove(pack.id);
+                                    saveMods(game, catalog, modSelection("ucp-", game), enabled);
+                                }
+                                GameMods.delete(modsFolder(), pack.folder); dialog.dismiss(); assetMods(edition, catalog);
+                            } catch (Exception error) { modProblem(error); }
+                        }).setNegativeButton(I18n.t("Отмена"), null).show(); return true;
+            });
+        } catch (Exception error) { modProblem(error); }
+    }
+    private void installMod(Uri uri) {
+        if (checking || modEdition == null) return;
+        String edition = modEdition; checking = true; transferCancelled = false;
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(I18n.t("Установка мода…")).setMessage(I18n.t("Проверка и распаковка ZIP"))
+                .setCancelable(false).setNegativeButton(I18n.t("Отмена"), (d,w) -> transferCancelled = true).show();
+        new Thread(() -> {
+            Exception error = null; GameMods.Pack pack = null;
+            try (InputStream input = getContentResolver().openInputStream(uri)) {
+                if (input == null) throw new IOException(I18n.t("Архив недоступен"));
+                pack = GameMods.install(input, modsFolder(), () -> transferCancelled);
+            } catch (Exception failure) { error = failure; }
+            final Exception problem = error; final GameMods.Pack installed = pack;
+            runOnUiThread(() -> {
+                checking = false; dialog.dismiss();
+                if (isFinishing() || isDestroyed()) return;
+                if (problem != null) modProblem(problem);
+                else if (!installed.supports(edition)) new AlertDialog.Builder(this).setTitle(I18n.t("Мод установлен"))
+                        .setMessage("«"+installed.name+I18n.t("» доступен в списке модов для ")+installed.edition).setPositiveButton("OK", null).show();
+                else try { assetMods(edition, modCatalog()); } catch (Exception failure) { modProblem(failure); }
+            });
+        }, "mod-import").start();
+    }
     private void fileActions() {
-        new AlertDialog.Builder(this).setTitle("Файлы игр")
-                .setItems(new String[] {"Выбрать папку…", "Распаковать ZIP…", "Указать папку вручную…", "Проверить снова"}, (dialog, which) -> {
+        if (checking) return;
+        pickingGog = false;
+        new AlertDialog.Builder(this).setTitle(I18n.t("Файлы игр"))
+                .setItems(new String[] {I18n.t("Выбрать папку…"), I18n.t("Распаковать ZIP…"), I18n.t("Указать папку вручную…"), I18n.t("Проверить снова")}, (dialog, which) -> {
                     if (requestStorage()) return;
                     if (which == 0) pickFolder();
                     else if (which == 1) pickArchive();
@@ -191,10 +336,10 @@ public final class LauncherActivity extends Activity {
                 }).show();
     }
     private void manualFolder() {
-        EditText folder = Theme.field(this, filesFolder().getAbsolutePath(), "Папка игры или общая папка с играми");
-        new AlertDialog.Builder(this).setTitle("Папка с файлами игр").setView(folder)
-                .setPositiveButton("Проверить", (dialog, which) -> selectFolder(new File(folder.getText().toString().trim()), ""))
-                .setNegativeButton("Отмена", null).show();
+        EditText folder = Theme.field(this, filesFolder().getAbsolutePath(), I18n.t("Папка игры или общая папка с играми"));
+        new AlertDialog.Builder(this).setTitle(I18n.t("Папка с файлами игр")).setView(folder)
+                .setPositiveButton(I18n.t("Проверить"), (dialog, which) -> selectFolder(new File(folder.getText().toString().trim()), ""))
+                .setNegativeButton(I18n.t("Отмена"), null).show();
     }
     private void setStatus(String text, boolean problem) {
         if (status == null) return;
@@ -205,8 +350,9 @@ public final class LauncherActivity extends Activity {
         scanGames(new File(Environment.getExternalStorageDirectory(), "Stronghold"), false, null);
     }
     private void selectFolder(File folder, String notice) {
+        if (pickingGog) { pickingGog = false; chooseGog(folder); return; }
         preferences.edit().putString("filesFolder", folder.getAbsolutePath()).apply();
-        scanGames(folder, true, "Файлы игр в " + folder + notice);
+        scanGames(folder, true, I18n.t("Файлы игр в ") + folder + (notice.isEmpty() ? "" : "\n" + notice));
     }
     private void scanGames(File source, boolean replaceMatching, String notice) {
         if (!showingLauncher) return;
@@ -215,6 +361,9 @@ public final class LauncherActivity extends Activity {
         final String[] saved = savedPaths();
         new Thread(() -> {
             GameFiles.Scan result = GameFiles.scan(saved, source, replaceMatching, true);
+            String[] languages = new String[EDITIONS.length];
+            for (int i = 0; i < languages.length; i++) if (result.problems[i] == null)
+                languages[i] = gameLanguage(new File(result.paths[i]), EDITIONS[i]);
             runOnUiThread(() -> {
                 if (scan != scanVersion || !showingLauncher || isFinishing() || isDestroyed()) return;
                 selectingFiles = false;
@@ -225,7 +374,7 @@ public final class LauncherActivity extends Activity {
                     boolean valid = problem == null;
                     if (valid) settings.putString(pathKey(edition), result.paths[i]);
                     else { if (missing.length() > 0) missing.append(", "); missing.append(GameFiles.title(edition)); }
-                    gameStatus[i].setText(valid ? warning == null ? "Готов к запуску" : warning : problem);
+                    gameStatus[i].setText(valid ? warning == null ? I18n.t("Готов к запуску · ") + languages[i] : warning : problem);
                     gameStatus[i].setTextColor(valid ? warning == null ? Theme.GOOD : Theme.ACCENT : Theme.BAD);
                     Theme.enable(play[i], valid);
                 }
@@ -233,8 +382,8 @@ public final class LauncherActivity extends Activity {
                 boolean complete = result.complete();
                 setupActions.setVisibility(complete ? View.GONE : View.VISIBLE);
                 changeFiles.setVisibility(complete ? View.VISIBLE : View.GONE);
-                filesHint.setText(complete ? "Все три игры найдены и проверены."
-                        : "Добавьте файлы: " + missing + ". Папка или ZIP распознаются автоматически; можно выбрать общую папку с играми.");
+                filesHint.setText(complete ? I18n.t("Все три игры найдены и проверены.")
+                        : I18n.t("Добавьте файлы: ") + missing + I18n.t(". Папка или ZIP распознаются автоматически; можно выбрать общую папку с играми."));
                 if (notice != null) setStatus(result.discoveryProblem == null ? notice : result.discoveryProblem, result.discoveryProblem != null);
             });
         }, "game-discovery").start();
@@ -247,7 +396,7 @@ public final class LauncherActivity extends Activity {
     private void updateStorageAccess() {
         if (access == null) return;
         boolean allowed = storageAllowed();
-        access.setText("Разрешить доступ к файлам");
+        access.setText(I18n.t("Разрешить доступ к файлам"));
         access.setVisibility(allowed ? View.GONE : View.VISIBLE);
     }
     private void openStorageSettings() {
@@ -272,13 +421,55 @@ public final class LauncherActivity extends Activity {
         Uri initial = documentUri(filesFolder());
         if (initial != null) intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initial);
         try { startActivityForResult(intent, PICK_GAME_FOLDER); }
-        catch (ActivityNotFoundException missing) { setStatus("Системный выбор папок недоступен на этом устройстве.", true); manualFolder(); }
+        catch (ActivityNotFoundException missing) { setStatus(I18n.t("Системный выбор папок недоступен на этом устройстве."), true); manualFolder(); }
     }
     private void pickArchive() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*")
                 .putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"application/zip", "application/x-zip-compressed", "application/x-zip", "application/octet-stream"});
         try { startActivityForResult(intent, PICK_ARCHIVE); }
-        catch (ActivityNotFoundException missing) { setStatus("Системный выбор файлов недоступен на этом устройстве.", true); }
+        catch (ActivityNotFoundException missing) { setStatus(I18n.t("Системный выбор файлов недоступен на этом устройстве."), true); }
+    }
+    private void chooseGog(File folder) {
+        File[] installers = folder.listFiles(file -> file.isFile() && file.getName().toLowerCase(Locale.ROOT).startsWith("setup_") &&
+                file.getName().toLowerCase(Locale.ROOT).endsWith(".exe"));
+        if (installers == null || installers.length == 0) { setStatus(I18n.t("В папке не найдены установщики setup_*.exe. Все BIN должны лежать рядом с EXE."), true); return; }
+        java.util.Arrays.sort(installers, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+        String[] names = new String[installers.length];
+        for (int i = 0; i < names.length; i++) names[i] = installers[i].getName();
+        new AlertDialog.Builder(this).setTitle(I18n.t("Установщик GOG · выберите язык"))
+                .setItems(names, (dialog, which) -> inspectGog(installers[which])).setNegativeButton(I18n.t("Отмена"), null).show();
+    }
+    private void inspectGog(File installer) {
+        if (checking) return;
+        checking = true; setStatus(I18n.t("Чтение установщика GOG…"), false);
+        new Thread(() -> {
+            GogInstaller.Info info = null; String error = null;
+            try { info = GogInstaller.inspect(this, installer); }
+            catch (IOException failure) { error = failure.getMessage(); }
+            final GogInstaller.Info found = info; final String problem = error;
+            runOnUiThread(() -> {
+                checking = false;
+                if (isFinishing() || isDestroyed()) return;
+                if (problem != null) { setStatus(problem, true); return; }
+                File target = freshFolder("gog-" + found.game);
+                String text = ("stronghold".equals(found.game) ? "Stronghold HD" : "Stronghold Crusader / Extreme") +
+                        I18n.t("\nФайлов игры: ") + found.files + I18n.t(". После установки: ") + megabytes(found.bytes) +
+                        I18n.t(".\nСжатых блоков: ") + found.compressed + I18n.t(" из ") + found.chunks + "." +
+                        (found.split ? I18n.t("\nДля установки нужны EXE и все BIN из той же папки.") : "") +
+                        I18n.t("\n\nПапка установки: ") + target + I18n.t("\nИсходный установщик сохраняется. Сохранения игры хранятся отдельно.");
+                new AlertDialog.Builder(this).setTitle(I18n.t("Установить GOG")).setMessage(text)
+                        .setPositiveButton(I18n.t("Установить"), (dialog, which) -> {
+                            long began = System.nanoTime();
+                            transfer(I18n.t("Установка GOG"), target, progress -> {
+                                GogInstaller.extract(this, found, target, () -> transferCancelled, process -> {
+                                    gogProcess = process; if (process != null && transferCancelled) process.destroyForcibly();
+                                }, progress::update);
+                                transferNotice = I18n.t("GOG установлен за ") + Math.round((System.nanoTime() - began) / 1e9) + I18n.t(" с. Язык: ") +
+                                        GameFiles.language(target, "stronghold".equals(found.game) ? "stronghold" : "classic");
+                            });
+                        }).setNegativeButton(I18n.t("Отмена"), null).show();
+            });
+        }, "gog-inspect").start();
     }
     /* A shared-storage path the picker can open at; other volumes start at its default. */
     static Uri documentUri(File folder) {
@@ -304,14 +495,19 @@ public final class LauncherActivity extends Activity {
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
-        if (result != RESULT_OK || data == null || data.getData() == null || !showingLauncher) return;
+        if (result != RESULT_OK || data == null || data.getData() == null || !showingLauncher) {
+            if (request == PICK_GAME_FOLDER) pickingGog = false;
+            return;
+        }
         Uri uri = data.getData();
+        if (request == PICK_MOD) { installMod(uri); return; }
         if (request == PICK_ARCHIVE) { confirmArchive(uri); return; }
         if (request != PICK_GAME_FOLDER) return;
         try { getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION); }
         catch (SecurityException ignored) { /* Direct paths do not depend on the grant. */ }
         File folder = treePath(uri);
         if (folder != null && folder.isDirectory() && folder.canRead()) selectFolder(folder, "");
+        else if (pickingGog) { setStatus(I18n.t("Для GOG выберите папку в памяти устройства с EXE и всеми соседними BIN."), true); manualFolder(); }
         else confirmFolderCopy(uri);
     }
     private String displayName(Uri uri, String fallback) {
@@ -336,8 +532,8 @@ public final class LauncherActivity extends Activity {
         return folder;
     }
     private static String megabytes(long bytes) {
-        return bytes < 1048576 ? String.format(Locale.ROOT, "%.0f КБ", Math.ceil(bytes / 1024.0))
-                : String.format(Locale.ROOT, "%.0f МБ", bytes / 1048576.0);
+        return bytes < 1048576 ? String.format(Locale.ROOT, I18n.t("%.0f КБ"), Math.ceil(bytes / 1024.0))
+                : String.format(Locale.ROOT, I18n.t("%.0f МБ"), bytes / 1048576.0);
     }
     private void confirmArchive(Uri archive) {
         String name = displayName(archive, "archive.zip");
@@ -345,34 +541,38 @@ public final class LauncherActivity extends Activity {
         String base = name.toLowerCase(Locale.ROOT).endsWith(".zip") ? name.substring(0, name.length() - 4) : name;
         File target = freshFolder(safeName(base));
         long free = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath()).getAvailableBytes();
-        String message = "Архив «" + name + "»" + (size > 0 ? " (" + megabytes(size) + ")" : "") + " будет распакован в\n" + target
-                + "\n\nСвободно: " + megabytes(free) + ". Распакованная игра занимает около 1 ГБ.";
-        new AlertDialog.Builder(this).setTitle("Распаковать игру?").setMessage(message)
-                .setPositiveButton("Распаковать", (dialog, which) -> transfer("Распаковка архива", target, progress -> unzip(archive, target, size, progress)))
-                .setNegativeButton("Отмена", null).show();
+        String message = I18n.t("Архив «") + name + "»" + (size > 0 ? " (" + megabytes(size) + ")" : "") + I18n.t(" будет распакован в\n") + target
+                + I18n.t("\n\nСвободно: ") + megabytes(free) + I18n.t(". Распакованная игра занимает около 1 ГБ.");
+        new AlertDialog.Builder(this).setTitle(I18n.t("Распаковать игру?")).setMessage(message)
+                .setPositiveButton(I18n.t("Распаковать"), (dialog, which) -> transfer(I18n.t("Распаковка архива"), target, progress -> unzip(archive, target, size, progress)))
+                .setNegativeButton(I18n.t("Отмена"), null).show();
     }
     private void confirmFolderCopy(Uri tree) {
         String name = displayName(DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree)), "game");
         File target = freshFolder(safeName(name));
-        new AlertDialog.Builder(this).setTitle("Скопировать игру?")
-                .setMessage("К папке «" + name + "» нет прямого доступа по пути. Скопировать её в\n" + target + "?")
-                .setPositiveButton("Скопировать", (dialog, which) -> transfer("Копирование папки", target,
+        new AlertDialog.Builder(this).setTitle(I18n.t("Скопировать игру?"))
+                .setMessage(I18n.t("К папке «") + name + I18n.t("» нет прямого доступа по пути. Скопировать её в\n") + target + "?")
+                .setPositiveButton(I18n.t("Скопировать"), (dialog, which) -> transfer(I18n.t("Копирование папки"), target,
                         progress -> copyTree(tree, DocumentsContract.getTreeDocumentId(tree), target, progress)))
-                .setNegativeButton("Отмена", null).show();
+                .setNegativeButton(I18n.t("Отмена"), null).show();
     }
     private interface Progress { void update(long bytes, long total, int files); }
     private interface Work { void run(Progress progress) throws IOException; }
     /* Long copies run off the UI thread with a cancellable progress dialog. */
     private void transfer(String title, File target, Work work) {
+        if (checking) return;
+        checking = true;
         transferCancelled = false;
         transferNotice = "";
         LinearLayout content = new LinearLayout(this); content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(24), dp(12), dp(24), dp(4));
         ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal); bar.setMax(1000); bar.setIndeterminate(true);
-        TextView label = Theme.text(this, "Подготовка…", 14, Theme.MUTED, false); label.setPadding(0, dp(8), 0, 0);
+        TextView label = Theme.text(this, I18n.t("Подготовка…"), 14, Theme.MUTED, false); label.setPadding(0, dp(8), 0, 0);
         content.addView(bar); content.addView(label);
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(title).setView(content).setCancelable(false)
-                .setNegativeButton("Отмена", (d, which) -> transferCancelled = true).show();
+                .setNegativeButton(I18n.t("Отмена"), (d, which) -> {
+                    transferCancelled = true; Process process = gogProcess; if (process != null) process.destroyForcibly();
+                }).show();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         long[] shown = {0};
         Progress progress = (bytes, total, files) -> {
@@ -381,18 +581,20 @@ public final class LauncherActivity extends Activity {
             shown[0] = now;
             runOnUiThread(() -> {
                 if (total > 0) { bar.setIndeterminate(false); bar.setProgress((int)Math.min(1000, bytes * 1000 / total)); }
-                label.setText(files + " файлов · " + megabytes(bytes) + (total > 0 ? " из " + megabytes(total) : ""));
+                label.setText(files + I18n.t(" файлов · ") + megabytes(bytes) + (total > 0 ? I18n.t(" из ") + megabytes(total) : ""));
             });
         };
         new Thread(() -> {
             String error = null;
             try {
-                if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Не удалось создать папку " + target);
+                if (!target.isDirectory() && !target.mkdirs()) throw new IOException(I18n.t("Не удалось создать папку ") + target);
                 work.run(progress);
-            } catch (InterruptedIOException cancelled) { error = "Отменено. Частично скопированные файлы остались в " + target;
-            } catch (IOException | RuntimeException failure) { error = "Ошибка: " + failure.getMessage(); }
+            } catch (InterruptedIOException cancelled) { error = I18n.t("Отменено. Частично скопированные файлы остались в ") + target;
+            } catch (IOException | RuntimeException failure) { error = transferCancelled
+                    ? I18n.t("Отменено. Частично скопированные файлы остались в ") + target : I18n.t("Ошибка: ") + failure.getMessage(); }
             final String problem = error;
             runOnUiThread(() -> {
+                checking = false;
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 if (dialog.isShowing()) dialog.dismiss();
                 if (isFinishing() || isDestroyed()) return;
@@ -422,7 +624,7 @@ public final class LauncherActivity extends Activity {
         String canonical = target.getCanonicalPath() + File.separator;
         int files = 0, unnamed = 0;
         try (InputStream raw = getContentResolver().openInputStream(archive)) {
-            if (raw == null) throw new IOException("архив недоступен");
+            if (raw == null) throw new IOException(I18n.t("архив недоступен"));
             Counting counted = new Counting(new BufferedInputStream(raw, 1 << 16));
             try (ZipInputStream zip = new ZipInputStream(counted)) {
                 for (ZipEntry entry; (entry = zip.getNextEntry()) != null; ) {
@@ -431,10 +633,10 @@ public final class LauncherActivity extends Activity {
                     File out = new File(target, name);
                     /* Entries cannot escape the destination ("zip slip"). */
                     if (!(out.getCanonicalPath() + (entry.isDirectory() ? File.separator : "")).startsWith(canonical))
-                        throw new IOException("недопустимый путь в архиве: " + name);
-                    if (entry.isDirectory()) { if (!out.isDirectory() && !out.mkdirs()) throw new IOException("не удалось создать " + out); continue; }
+                        throw new IOException(I18n.t("недопустимый путь в архиве: ") + name);
+                    if (entry.isDirectory()) { if (!out.isDirectory() && !out.mkdirs()) throw new IOException(I18n.t("не удалось создать ") + out); continue; }
                     File parent = out.getParentFile();
-                    if (parent != null && !parent.isDirectory() && !parent.mkdirs()) throw new IOException("не удалось создать " + parent);
+                    if (parent != null && !parent.isDirectory() && !parent.mkdirs()) throw new IOException(I18n.t("не удалось создать ") + parent);
                     File intended = GameFiles.uniqueFile(out);
                     out = GameFiles.archiveStaging(intended, files);
                     copyStream(zip, out);
@@ -442,19 +644,19 @@ public final class LauncherActivity extends Activity {
                     if (!name.equals(recovered)) unnamed++;
                     File restored = name.equals(recovered) ? intended : new File(target, recovered);
                     restored = new File(restored.getParentFile(), safeName(restored.getName()));
-                    if (!restored.getCanonicalPath().startsWith(canonical)) throw new IOException("недопустимое имя после восстановления: " + recovered);
+                    if (!restored.getCanonicalPath().startsWith(canonical)) throw new IOException(I18n.t("недопустимое имя после восстановления: ") + recovered);
                     if (!out.equals(restored)) {
                         restored = GameFiles.uniqueFile(restored);
-                        if (!out.renameTo(restored)) throw new IOException("не удалось восстановить имя карты: " + restored);
+                        if (!out.renameTo(restored)) throw new IOException(I18n.t("не удалось восстановить имя карты: ") + restored);
                     }
                     progress.update(counted.count, size, ++files);
                 }
             } catch (IllegalArgumentException names) {
-                throw new IOException("имена файлов в архиве не в UTF-8; упакуйте игру заново стандартным ZIP");
+                throw new IOException(I18n.t("имена файлов в архиве не в UTF-8; упакуйте игру заново стандартным ZIP"));
             }
         }
-        if (files == 0) throw new IOException("архив пуст или не является ZIP");
-        if (unnamed > 0) transferNotice = "\nВ архиве утрачены названия " + unnamed + " карт: они сохранены как «Карта …». Все файлы сохранены отдельно.";
+        if (files == 0) throw new IOException(I18n.t("архив пуст или не является ZIP"));
+        if (unnamed > 0) transferNotice = I18n.t("\nВ архиве утрачены названия ") + unnamed + I18n.t(" карт: они сохранены как «Карта …». Все файлы сохранены отдельно.");
     }
     private void copyTree(Uri tree, String rootId, File target, Progress progress) throws IOException {
         String[] columns = {DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -466,17 +668,17 @@ public final class LauncherActivity extends Activity {
             Object[] folder = folders.removeFirst();
             Uri children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, (String)folder[0]);
             try (Cursor cursor = getContentResolver().query(children, columns, null, null, null)) {
-                if (cursor == null) throw new IOException("поставщик файлов не отдал содержимое папки");
+                if (cursor == null) throw new IOException(I18n.t("поставщик файлов не отдал содержимое папки"));
                 while (cursor.moveToNext()) {
                     if (transferCancelled) throw new InterruptedIOException();
                     File out = new File((File)folder[1], safeName(cursor.getString(1)));
                     if (DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(2))) {
-                        if (!out.isDirectory() && !out.mkdirs()) throw new IOException("не удалось создать " + out);
+                        if (!out.isDirectory() && !out.mkdirs()) throw new IOException(I18n.t("не удалось создать ") + out);
                         folders.add(new Object[] {cursor.getString(0), out});
                         continue;
                     }
                     try (InputStream input = getContentResolver().openInputStream(DocumentsContract.buildDocumentUriUsingTree(tree, cursor.getString(0)))) {
-                        if (input == null) throw new IOException("не удалось открыть " + out.getName());
+                        if (input == null) throw new IOException(I18n.t("не удалось открыть ") + out.getName());
                         copyStream(new BufferedInputStream(input, 1 << 16), out);
                     }
                     bytes += out.length();
@@ -502,45 +704,53 @@ public final class LauncherActivity extends Activity {
     private void attempt(String item, String directory, boolean skipMovies) {
         if (checking) return;
         preferences.edit().putString(pathKey(item), directory).putBoolean("skipMovies", skipMovies).putString("edition", item).commit();
-        if (requestStorage()) { showLauncher("Для запуска нужен доступ к файлам игры."); return; }
+        if (requestStorage()) { showLauncher(I18n.t("Для запуска нужен доступ к файлам игры.")); return; }
         checking = true;
-        setStatus("Проверка файлов…", false);
+        setStatus(I18n.t("Проверка файлов…"), false);
         new Thread(() -> {
             GameFiles.Check check = GameFiles.check(new File(directory), item, true);
+            String images = null, preparationError = null;
+            if (check.error == null) try {
+                images = GameImages.prepare(this, new File(directory), item).getAbsolutePath();
+                NativeLibrary.prepare(this, GameFiles.library(item));
+            } catch (IOException | UnsatisfiedLinkError failure) { preparationError = I18n.t("Не удалось подготовить игру: ") + failure.getMessage(); }
+            final String preparedImages = images, failedPreparation = preparationError;
             runOnUiThread(() -> {
                 checking = false;
                 if (isFinishing() || isDestroyed()) return;
                 if (check.error != null) { showLauncher(check.error); return; }
+                if (failedPreparation != null) { showLauncher(failedPreparation); return; }
                 if (check.warning != null) {
                     checking = true;
-                    new AlertDialog.Builder(this).setTitle("Предупреждение о совместимости")
+                    new AlertDialog.Builder(this).setTitle(I18n.t("Предупреждение о совместимости"))
                             .setMessage(check.warning)
-                            .setPositiveButton("Запустить всё равно", (dialog, which) -> launch(item, directory, skipMovies))
-                            .setNegativeButton("Отмена", null)
+                            .setPositiveButton(I18n.t("Запустить всё равно"), (dialog, which) -> launch(item, directory, preparedImages, skipMovies))
+                            .setNegativeButton(I18n.t("Отмена"), null)
                             .setOnDismissListener(dialog -> { checking = false; if (!isFinishing() && !showingLauncher) showLauncher(null); })
                             .show();
-                } else launch(item, directory, skipMovies);
+                } else launch(item, directory, preparedImages, skipMovies);
             });
         }, "game-preflight").start();
     }
-    private void launch(String item, String directory, boolean skipMovies) {
+    private void launch(String item, String directory, String images, boolean skipMovies) {
         try {
             if (!running(item)) {
                 File marker = GameFiles.pending(getFilesDir(), item);
-                if (marker.exists() && !marker.delete()) throw new IOException("Не удалось обновить состояние запуска");
-                if (!marker.createNewFile()) throw new IOException("Не удалось сохранить состояние запуска");
+                if (marker.exists() && !marker.delete()) throw new IOException(I18n.t("Не удалось обновить состояние запуска"));
+                if (!marker.createNewFile()) throw new IOException(I18n.t("Не удалось сохранить состояние запуска"));
             }
             showingLauncher = false; selectingFiles = false; ++scanVersion;
-            startActivity(new Intent(this, gameClass(item)).putExtra("game", directory).putExtra("skipMovies", skipMovies)
+            startActivity(new Intent(this, gameClass(item)).putExtra("game", directory).putExtra("images", images).putExtra("skipMovies", skipMovies)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION),
                     android.app.ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle());
             overridePendingTransition(0, 0);
             for (ActivityManager.AppTask task : ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).getAppTasks())
                 if (task.getTaskInfo().baseActivity == null) task.finishAndRemoveTask();
             finishAndRemoveTask();
-        } catch (IOException | RuntimeException failure) { showLauncher("Не удалось запустить игру: " + failure.getMessage()); }
+        } catch (IOException | RuntimeException failure) { showLauncher(I18n.t("Не удалось запустить игру: ") + failure.getMessage()); }
     }
     private void handleIntent(Intent intent) {
+        I18n.apply(this);
         selectingFiles = false; ++scanVersion;
         String[] successful = GameFiles.lastSuccess(getFilesDir());
         String requested = intent.getStringExtra("edition");
@@ -548,7 +758,7 @@ public final class LauncherActivity extends Activity {
         edition = "classic".equals(edition) || GameFiles.original(edition) ? edition : "extreme";
         String error = intent.getStringExtra("error");
         if (GameFiles.pending(getFilesDir(), edition).exists() && !running(edition)) {
-            if (error == null) error = "Игра завершилась с ошибкой. Проверьте папку и повторите запуск. Журнал: /sdcard/Stronghold/"
+            if (error == null) error = I18n.t("Игра завершилась с ошибкой. Проверьте папку и повторите запуск. Журнал: /sdcard/Stronghold/")
                     + GameFiles.userdata(edition) + "/stronghold.log";
             GameFiles.pending(getFilesDir(), edition).delete();
         }
@@ -558,7 +768,7 @@ public final class LauncherActivity extends Activity {
         }
         /* The successful-start record is shared across the isolated game processes. */
         showingLauncher = false; ++scanVersion;
-        TextView starting = Theme.text(this, "Запуск " + GameFiles.title(edition) + "…", 16, Theme.MUTED, false);
+        TextView starting = Theme.text(this, I18n.t("Запуск ") + GameFiles.title(edition) + "…", 16, Theme.MUTED, false);
         starting.setGravity(Gravity.CENTER); setContentView(starting);
         String directory = requested == null && successful != null ? successful[1] : gamePath(edition);
         attempt(edition, directory, preferences.getBoolean("skipMovies", false));
@@ -566,6 +776,7 @@ public final class LauncherActivity extends Activity {
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handleIntent(intent); }
     @Override protected void onResume() {
         super.onResume();
+        I18n.apply(this);
         updateStorageAccess();
         if (showingLauncher) detectGames();
     }

@@ -5,12 +5,15 @@ The libraries come from tools/build_android.py --shared --edition extreme/classi
 game data, PE images and separate profiles live under /sdcard/Stronghold.
 """
 import argparse
+import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import zipfile
+
+import android_native_payload
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK = Path(os.environ.get("ANDROID_SDK") or os.environ.get("ANDROID_HOME") or
@@ -58,24 +61,47 @@ def main():
     for library in libraries:
         if not library.is_file():
             raise SystemExit(f"{library}: build all three editions before packaging")
+    installer = ROOT / 'build/gog-android/libinnoextract.so'
+    if not installer.is_file():
+        raise SystemExit('Build the GOG reader first: python tools/build_innoextract.py --fetch')
+    subprocess.run([sys.executable, str(ROOT / 'tools/build_innoextract.py')], check=True)
+    unpacker = installer.with_name(android_native_payload.UNPACKER)
+    import prepare_compat
+    prepare_compat.prepare(ROOT / 'build/gog-locales')
+    import ucp
+    ucp.checkout()
+    ucp.update_catalog_metadata()
     if OUT.exists():
         OUT.resolve().relative_to(ROOT.resolve())
         shutil.rmtree(OUT)
     (OUT / "classes").mkdir(parents=True)
     (OUT / "dex").mkdir()
+    import build_android
+    native_entries, native_report = android_native_payload.prepare(
+        [*libraries, installer, unpacker], build_android.TOOLCHAIN / 'bin', OUT / 'native')
     run(TOOLS / "aapt2.exe", "compile", "--dir", ROOT / "android/app/res", "-o", OUT / "resources.zip")
     run(TOOLS / "aapt2.exe", "link", "-I", ANDROID_JAR, "--manifest", ROOT / "android/app/AndroidManifest.xml",
         "-o", OUT / "base.apk", OUT / "resources.zip")
     sources = sorted((ROOT / "android/app/src").rglob("*.java"))
     run(JAVA_HOME / "bin/javac.exe", "--release", "8", "-cp", ANDROID_JAR, "-d", OUT / "classes", *sources)
     classes = sorted((OUT / "classes").rglob("*.class"))
-    run(TOOLS / "d8.bat", "--lib", ANDROID_JAR, "--min-api", "26", "--output", OUT / "dex", *classes, shell=False)
+    with zipfile.ZipFile(OUT / "classes.jar", "w") as jar:
+        for item in classes:
+            jar.write(item, item.relative_to(OUT / "classes").as_posix())
+    run(TOOLS / "d8.bat", "--lib", ANDROID_JAR, "--min-api", "26", "--output", OUT / "dex", OUT / "classes.jar", shell=False)
     unsigned = OUT / "unsigned.apk"
     shutil.copy(OUT / "base.apk", unsigned)
-    with zipfile.ZipFile(unsigned, "a", zipfile.ZIP_DEFLATED) as apk:
+    with zipfile.ZipFile(unsigned, "a", zipfile.ZIP_DEFLATED, compresslevel=9) as apk:
         apk.write(OUT / "dex/classes.dex", "classes.dex")
-        for library in libraries:
-            apk.write(library, "lib/arm64-v8a/" + library.name)
+        for name, (source, method) in native_entries.items():
+            apk.write(source, name, compress_type=method)
+        for patch in sorted((ROOT / 'generated/compatibility').glob('*.delta')):
+            apk.write(patch, 'assets/compatibility/' + patch.name)
+        apk.write(ROOT / 'generated/ucp/catalog.json', 'assets/ucp/catalog.json')
+        apk.write(ROOT / 'THIRD_PARTY_NOTICES.md', 'assets/licenses/THIRD_PARTY_NOTICES.md')
+        apk.write(ROOT / 'LICENSE', 'assets/licenses/GPL-3.0.txt')
+        for notice in sorted((ROOT / 'android/licenses').glob('*.txt')):
+            apk.write(notice, 'assets/licenses/' + notice.name)
     aligned = OUT / "aligned.apk"
     run(TOOLS / "zipalign.exe", "-f", "-p", "4", unsigned, aligned)
     keystore = ROOT / "build/android/debug.keystore"
@@ -87,6 +113,12 @@ def main():
     apk = OUT / "stronghold-crusader.apk"
     run(TOOLS / "apksigner.bat", "sign", "--ks", keystore, "--ks-pass", "pass:android", "--key-pass", "pass:android",
         "--out", apk, aligned)
+    run(TOOLS / 'apksigner.bat', 'verify', '--verbose', apk)
+    run(TOOLS / 'zipalign.exe', '-c', '-P', '16', '4', apk)
+    with zipfile.ZipFile(apk) as archive:
+        verification = android_native_payload.verify_payload(archive, native_report, OUT / 'verified-native')
+    (OUT / 'native-packaging.json').write_text(json.dumps(dict(libraries=native_report, verification=verification,
+        apk_bytes=apk.stat().st_size, apk_sha256=android_native_payload.sha(apk)), indent=2) + '\n')
     print(f"APK: {apk} ({apk.stat().st_size / 1e6:.1f} MB)")
     if args.install:
         run(ADB, *(["-s", args.serial] if args.serial else []), "install", "-r", "-g", apk)

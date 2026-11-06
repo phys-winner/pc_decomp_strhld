@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="text_9c3f3eda" formatted="false">"Stronghold HD、Crusader および Crusader Extreme Android ARM64"</string>
+  <string name="text_73226756" formatted="false">"ゲームを選択してください"</string>
+  <string name="text_bf25f362" formatted="false">"ゲームファイル"</string>
+  <string name="text_780ea472" formatted="false">"インストールされているゲームを確認しています..."</string>
+  <string name="text_3eccf7d" formatted="false">"フォルダーを選択…"</string>
+  <string name="text_beab1997" formatted="false">"ZIPを展開…"</string>
+  <string name="text_16342f65" formatted="false">"GOGからインストール..."</string>
+  <string name="text_997ffce7" formatted="false">"ゲームファイルを変更します..."</string>
+  <string name="text_37a30576" formatted="false">"起動"</string>
+  <string name="text_cfea62c8" formatted="false">"動画、広告、オンライン警告をスキップする"</string>
+  <string name="text_fca6a79b" formatted="false">"起動オプションは、ゲーム プロセスが再度開始されるときに適用されます。再開する前に試合を保存してください。"</string>
+  <string name="text_452078ee" formatted="false">"インターフェイス言語..."</string>
+  <string name="text_c688c5f2" formatted="false">"GitHub 上の UCP"</string>
+  <string name="text_a7a66ff6" formatted="false">"すべての UCP 機能を無効にする"</string>
+  <string name="text_5b4d7f78" formatted="false">"MODを変更する前に実行中のゲームを完了してください。新しい設定は次回起動時に適用されます。"</string>
+  <string name="text_7e32e4c9" formatted="false">"すべての UCP 機能が無効になります。データとローカリゼーション パッケージが保存されます。"</string>
+  <string name="text_d584799a" formatted="false">"ファイルをチェックしています..."</string>
+  <string name="text_398251d5" formatted="false">"遊ぶ"</string>
+  <string name="text_65aed1e5" formatted="false">"設定"</string>
+  <string name="text_3be6ad8d" formatted="false">"MOD…"</string>
+  <string name="text_1eea9b9" formatted="false">"MOD"</string>
+  <string name="text_dc795e10" formatted="false">"MOD · "</string>
+  <string name="text_8604996b" formatted="false">"非公式クルセイダーパッチの特徴"</string>
+  <string name="text_235cc110" formatted="false">"データおよびローカリゼーション パック"</string>
+  <string name="text_d773e353" formatted="false">"バージョンと互換性"</string>
+  <string name="text_be822985" formatted="false">"UCP3 の修正バージョン:\n"</string>
+  <string name="text_93c07082" formatted="false">"\n\nAndroid は、UCP2 Legacy で用意された関数とデータ パッケージを使用します。各機能のサポートがリストされています。 Windows DLL、ASI、および任意の Lua プラグインは個別に適応する必要があります。\n\nオリジナルのゲームファイルは保存されます。ファイル間に一致がある場合は、リスト内の最初に含まれるパッケージが優先されます。"</string>
+  <string name="text_bc760176" formatted="false">"閉じる"</string>
+  <string name="text_e5255a4e" formatted="false">"MOD言語のチェックに失敗しました"</string>
+  <string name="text_7fd9ff17" formatted="false">"パッケージ · 長押しして削除します"</string>
+  <string name="text_2559db35" formatted="false">"適用"</string>
+  <string name="text_449106b0" formatted="false">"キャンセル"</string>
+  <string name="text_7e140f28" formatted="false">"ZIPをインストール..."</string>
+  <string name="text_ef231dd1" formatted="false">"「を削除」"</string>
+  <string name="text_702d414b" formatted="false">"ゲームとセーブファイルが保存されます。"</string>
+  <string name="text_3d84b2c6" formatted="false">"削除"</string>
+  <string name="text_b2eb0c03" formatted="false">"MODをインストールしています..."</string>
+  <string name="text_f7d7ea15" formatted="false">"ZIPの確認と解凍"</string>
+  <string name="text_6041b138" formatted="false">"アーカイブは利用できません"</string>
+  <string name="text_4ac71ec" formatted="false">"MODがインストールされています"</string>
+  <string name="text_dbcaedd6" formatted="false">"» MODのリストで利用可能 "</string>
+  <string name="text_26dcbf3d" formatted="false">"フォルダーを手動で指定..."</string>
+  <string name="text_827c9d62" formatted="false">"もう一度確認してください"</string>
+  <string name="text_32d1af36" formatted="false">"ゲームフォルダーまたは共有ゲームフォルダー"</string>
+  <string name="text_4303cf88" formatted="false">"ゲームファイルフォルダ"</string>
+  <string name="text_51b025a2" formatted="false">"チェックする"</string>
+  <string name="text_215eb3ac" formatted="false">"ゲームファイル "</string>
+  <string name="text_bb517237" formatted="false">"起動準備完了 · "</string>
+  <string name="text_1b4e6798" formatted="false">"3 つのゲームはすべて発見され、テストされました。"</string>
+  <string name="text_86848d19" formatted="false">"ファイルを追加します。 "</string>
+  <string name="text_a35721c5" formatted="false">"。フォルダーまたは ZIP は自動的に認識されます。ゲームのある共有フォルダーを選択できます。"</string>
+  <string name="text_ce68736f" formatted="false">"ファイルへのアクセスを許可する"</string>
+  <string name="text_8216fca" formatted="false">"このデバイスではシステム フォルダーの選択は利用できません。"</string>
+  <string name="text_4b88cede" formatted="false">"このデバイスではシステム ファイルの選択は利用できません。"</string>
+  <string name="text_79599422" formatted="false">"setup_*.exe インストーラーがフォルダー内に見つかりませんでした。すべての BIN は EXE の隣に配置する必要があります。"</string>
+  <string name="text_634d6aab" formatted="false">"GOG インストーラー · 言語の選択"</string>
+  <string name="text_bb39e0dd" formatted="false">"GOG インストーラーを読んでいます..."</string>
+  <string name="text_a35f8320" formatted="false">"\nゲームファイル: "</string>
+  <string name="text_b22fddf3" formatted="false">"。インストール後: "</string>
+  <string name="text_579559c3" formatted="false">"。\n圧縮ブロック: "</string>
+  <string name="text_1ee4e1" formatted="false">" から "</string>
+  <string name="text_53bd09" formatted="false">"\nインストールには、EXE と同じフォルダーにあるすべての BIN が必要です。"</string>
+  <string name="text_4d92cf4d" formatted="false">"\n\nインストールフォルダー: "</string>
+  <string name="text_8d934598" formatted="false">"\n元のインストーラーは保持されます。ゲームのセーブデータは個別に保存されます。"</string>
+  <string name="text_410e21c" formatted="false">"GOGをインストールする"</string>
+  <string name="text_8cfeb85d" formatted="false">"インストール"</string>
+  <string name="text_be9830ba" formatted="false">"GOGのインストール"</string>
+  <string name="text_fb4cb106" formatted="false">"GOG がインストールされているのは、 "</string>
+  <string name="text_e88699f0" formatted="false">" s.言語: "</string>
+  <string name="text_5637065a" formatted="false">"GOG の場合は、EXE と隣接するすべての BIN を含むデバイス メモリ内のフォルダーを選択します。"</string>
+  <string name="text_f6993e58" formatted="false">"%.0f KB"</string>
+  <string name="text_f6993e96" formatted="false">"%.0f MB"</string>
+  <string name="text_660e6a9a" formatted="false">"アーカイブ «"</string>
+  <string name="text_d1bd702e" formatted="false">" で開梱されます\n"</string>
+  <string name="text_a8d6d121" formatted="false">"\n\n利用可能: "</string>
+  <string name="text_c5347de1" formatted="false">"。解凍したゲームは約 1 GB を消費します。"</string>
+  <string name="text_4f09e1af" formatted="false">"ゲームを開梱しますか?"</string>
+  <string name="text_e758a48e" formatted="false">"開梱"</string>
+  <string name="text_a8ab15f" formatted="false">"アーカイブを解凍する"</string>
+  <string name="text_4163fe5" formatted="false">"ゲームをコピーしますか？"</string>
+  <string name="text_1d870e8e" formatted="false">"フォルダへ「"</string>
+  <string name="text_d8eccaca" formatted="false">"» 途中で直接アクセスすることはできません。コピー先\n"</string>
+  <string name="text_fbbd6344" formatted="false">"コピー"</string>
+  <string name="text_bc4d084d" formatted="false">"フォルダーをコピーする"</string>
+  <string name="text_3aaea5ba" formatted="false">"準備中..."</string>
+  <string name="text_d1f4a247" formatted="false">" ファイル · "</string>
+  <string name="text_89d586e4" formatted="false">"フォルダーの作成に失敗しました "</string>
+  <string name="text_4d3c8d8" formatted="false">"キャンセルされました。部分的にコピーされたファイルは次の場所に残ります "</string>
+  <string name="text_9ac267bf" formatted="false">"エラー: "</string>
+  <string name="text_927d6d18" formatted="false">"アーカイブは利用できません"</string>
+  <string name="text_3fb73205" formatted="false">"無効なアーカイブ パス: "</string>
+  <string name="text_82970e9b" formatted="false">"作成に失敗しました "</string>
+  <string name="text_57596e60" formatted="false">"リカバリ後の無効な名前: "</string>
+  <string name="text_62ed0e4a" formatted="false">"カード名の復元に失敗しました: "</string>
+  <string name="text_cb6f0ae5" formatted="false">"アーカイブ内のファイル名は UTF-8 ではありません。標準の ZIP を使用してゲームを再パッケージ化する"</string>
+  <string name="text_2c7db8e6" formatted="false">"アーカイブが空であるか、ZIP ではありません"</string>
+  <string name="text_9584175b" formatted="false">"\nアーカイブで失われた名前 "</string>
+  <string name="text_6f044b61" formatted="false">" マップ: 「マップ...」として保存されます。すべてのファイルは個別に保存されます。"</string>
+  <string name="text_a5ac9a61" formatted="false">"ファイルプロバイダーがフォルダーの内容を返しませんでした"</string>
+  <string name="text_24605ef0" formatted="false">"開けませんでした "</string>
+  <string name="text_d3ca647b" formatted="false">"起動するにはゲームファイルにアクセスする必要があります。"</string>
+  <string name="text_ab5540f3" formatted="false">"ゲームの準備に失敗しました: "</string>
+  <string name="text_2bbd5d5e" formatted="false">"互換性に関する警告"</string>
+  <string name="text_a9002c9" formatted="false">"とにかく走ってください"</string>
+  <string name="text_e6290764" formatted="false">"起動状態の更新に失敗しました"</string>
+  <string name="text_50c87387" formatted="false">"起動状態の保存に失敗しました"</string>
+  <string name="text_3c32a8fb" formatted="false">"ゲームの開始に失敗しました: "</string>
+  <string name="text_6df9977b" formatted="false">"ゲームはエラーで終了しました。フォルダーを確認して、再試行してください。ログ: /sdcard/Stronghold/"</string>
+  <string name="text_bcbda96a" formatted="false">"起動 "</string>
+  <string name="text_f2fc3664" formatted="false">"設定 · "</string>
+  <string name="text_39f3c6d" formatted="false">"グラフィックス"</string>
+  <string name="text_674b0c2" formatted="false">"解像度、インターフェースサイズ、画質"</string>
+  <string name="text_1ec3892" formatted="false">"サウンド"</string>
+  <string name="text_e1fcef4c" formatted="false">"音楽、エフェクト、スピーチ"</string>
+  <string name="text_1ecb04b" formatted="false">"ゲーム"</string>
+  <string name="text_66aca461" formatted="false">"ゲームスピード、ヒント、コントロール"</string>
+  <string name="text_7bdceb3f" formatted="false">"ランチャーとゲームフォルダー"</string>
+  <string name="text_a2356111" formatted="false">"解像度"</string>
+  <string name="text_1e909de" formatted="false">"自動"</string>
+  <string name="text_77737898" formatted="false">"最小値"</string>
+  <string name="text_dcd7c4a4" formatted="false">"デバイス"</string>
+  <string name="text_7ae310b2" formatted="false">"解像度とアスペクト比はゲームを再度開始するときに適用されます"</string>
+  <string name="text_dcfb5f04" formatted="false">"再開する前に試合を保存してください。 「最小」 - 600 ライン、エンジンの最小フレーム、画面比率。 "</string>
+  <string name="text_53607ee6" formatted="false">"解像度はゲームプレイ中に自動的に変更されません。"</string>
+  <string name="text_2b870dec" formatted="false">"デバイスのアスペクト比を使用する"</string>
+  <string name="text_8329db6f" formatted="false">"インターフェースサイズ"</string>
+  <string name="text_97402fea" formatted="false">"特殊能力パネルのサイズ"</string>
+  <string name="text_e82aaf5f" formatted="false">"バイキュービック"</string>
+  <string name="text_d874e791" formatted="false">"シャープなピクセル"</string>
+  <string name="text_f8faebee" formatted="false">"バイリニア"</string>
+  <string name="text_3278c869" formatted="false">"ワールドフィルター"</string>
+  <string name="text_7451d9ec" formatted="false">"インターフェースフィルター"</string>
+  <string name="text_7c3ae905" formatted="false">"シャープネス"</string>
+  <string name="text_560f76b4" formatted="false">"グラデーションの平滑化"</string>
+  <string name="text_7e78b3ab" formatted="false">"クリアテキスト"</string>
+  <string name="text_2768014e" formatted="false">"FSR 1.0 は鮮明なエッジを維持し、バイキュービックはより柔らかく、クリア ピクセルはギザギザのピクセル化された外観を維持し、バイリニアは最もソフトです。すぐに申請してください。"</string>
+  <string name="text_4e53c7f9" formatted="false">"地図はインターフェースとは別に画面に合わせて拡大されます。 "</string>
+  <string name="text_308cf9d6" formatted="false">"インターフェイスは地図とは別に画面に合わせて拡大されます。 "</string>
+  <string name="text_83e093cf" formatted="false">"イメージを鮮明にする力。すぐに申請してください。"</string>
+  <string name="text_1122e28" formatted="false">"空と水から 16 ビットのカラー ステップを削除します。すぐに申請してください。"</string>
+  <string name="text_8c127489" formatted="false">"ラベルを画面解像度で再描画します。すぐに申請してください。"</string>
+  <string name="text_8823e982" formatted="false">"ゲーム中のパネル、ウィンドウ、資源表示、ヒントの大きさです。画面内にインターフェース全体が収まるように制限されます。変更はすぐに反映されます。"</string>
+  <string name="text_b35280b9" formatted="false">"サイドバーのサイズは、メイン インターフェイスに関係なく適用されます。すぐに申請してください。"</string>
+  <string name="text_9e69e9de" formatted="false">"ゲームスピード"</string>
+  <string name="text_2fec8049" formatted="false">"ツールチップ"</string>
+  <string name="text_3a0deda" formatted="false">"スムーズなカメラの動き"</string>
+  <string name="text_1a976048" formatted="false">"スクロール速度"</string>
+  <string name="text_d7a19c29" formatted="false">"ゆっくりと"</string>
+  <string name="text_d3f969a5" formatted="false">"ノーマル"</string>
+  <string name="text_2ee35139" formatted="false">"速い"</string>
+  <string name="text_3dcdba6c" formatted="false">"カーソル"</string>
+  <string name="text_ec7adcfb" formatted="false">"矢印"</string>
+  <string name="text_ff3ce" formatted="false">"剣"</string>
+  <string name="text_3b44416a" formatted="false">"サウンドオン"</string>
+  <string name="text_166c3f7d" formatted="false">"音楽の音量"</string>
+  <string name="text_5c2e3288" formatted="false">"エフェクトボリューム"</string>
+  <string name="text_f62c5aca" formatted="false">"話量"</string>
+  <string name="text_3b723ff6" formatted="false">"ジーニー"</string>
+  <string name="text_81c559da" formatted="false">"管理"</string>
+  <string name="text_c16adbbf" formatted="false">"カーソル付きタッチパッド"</string>
+  <string name="text_b99001af" formatted="false">"タッチパッドの感度"</string>
+  <string name="text_5d0828c0" formatted="false">"ボタンのサイズ"</string>
+  <string name="text_e4f123e1" formatted="false">"ボタンの不透明度"</string>
+  <string name="text_5f6b07f0" formatted="false">"タッチコントロールボタン"</string>
+  <string name="text_4064640" formatted="false">"画面上、サイドリスト、および事務員の本に別々のボタンを配置します。どのボタンも非表示にすることができます。 LMB はデフォルトでは非表示になっています。"</string>
+  <string name="text_7ce69eca" formatted="false">"サイドゾーン"</string>
+  <string name="text_82162e12" formatted="false">"各ゾーンのコマンドまたは個別のタップアンドホールドアクションのリスト"</string>
+  <string name="text_5e1fff23" formatted="false">"左ゾーン"</string>
+  <string name="text_61e3d6f8" formatted="false">"右ゾーン"</string>
+  <string name="text_31963493" formatted="false">"完了"</string>
+  <string name="text_fdaf9ab1" formatted="false">"スワイプで建物のセクションを切り替えます"</string>
+  <string name="text_62ae5442" formatted="false">"振動"</string>
+  <string name="text_d6ec4c34" formatted="false">"タッチ診断"</string>
+  <string name="text_b7c1cc15" formatted="false">"ボタンのレイアウトを変更する"</string>
+  <string name="text_9c62f9a0" formatted="false">"一時停止中のプレビュー: 移動、ピンチまたはスライダー サイズ、保存してキャンセル"</string>
+  <string name="text_8d8b72a0" formatted="false">"まず、ゲームを起動します。ゲーム画面上部のレイアウトが変わります。"</string>
+  <string name="text_7452e6e7" formatted="false">"リセットボタンのレイアウト"</string>
+  <string name="text_f63bb278" formatted="false">"元の場所が復元されました"</string>
+  <string name="text_e075984c" formatted="false">"コマンド一覧"</string>
+  <string name="text_ff22ffb8" formatted="false">"タップアンドホールドアクション"</string>
+  <string name="text_a0d9976b" formatted="false">"モード: "</string>
+  <string name="text_3c346897" formatted="false">"タップ: "</string>
+  <string name="text_425441f4" formatted="false">"何もない"</string>
+  <string name="text_18219bca" formatted="false">"保留: "</string>
+  <string name="text_e4e01701" formatted="false">"リストコマンド"</string>
+  <string name="text_79a043" formatted="false">"左側ゾーン"</string>
+  <string name="text_6766d318" formatted="false">"右サイドゾーン"</string>
+  <string name="text_280c7d94" formatted="false">"サイドゾーンモード"</string>
+  <string name="text_3bee53e8" formatted="false">"戻る"</string>
+  <string name="text_c93e0a86" formatted="false">"保持アクション"</string>
+  <string name="text_ea1afa49" formatted="false">"タップによるアクション"</string>
+  <string name="text_d85b3a2" formatted="false">"画面上で"</string>
+  <string name="text_4940f932" formatted="false">"隠された"</string>
+  <string name="text_940437ba" formatted="false">"左側のゾーンで"</string>
+  <string name="text_850bf3f3" formatted="false">"適切なゾーンで"</string>
+  <string name="text_be0cece" formatted="false">"筆記者の本の中で"</string>
+  <string name="text_381c15a5" formatted="false">"ボタンを選択してください"</string>
+  <string name="text_6930c0ed" formatted="false">"オリジナルボタン"</string>
+  <string name="text_58dee6e2" formatted="false">"全画面表示"</string>
+  <string name="text_21fe03e4" formatted="false">"ゲームを再度開始するときに適用されます"</string>
+  <string name="text_a8f56f96" formatted="false">"フレームの高さはゲーム モード自体からのものです。 「全画面」: 画面の比率に合わせたフレーム幅で、側面に余白はありません。 "</string>
+  <string name="text_535e0f4c" formatted="false">"オフ - マージン付きの 16:9 ゲーム モード (600 ライン - 4:3)。"</string>
+  <string name="text_1c807936" formatted="false">"マップフィルター"</string>
+  <string name="text_b4a6b086" formatted="false">"インターフェースとメニューフィルター"</string>
+  <string name="text_9d5299a9" formatted="false">"最小限のグラフィックを設定する"</string>
+  <string name="text_18318ed4" formatted="false">"最小解像度、バイリニア フィルター、シャープ化なし、グラデーション スムージングなし、クリア テキストなし。解決策 - ゲームを再起動した後。"</string>
+  <string name="text_d009bb6" formatted="false">"最小グラフィックスを設定しますか?"</string>
+  <string name="text_e169a424" formatted="false">"最小解像度とバイリニア フィルターが選択され、シャープ化、グラデーション スムージング、およびクリア テキストが無効になります。ゲームを再起動すると解像度が変わります。その前の試合を保存します。"</string>
+  <string name="text_50c0fca2" formatted="false">"最小グラフィックスセット。再開する前に試合を保存してください。"</string>
+  <string name="text_134c4b51" formatted="false">"工事中の虫眼鏡"</string>
+  <string name="text_bdc49d14" formatted="false">"拡大鏡のサイズ"</string>
+  <string name="text_d4381850" formatted="false">"虫眼鏡で拡大する"</string>
+  <string name="text_2802cc6e" formatted="false">" 行 · "</string>
+  <string name="text_a491b1c" formatted="false">" (推奨)"</string>
+  <string name="text_ed627e79" formatted="false">" (最低限)"</string>
+  <string name="text_4df3cfcb" formatted="false">"自動 · "</string>
+  <string name="text_a67f2ed1" formatted="false">"最低・ "</string>
+  <string name="text_b92cd745" formatted="false">"デバイス・ "</string>
+  <string name="text_1ea4f7a" formatted="false">"オフ"</string>
+  <string name="text_9cc4fef4" formatted="false">"設定をリセットする"</string>
+  <string name="text_13c03dbd" formatted="false">"このエディションのグラフィック、サウンド、ゲームプレイ、コントロール、ボタンのレイアウト"</string>
+  <string name="text_fbdadfcb" formatted="false">"設定をリセットしますか?"</string>
+  <string name="text_5c9aa70f" formatted="false">"元のグラフィックス、サウンド、ゲーム、コントロール設定を復元します。"</string>
+  <string name="text_2212d98f" formatted="false">"「？ボタン配置もリセットされます。セーブフォルダーとゲームフォルダーは残ります。"</string>
+  <string name="text_20185fcf" formatted="false">"リセット"</string>
+  <string name="text_95756cc3" formatted="false">"元の設定が復元されました。解決策 - ゲームを再起動した後。"</string>
+  <string name="text_e9b3ed23" formatted="false">"LAN接続が失われました"</string>
+  <string name="text_8c56b252" formatted="false">"試合は他のプレイヤーと同期しなくなりました。新しいオンライン ゲームの場合は、ロビーに戻ってください。"</string>
+  <string name="text_cd2e947f" formatted="false">"メニューを開く"</string>
+  <string name="text_397db4c9" formatted="false">"泊まる"</string>
+  <string name="text_e17e86d7" formatted="false">"最後のゲームを保存できませんでした"</string>
+  <string name="text_e361570e" formatted="false">"レーダー：「敵/味方」のカラーリング"</string>
+  <string name="text_9e26dc2e" formatted="false">"レーダー: 支配者の色"</string>
+  <string name="text_5426ab15" formatted="false">"レリーフは平らになっています"</string>
+  <string name="text_b4a44764" formatted="false">"レリーフ表示"</string>
+  <string name="text_2d0109a6" formatted="false">"ゲームライブラリのロードに失敗しました: "</string>
+  <string name="text_4cb18659" formatted="false">"ゲームのプロセス状態を記録できませんでした: "</string>
+  <string name="text_713f2555" formatted="false">"書き留める "</string>
+  <string name="text_593c73fa" formatted="false">"電話をかける "</string>
+  <string name="text_81cc2e8c" formatted="false">"ポイント "</string>
+  <string name="text_7b2e487f" formatted="false">"分隊 "</string>
+  <string name="text_9f626b72" formatted="false">"プロファイルフォルダーを開けませんでした: "</string>
+  <string name="text_cef3e0b" formatted="false">"起動ステータスの書き込みに失敗しました"</string>
+  <string name="text_f6705b85" formatted="false">"MODの適用に失敗しました: "</string>
+  <string name="text_9b698f2c" formatted="false">"ゲームストリームの作成に失敗しました。"</string>
+  <string name="text_b73264df" formatted="false">"Auto+: 次回ゲーム起動時から "</string>
+  <string name="text_94178ee5" formatted="false">"地図の縮尺 "</string>
+  <string name="text_dbdce9de" formatted="false">"。クリックすると 100% に戻ります"</string>
+  <string name="text_f8e1b788" formatted="false">"速度"</string>
+  <string name="text_2ed35202" formatted="false">"ゲームスピード "</string>
+  <string name="text_908c5443" formatted="false">"ランチャー"</string>
+  <string name="text_6505de10" formatted="false">"別のゲーム"</string>
+  <string name="text_3d783ca2" formatted="false">"ボタン"</string>
+  <string name="text_b242fa66" formatted="false">"ゾーンアクション"</string>
+  <string name="text_3c2749d3" formatted="false">"リセット"</string>
+  <string name="text_345e4ebd" formatted="false">"保存"</string>
+  <string name="text_771c4a21" formatted="false">"すべてのボタンとゾーン"</string>
+  <string name="text_6da7435b" formatted="false">"選択した項目"</string>
+  <string name="text_2bb11c12" formatted="false">"プレビューでリセット"</string>
+  <string name="text_cbea86b0" formatted="false">"選択した要素のサイズまたは幅"</string>
+  <string name="text_7d09312e" formatted="false">"選択したゾーンの高さ"</string>
+  <string name="text_1c91ec15" formatted="false">"遅い"</string>
+  <string name="text_ad86d905" formatted="false">"より速く"</string>
+  <string name="text_25736bb0" formatted="false">"地図を反時計回りに回転"</string>
+  <string name="text_deee81ed" formatted="false">"地図を時計回りに回転"</string>
+  <string name="text_9f22a8aa" formatted="false">"コントロールをセットアップする"</string>
+  <string name="text_128ace70" formatted="false">"一時停止メニュー"</string>
+  <string name="text_3bd45817" formatted="false">"左"</string>
+  <string name="text_46242f22" formatted="false">"右"</string>
+  <string name="text_372daac6" formatted="false">" コマンド領域: クリックして表示または非表示にします。長押ししてジェスチャーで選択"</string>
+  <string name="text_10846330" formatted="false">" コマンドゾーン。タップ: "</string>
+  <string name="text_a31f1f85" formatted="false">";ホールド: "</string>
+  <string name="text_28198ae" formatted="false">"ランチャーを開く"</string>
+  <string name="text_47d71fc6" formatted="false">"非公式クルセイダーパッチの設定"</string>
+  <string name="text_f6b7f63e" formatted="false">"ゲーム・ "</string>
+  <string name="text_76a9fba6" formatted="false">"一時停止/続行"</string>
+  <string name="text_ef035265" formatted="false">"税金とお金と食事"</string>
+  <string name="text_366d1184" formatted="false">"主を回復する"</string>
+  <string name="text_127fdd5c" formatted="false">"カードの種類"</string>
+  <string name="text_40f8487d" formatted="false">"動物を取り除く"</string>
+  <string name="text_b40852fd" formatted="false">"地形の継ぎ目"</string>
+  <string name="text_b214cb0e" formatted="false">"マップエディター"</string>
+  <string name="text_996eed65" formatted="false">"：押して保持し、もう一度押して放します"</string>
+  <string name="text_84a2a892" formatted="false">"：別の指でカーソルを押しながら移動します"</string>
+  <string name="text_c5ff77a4" formatted="false">"左スティック - カーソル\n右スティック - カメラ\nA / B - LMB / RMB (長押し可能)\nX - 地形 Y - 一時停止\nLB / RB - スケール/リストスクロール\nLT - 正確なガイダンス RT - Shift\n十字キー ↑ / ↓ - 速度\n十字キー ← / → - 地図回転\nL3 - スケール 100% R3 - ロック (F1)\nスタート - メニュー選択 /背面 - レイアウト"</string>
+  <string name="text_5bdffeb8" formatted="false">"組み合わせの選択を長押しします:\n↑ → ↓ ← - 分隊 1-4\nA B X Y - 分隊 5-8 LB - 分隊 9\nRT の追加 - 分隊の記録\nLT の追加 - マップ ポイント 1-9\nLT + RT - マップ ポイントの記録\nRB - レーダー カラー L3 - 予約コマンド\nR3 - キーボード スタート - 設定\n\nカーソルは 30 秒後に消えます。非活動性。\n閉じる: A、B、開始、または選択。"</string>
+  <string name="text_feb3681" formatted="false">"ゲームパッド・レイアウト"</string>
+  <string name="text_2a77e835" formatted="false">"アレンジメントエディター: 要素を選択してドラッグし、2 本の指でサイズを調整します"</string>
+  <string name="text_9824700e" formatted="false">"項目を選択します。ドラッグ;サイズ - ピンチまたはスライダー。"</string>
+  <string name="text_3c04bfa1" formatted="false">"部隊"</string>
+  <string name="text_3c3b63e9" formatted="false">"ブックマーク"</string>
+  <string name="text_69353b01" formatted="false">"幅: "</string>
+  <string name="text_73d35386" formatted="false">"サイズ: "</string>
+  <string name="text_6afd712a" formatted="false">"身長: "</string>
+  <string name="text_6663223b" formatted="false">"ゲームフィールド: タッチ、ドラッグ選択、2 本指でマップ"</string>
+  <string name="text_31f6a807" formatted="false">"分隊を呼ぶ"</string>
+  <string name="text_c147bfd8" formatted="false">"選択したチームを記録する"</string>
+  <string name="text_62460ad7" formatted="false">"マップポイントに移動"</string>
+  <string name="text_4551ce12" formatted="false">"マップポイントを記録する"</string>
+  <string name="text_e4ea7ac8" formatted="false">"セルに書き込む"</string>
+  <string name="text_2079c993" formatted="false">"セルを選択"</string>
+  <string name="text_da5ce02b" formatted="false">"登録"</string>
+  <string name="text_e1d8a8e6" formatted="false">"呼び出す"</string>
+  <string name="text_c3b66742" formatted="false">"中央：キャンセル"</string>
+  <string name="text_d8ce0722" formatted="false">" ・虫眼鏡"</string>
+  <string name="text_c975cf94" formatted="false">"ゲームパッド %.0f、%.0f"</string>
+  <string name="text_1eedcf3" formatted="false">"マウス"</string>
+  <string name="text_4a6be62a" formatted="false">"タッチパッド"</string>
+  <string name="text_1cf2a817" formatted="false">"指 %.0f、%.0f"</string>
+  <string name="text_2e32007a" formatted="false">"\n\nClerk\'s Book: 長押ししてリストを開き、コマンドを押すかスワイプしてリストを選択し、放します。本をもう一度タップすると、リストが非表示になります。割り当てはボタン カタログを通じて変更されます。\n\nサイドゾーンはデフォルトでは空です。コマンドを左または右のゾーンに割り当てます。タップすると垂直リストが開き、同じゾーンをもう一度タップするとリストが非表示になります。 3 分の 1 秒ほど押したままにして、コマンドに向かって指を動かし、指を放して実行します。\n\nレイアウト エディターに一時停止が表示されます。ボタンまたはゾーンを選択してドラッグし、2 本の指、スライダー、またはコーナーでサイズを変更します。 「ボタン」は、画面上、ブック内、およびサイド領域でのコマンドの配置を指定します。 「ゾーンアクション」は、リストまたは個別のタップアンドホールドの割り当てを切り替えます。変更は「保存」によってのみ適用されます。 「キャンセル」または Android の「戻る」を選択すると、前のレイアウトに戻ります。"</string>
+  <string name="text_8d249b77" formatted="false">"ストロングホールド HD をコントロール"</string>
+  <string name="text_fd0b4522" formatted="false">"地図上でタップして部隊を選択したり命令を出したり、指をスライドさせてカメラを動かします。軍隊のフレームを構成したり、壁を描画するには、指を 3 分の 1 秒ほど押し続けてからドラッグします。押し続けると、構築または選択がキャンセルされます。\n\n2 本の指: シフト - カメラ、ピンチまたはスプレッド - ジェスチャの中央付近でスムーズにズームします。レーダーの上のパーセンテージをタップすると 100% が返され、約 4 分の 1 回転してマップを回転 (C / X) し、短くタップしてキャンセルします。レーダーを押し続けると地形が切り替わり、その上を 2 本の指で短くタップすると、「友人/敵」の色が表示されます。\n\nメニューやウィンドウで、タップしてボタンを押すか、テキスト フィールドのキーボードを開きます。ドラッグするとスライダーとリストがプルされます。書記の本を長押しすると、コマンドの縦方向のリストが開きます。デフォルトでは、コントロール設定と一時停止メニューがあります。 Android の「戻る」でゲーム メニューが開きます (Esc)。\n\n建物パネルをスワイプすると、利用可能なセクションが切り替わります。選択した建物が強調表示され、その隣にその名前とコストが表示されます。場所を選択するときの虫眼鏡は、デフォルトではオフになっています。サイズと近接性は設定で変更できます。\n\n分隊ボタンとポイント ボタンは、レイアウト エディターのボタン カタログを介して追加されます。グループ: 選択した部隊をタップ - 録音、長押し - 通話;もう一度呼び出すとカメラが中央に配置されます。ドット: タップして移動し、押したままにして現在のビューを記録します。円の中心または背後の領域の選択が解除されます。\n\nゲーム速度、サウンド、スクロール、インターフェイス サイズ、クリア テキスト、タッチパッド、ボタン レイアウトは設定で利用できます。 「フルスクリーン」はデバイスのアスペクト比を選択します。 「⇄」ボタンを押すと、ゲームとランチャー間の遷移が開きます。"</string>
+  <string name="text_7bbca9d2" formatted="false">"なるほど"</string>
+  <string name="text_7b305f23" formatted="false">"マップ上: タップ - 選択または順序、ダブルタップ - 同じタイプのユニット。指をスライドさせるとカメラが動きます。フレームの場合は、まず指を 3 分の 1 秒ほど押したままにしてから、引っ張ります。\n\nマップを押し続けると、ハイライト、構造、または能力がキャンセルされます。キャンセルするものが何もなければ、安心感は均等になります。レーダーを長押しすると地形も切り替わります。\n\n2本の指でカメラを動かし、ズームを変更します。 2 本の指で約 4 分の 1 回転させると、カードが 90 度回転します。 2 本の指で短くタップしてキャンセルします。レーダーの上にあるのは「敵/味方」のカラーリングです。レーダー上のスケール値をタップすると 100% が返されます。\n\nメニューで、タップしてボタンを押し、長押しすると説明が表示されます。スライダーとリストはドラッグできます。書記の本を持つと、コマンドの縦方向のリストが開きます。エディターで、パネルの左側にペンを置きます。 「配置」ボタンを使用すると、各ボタンを個別にドラッグできます。 Androidの「戻る」でゲームメニューが開きます。\n\n分隊ボタンとポイント ボタンは、レイアウト エディターのボタン カタログを介して追加されます。グループ: 選択した部隊をタップ - 録音、長押し - 通話;もう一度呼び出すとカメラが中央に配置されます。ドット: タップして移動し、押したままにして現在のビューを記録します。円の中心または背後の領域の選択が解除されます。\n\n建物パネルをスワイプすると、利用可能なセクションがスクロールします。左 - 次、右 - 前。サブセクションから任意の方向にスワイプすると、次のセクションが開きます。選択した建物のボタンが強調表示されます。\n\n虫眼鏡: 指で建物、壁、破壊、または能力の場所を選択すると、マップの拡大された部分が近くに表示されます。虫眼鏡を使わずに、短くタップするだけですぐに表示されます。\n\n振動によりズーム設定が 100% にマークされ、建物のセクションが変更され、ユニットとマップ ポイントを押し、回転して選択します。虫眼鏡と振動は設定でオフにすることができます。\n\nマウスとキーボード (USB または Bluetooth): マウスを使用すると、ポインティング、LMB および RMB、画面端のカメラのスクロールなど、PC と同じようにゲームが動作します。マッチ ホイールはカーソルの周りのスケールを変更し、メニューやリストをスクロールします。中央のボタンを押しながらドラッグするとマップが移動し、中央のボタンをクリックすると 100% に戻ります。キー - オリジナルと同様: Esc - メニュー、スペース - レリーフ、+/- テンキー - 速度、X/C - 回転。画面をタップすると、タッチ コントロールが再びアクティブになります。\n\nタッチパッド - 追加のカーソル モード。タッチは LMB で実行されます。コントロール設定で別の LMB ボタンを有効にすることができます。"</string>
+  <string name="text_3974cee0" formatted="false">"選択したフィールドのテキスト"</string>
+  <string name="text_9dcaa1b2" formatted="false">"テキストを入力する"</string>
+  <string name="text_156c037a" formatted="false">"テキストの送信に失敗しました。繰り返す。"</string>
+  <string name="text_e75a395d" formatted="false">"ゲームを再起動する必要があります"</string>
+  <string name="text_8eb11e4d" formatted="false">"起動オプションが変更されました。マッチがまだ保存されていない場合は、ゲームに戻って保存します。次に、ゲームを閉じてランチャーから起動します。"</string>
+  <string name="text_1f3ca4a8" formatted="false">"試合終了"</string>
+  <string name="text_7aa86411" formatted="false">"ゲームに戻る"</string>
+  <string name="text_7bda8a8" formatted="false">"再度ゲームを起動すると解像度が変わります。まず試合を保存します。"</string>
+  <string name="text_6bbeeed" formatted="false">"フォルダーを開けませんでした: "</string>
+  <string name="text_700a6ce" formatted="false">"選択したフォルダー内にサポートされているゲーム ファイル (sh.tex または cr.tex、gfx、マップ、EXE、および DLL) が見つかりませんでした。"</string>
+  <string name="text_a4644fc1" formatted="false">"マップ %08X.map"</string>
+  <string name="text_ab4773ef" formatted="false">"不明な言語 ("</string>
+  <string name="text_fb8eb11f" formatted="false">"言語ファイルが利用できません"</string>
+  <string name="text_7fefc6fe" formatted="false">"ゲームフォルダーの絶対パス(512バイト以内)を指定してください。"</string>
+  <string name="text_9f82bc76" formatted="false">"ゲームフォルダーが利用できません: "</string>
+  <string name="text_77e593d2" formatted="false">"ゲームフォルダーが見つからないか、アクセスできません: "</string>
+  <string name="text_1d7e051d" formatted="false">"Extreme には、mapsExtreme フォルダーが必要です。"</string>
+  <string name="text_28b1d162" formatted="false">"見つかりません "</string>
+  <string name="text_27fd156" formatted="false">"\nEXEとDLLを含む解凍されたゲームを選択するか、隣接するフォルダーを保存します "</string>
+  <string name="text_b8a27c7e" formatted="false">"EXE バージョンは、ポートの構築に使用されたものとは異なります。 "</string>
+  <string name="text_9d1f8785" formatted="false">"\n互換性は保証されていません。エラーやクラッシュが発生する可能性があります。"</string>
+  <string name="text_6e53cedb" formatted="false">"サポートされていないファイル バージョン: "</string>
+  <string name="text_5bd43a34" formatted="false">"。元のファイルが必要です "</string>
+  <string name="text_1cc40d25" formatted="false">"、ポートを組み立てるときに使用します。"</string>
+  <string name="text_5bb3e0b9" formatted="false">"チェックに失敗しました "</string>
+  <string name="text_1c8469ed" formatted="false">"間違った mod.properties: ID、名前、エディションが必要です"</string>
+  <string name="text_b2bafaf5" formatted="false">"mod.properties がありません"</string>
+  <string name="text_eb403ade" formatted="false">"MOD内にファイルフォルダーがありません"</string>
+  <string name="text_a50d5f02" formatted="false">"Mod ID がフォルダーと一致しません"</string>
+  <string name="text_bf68a7c2" formatted="false">"modsフォルダの作成に失敗しました"</string>
+  <string name="text_e301efe5" formatted="false">"MODのインストールがキャンセルされました"</string>
+  <string name="text_da0f7a1b" formatted="false">"MOD内のファイルが多すぎます"</string>
+  <string name="text_1d86aacf" formatted="false">"無効な MOD パス: "</string>
+  <string name="text_ac61087a" formatted="false">"modフォルダーの外のパス"</string>
+  <string name="text_2dbc90bc" formatted="false">"フォルダーの作成に失敗しました"</string>
+  <string name="text_4806bcdb" formatted="false">"MODが大きすぎる、または十分なスペースがありません"</string>
+  <string name="text_c0c24538" formatted="false">"ID付きMOD "</string>
+  <string name="text_589d7d1e" formatted="false">" すでにインストールされています。まず古いバージョンをアンインストールします"</string>
+  <string name="text_dfc00caa" formatted="false">"modsフォルダーの外のパス"</string>
+  <string name="text_dcab549e" formatted="false">"UCP設定ファイルが大きすぎます"</string>
+  <string name="text_3885cbb8" formatted="false">"互換性のないバージョンの UCP 設定"</string>
+  <string name="text_37ee1202" formatted="false">"不正な UCP バージョン"</string>
+  <string name="text_21477ff3" formatted="false">"無効な UCP ID"</string>
+  <string name="text_d8f45539" formatted="false">"MODフォルダの接続に失敗しました"</string>
+  <string name="text_9eb924ea" formatted="false">"不正なインストーラー データ"</string>
+  <string name="text_bb7b574e" formatted="false">"サポートされていない GOG インストーラー"</string>
+  <string name="text_a7626e40" formatted="false">"インストーラーのサイズが正しくありません"</string>
+  <string name="text_935d7c39" formatted="false">"インストーラーファイル名が無効です"</string>
+  <string name="text_3a38ea3a" formatted="false">"GOG インストーラーの読み込みに失敗しました"</string>
+  <string name="text_e9f593c1" formatted="false">"インストーラーは利用できません"</string>
+  <string name="text_71aaf593" formatted="false">"インストーラーが壊れているか、まだダウンロードされていません"</string>
+  <string name="text_fe6aedd5" formatted="false">"30 秒以内にインストーラーを読み取ることができませんでした"</string>
+  <string name="text_b941bd0a" formatted="false">"インストーラーデータが多すぎます"</string>
+  <string name="text_8650ed8e" formatted="false">"GOG EXEの読み込みに失敗しました。 EXE と隣接する BIN のロードを確認します。\n"</string>
+  <string name="text_a028f060" formatted="false">"設置スペースが足りない"</string>
+  <string name="text_8daf5f21" formatted="false">"インストーラー文字列が長すぎます"</string>
+  <string name="text_cb58dac1" formatted="false">"UCP ディレクトリが大きすぎます"</string>
+  <string name="text_baeab032" formatted="false">"説明と制限事項"</string>
+  <string name="text_d4663468" formatted="false">"行を長押しすると、関数の説明が表示されます。\n\nパラメータは、あらかじめ用意されている Android プロファイルの値を使用します。初期状態ではすべての機能が無効になっています。\n\nまだ利用できません:\n"</string>
+  <string name="text_c4ca9a3e" formatted="false">"変更はゲームを再起動すると適用されます。"</string>
+  <string name="text_761ec6a6" formatted="false">"この機能は、すでに有効になっている機能と競合します。そのうちの 1 つを選択してください。"</string>
+  <string name="text_894c55a6" formatted="false">"適用して再起動する"</string>
+  <string name="text_c1d8dcca" formatted="false">"すべて無効にする"</string>
+  <string name="text_5eac72ff" formatted="false">"デバイス言語"</string>
+  <string name="text_4c8d6e38" formatted="false">"インターフェース言語"</string>
+  <string name="text_1ee890a" formatted="false">"メニュー"</string>
+  <string name="text_3c0ab0cb" formatted="false">"一時停止"</string>
+  <string name="text_1e9f216" formatted="false">"文字入力"</string>
+  <string name="text_e72d2f88" formatted="false">"配置"</string>
+  <string name="text_2f4b6762" formatted="false">"その他のゲーム/ランチャー"</string>
+  <string name="text_6de00461" formatted="false">"F1 · 城"</string>
+  <string name="text_47436775" formatted="false">"地形"</string>
+  <string name="text_c55b4d28" formatted="false">"ズーム"</string>
+  <string name="text_789ab605" formatted="false">"エディターのアクション"</string>
+  <string name="text_fec9d" formatted="false">"左クリック"</string>
+  <string name="text_ffba1" formatted="false">"右クリック"</string>
+  <string name="text_b2b43e17" formatted="false">"マップのズーム"</string>
+  <string name="text_1feddd8" formatted="false">"立ち入り禁止の建物は取り壊さない"</string>
+  <string name="text_452ad1bd" formatted="false">"AI がアクセスできない建物を破壊するのを防ぎます。これにより、AI\nがアクセスできない建物を継続的に破壊したり再建したりすることがなくなるはずです。"</string>
+  <string name="text_ac28330" formatted="false">"追加攻撃部隊の速度の増加"</string>
+  <string name="text_defb6765" formatted="false">"バニラでは攻撃ユニットが平均5&amp;\nユニット増加する。これがここにいる全員にとっての意味です。"</string>
+  <string name="text_c8794600" formatted="false">"包囲中に AI ターゲットは変更されない"</string>
+  <string name="text_ea7d305f" formatted="false">"AI の領主は、最も強力な敵や最も弱い敵を攻撃することもあり、\n進行中の攻撃の途中でターゲットを切り替え、軍隊を別の城に送り込みます。\n。これはこの設定で防止されます。攻撃が開始され、\n、つまり城の前で軍隊が集まっている段階でも、変更が発生する可能性があります。"</string>
+  <string name="text_3a58fc20" formatted="false">"AI攻撃部隊の制限を増加"</string>
+  <string name="text_9f0fa654" formatted="false">"バニラでは最初の攻撃と\n後に追加される追加ユニットの数は200までです。ここでこの制限を変更できます。"</string>
+  <string name="text_e53043e9" formatted="false">"AI攻撃ターゲットの設定"</string>
+  <string name="text_c1544a8a" formatted="false">"攻撃ウェーブの改善"</string>
+  <string name="text_56bf559c" formatted="false">"バニラでの攻撃における AI は、壁が無傷の場合と同じ数の軍隊を一度に送り込みます。これにより、ターゲットの城の壁のすぐ外側に多くの建物がある場合、ユニットが小さな\n波で死亡します。このオプションでは、ユニットが民間建物や要塞の建物に加えて、すでに 1 つのユニットによって攻撃されている\n壁を攻撃することができます。さらに、AIは壁が破壊されたことを検出するとすぐに、敵の領主にさらに多くの軍隊を送ります。"</string>
+  <string name="text_87f0374c" formatted="false">"十分な量の木材を購入する"</string>
+  <string name="text_1a97404f" formatted="false">"アーチャー泥棒が、AI が建物用に購入したばかりの木材を盗むことができないようにするためです。\nAI は建物ごとに追加の木材を 2 ユニット購入するようになります。"</string>
+  <string name="text_9d075c1d" formatted="false">"AI防衛部隊の増援を修正"</string>
+  <string name="text_8ff5c08c" formatted="false">"防御パトロールがまだ存在している間、AIが壁や塔で行方不明の部隊を増援しない原因となっていたバグを修正しました。"</string>
+  <string name="text_285bc551" formatted="false">"AI ロードの金のために解体を無効にする"</string>
+  <string name="text_dd03c78" formatted="false">"ヨーロッパの射手が油溝に向かって射撃しない問題を修正"</string>
+  <string name="text_dc18c73c" formatted="false">"(AI) ヨーロッパの射手が敵ユニットに攻撃されたときにアラブの射手のように堀に火をつけない問題を修正。"</string>
+  <string name="text_3b8c03e6" formatted="false">"利用可能な場合はしごを使用しない AI を修正。"</string>
+  <string name="text_48597cd" formatted="false">"AI (特にスネーク) は、密閉空間にいる場合に攻城兵器を備えたはしごの使用を停止しなくなりました。"</string>
+  <string name="text_65f9d31a" formatted="false">"住宅の建設と撤去のための AI ソリューションのセットアップ"</string>
+  <string name="text_bce08238" formatted="false">"リソースが少ないため休止状態を無効にする"</string>
+  <string name="text_5436458" formatted="false">"AI は通常、必要なリソースが不足しているため、処理建物をスリープ状態にします。\nこれは、武器庫に向かう途中での食料や武器の損失を考慮せずに行われます。\nこの機能はここで完全に無効にすることができます。"</string>
+  <string name="text_dae17703" formatted="false">"AI修復の改善"</string>
+  <string name="text_b470fb65" formatted="false">"AI は塔の廃墟、わずかに損傷した壁を修復し、&amp;\nは集会所 &amp;\nがまだ存在するエンジニアリングおよびトンネル掘削ギルドと石油精製プラットフォームを破壊します。さらに、AI は採石場の採集と\nプラットフォーム上に構築できるようになりました。"</string>
+  <string name="text_c6d39296" formatted="false">"採用スピードの向上"</string>
+  <string name="text_81a08df1" formatted="false">"すべての AI のリクルート間隔を最低値に設定します (Rat/Richard)"</string>
+  <string name="text_5852fbee" formatted="false">"防御のための最初の AI 採用時間を設定する"</string>
+  <string name="text_98504523" formatted="false">"必要な商品の AI 補充を改善する"</string>
+  <string name="text_e5362373" formatted="false">"AIは、金を持っていても商品を補充しないことが多く、生産チェーンが枯渇したままになります。このオプションにより、AI が必要な商品を補充する前に在庫が空になるまで待機する時間が短縮されます。"</string>
+  <string name="text_411fb045" formatted="false">"テザースパムを無効にします"</string>
+  <string name="text_b0668156" formatted="false">"通常、AI は、既存のテザーの数に関係なく、新しい採石場ごとに新しいテザーと\nを構築します。 &amp;\nAI キャリアが繰り返し破壊されるとスパムにつながるため、ここでこれを無効にすることができます。"</string>
+  <string name="text_58c13e33" formatted="false">"タワー上の攻城兵器に制限なし"</string>
+  <string name="text_fd22b83d" formatted="false">"AI は通常、タワー上に最大 3 つのマンゴネルとバリスタを構築します。 &amp;\nこの制限はここで削除できます。"</string>
+  <string name="text_75701bbb" formatted="false">"リンゴ農園の面積"</string>
+  <string name="text_1155fd0d" formatted="false">"リンゴ園の建物のサイズを、農場の位置に応じて占有するサイズに変更します。これにより、ファームを構築する際のスペースが節約され、AI がこれらのファームを配置する速度が向上します。"</string>
+  <string name="text_399176b3" formatted="false">"武器庫/市場の武器を注文に合わせて修正"</string>
+  <string name="text_729e4f00" formatted="false">"武器庫とマーケットの武器アイコンの順序が同じになるように変更しました。また、マーケット内のアイテムをスクロールするときにアクセスしやすくするために、革製の鎧をメイスとクロスボウの間に、金属製の鎧をパイクと剣の間に移動します。"</string>
+  <string name="text_b7349c41" formatted="false">"攻城兵器のスポーン位置は中央です"</string>
+  <string name="text_1c8fc28d" formatted="false">"攻城兵器はテントの上隅ではなく中央に出現するようになりました。"</string>
+  <string name="text_9644382a" formatted="false">"マルチプレイヤー速度をデフォルトに設定します。"</string>
+  <string name="text_589c7e28" formatted="false">"包囲テントの選択はありません"</string>
+  <string name="text_18b28856" formatted="false">"この設定では、複数のテント\nを設置した後でも、ゲームは選択した攻城兵器をキャンセルしません。こうすることで、同じ攻城兵器を再度選択することなく、複数のテントを次々に作成できます。"</string>
+  <string name="text_4feb7c60" formatted="false">"高速配置"</string>
+  <string name="text_1ef65230" formatted="false">"消火された建物の耐火期間を延長する"</string>
+  <string name="text_cc03f437" formatted="false">"ここでは、消滅した建物が火災にならない期間を延長できます。"</string>
+  <string name="text_6e6b12a1" formatted="false">"パン屋が消えるバグを修正"</string>
+  <string name="text_fccb5bb" formatted="false">"パン屋が供給倉庫で小麦粉を見つけなかった場合、パン屋が消滅するバグを修正します。"</string>
+  <string name="text_cf14e917" formatted="false">"シューターのバグを修正"</string>
+  <string name="text_8361dffd" formatted="false">"アーチャーが弓/クロスボウを預けた後、倉庫に直接行かずに職場に戻る動作を修正。"</string>
+  <string name="text_ca54190c" formatted="false">"階段を登るバグを修正"</string>
+  <string name="text_eb50f98e" formatted="false">"ユニットは壁を登った後に目的を忘れなくなり、登った直後に登ったり下ったりしなくなりました。"</string>
+  <string name="text_61a70c46" formatted="false">"マルチプレイヤーでのマップ送信を有効にする"</string>
+  <string name="text_9e950ce" formatted="false">"送信されるマップ名の長さを減らし、マップの送信を再度可能にします。"</string>
+  <string name="text_159da4d9" formatted="false">"溝を掘るときにユニットが消える問題を修正"</string>
+  <string name="text_c2d9827d" formatted="false">"掘削中に溝掘り人がランダムに消えるバグを修正しました。掘っている間に移動するように指示し、誤って歩行者以外のタイルの上に落ちてしまった場合でも、消える可能性があることに注意してください。"</string>
+  <string name="text_863b3398" formatted="false">"リソースの迅速な削除を修正"</string>
+  <string name="text_f103a852" formatted="false">"高速オートクリッカーを使用して建物を削除しても、複数の削除のためのリソースが提供されなくなりました。"</string>
+  <string name="text_325c982e" formatted="false">"フリーマーケット"</string>
+  <string name="text_8f03ccd2" formatted="false">"なぜなら、AIは森から遠く離れて市場が破壊されているとき、時々一人でプレイするからです。 &amp;\nこのオプションは、これを防ぐために市場を自由にします。"</string>
+  <string name="text_f069c318" formatted="false">"高度なゲーム速度制限"</string>
+  <string name="text_fc01c356" formatted="false">"ゲーム速度は次のように変更できるようになりました:\n- 5間隔で10から90まで\n- 10間隔で90から200まで\n- 100間隔で200から1000まで\n- 1100 - 9000 (ただし、1100以降は増加しません)\n新しい値は、 + - キー、スライダー in &amp;\nゲームメニューは変わりません。"</string>
+  <string name="text_678f0452" formatted="false">"ヒーラーは負傷した兵士を治療します"</string>
+  <string name="text_d80b35ab" formatted="false">"薬局の建物のヒーラーは現在、負傷した兵士、村人、動物を積極的に探して治療を行っています。彼は最初に近くのターゲットを回復します。\nアニメーションが再生され、槍兵の体力が 1/3 秒で回復します。ヒーラーが歩くとき、彼は気づいた疫病の雲を払拭することができます。\n彼は完全に治るまで城の 1 つのエリアにいる全員を治し、それから初めて城の別のエリアに移動します。\nまた、彼は庭園に降りるまでは疫病の雲を追い払い始めません。"</string>
+  <string name="text_5537ff62" formatted="false">"利用可能なパスをより頻繁に確認する"</string>
+  <string name="text_c2320354" formatted="false">"バニラでは、新しいパスをテストするのに 200 ゲーム ティックかかり、門や塔をすぐに破壊した後、AI が城に移動できるようにユニットを停止することがよくありました。\n可用性が 50 ゲーム ティックごとに計算されるようになり、ユニットが新しいパスをより速く実装できるようになりました。"</string>
+  <string name="text_7b910129" formatted="false">"WASDボタンとクイックセーブ"</string>
+  <string name="text_da9cb22e" formatted="false">"WASD キーを使用してこの設定を移動したり、\nCTRL-S および CTRL-L を使用してそれぞれすばやく保存およびロードしたりできます。"</string>
+  <string name="text_663f3a2c" formatted="false">"計画された溝を常に表示する"</string>
+  <string name="text_c57cf934" formatted="false">"掘削されていない独自の溝は、溝の配置の選択を解除した場合でも、このオプションでは常に表示されます。"</string>
+  <string name="text_c3793199" formatted="false">"観戦モードを有効にする (AI のみ) [バグの可能性]"</string>
+  <string name="text_980be06e" formatted="false">"プレイヤー 1 を削除すると、同じモードで 8 つの AI のみが表示されるようになります。 &amp;\nこのモードではゲームのセーブが正しくロードされるようになりました。ランダムなオブジェクトがマップ全体に表示されると、&amp;\nエラーが表示されることがあります。これは単なる視覚的なバグであり、\nゲームを保存し、ミッションを完了してリロードし、\nセーブ ファイルをロードすることで削除できます。"</string>
+  <string name="text_b5130776" formatted="false">"新しい機能を追加して「ID のセットアップ」メニューを再定義します。"</string>
+  <string name="text_346aae56" formatted="false">"遠距離ユニットと近接ユニットの選択を [ID のセットアップ] メニューに追加します。」 通常のゲーム モードのみ!"</string>
+  <string name="text_8951aea4" formatted="false">"プレイヤー 1 の色を変更する"</string>
+  <string name="text_e5c92bd" formatted="false">"敵に対するユニットの素早い反応"</string>
+  <string name="text_796f1f14" formatted="false">"危険がなくなると後でゲートが閉まります＆【BR】。敵との門が閉まるまでの距離と\nが200から140に減少します。門が開くまでの時間と\nが1200から100に減少します。"</string>
+  <string name="text_e11c16a2" formatted="false">"エンジニアのアラビア語の復元"</string>
+  <string name="text_47bf4b5e" formatted="false">"プレーヤーがアラビア語の主を使用している場合、エンジニアはネイティブに録音されたアラビア語の音声トラックで話すことができます。\n\n音声ラインは互いにあまり変わらないため、しばらくすると煩わしくなる可能性があります。"</string>
+  <string name="text_ccbd6746" formatted="false">"要塞化"</string>
+  <string name="text_b9c448ff" formatted="false">"プレイヤーの要塞を回転させる"</string>
+  <string name="text_c6a03e85" formatted="false">"プレイヤーの要塞は AI の要塞と同じように回転します。より正確に言うと、彼は AI の炎に向かって立っており、反対側はマップの端にあります。"</string>
+  <string name="text_7431cbf3" formatted="false">"Stronghold Crusader Extreme から魔法のアイコンを削除"</string>
+  <string name="text_732ad036" formatted="false">"Stronghold Crusader Extreme から魔法のアイコンを削除します。"</string>
+  <string name="text_40f0ed66" formatted="false">"u_アラブウォール"</string>
+  <string name="text_40f165ee" formatted="false">"u_arabxbow"</string>
+  <string name="text_fc37c472" formatted="false">" - アラブの剣士は石弓の矢を 3 本ではなく 6 本で射殺される"</string>
+  <string name="text_ea90a6d6" formatted="false">"火災バリスタが僧侶やトンネル掘削人を撃つ"</string>
+  <string name="text_c2f7c701" formatted="false">"ファイアーバリスタは僧侶やトンネル掘削者に自動的に発砲します。"</string>
+  <string name="text_6b6a494d" formatted="false">"ブロックされたリンゴ農場を修正する"</string>
+  <string name="text_395fdc85" formatted="false">"リンゴ農家は、農場の左上に建物を配置してもブロックされなくなりました。"</string>
+  <string name="text_51c1fc58" formatted="false">"主のフリーズアニメーションを修正"</string>
+  <string name="text_6a6653f" formatted="false">"主が立っているとき、または建物を破壊するときの主のフリーズアニメーションを修正しました。"</string>
+  <string name="text_e40f72c0" formatted="false">"遠くの軍隊に対するはしごを備えた農民の装甲を強化"</string>
+  <string name="text_fcd33444" formatted="false">" - はしごを持った農民は5\nではなく12本の矢で死亡 - はしごを持った農民は2\nではなく5本のクロスボウまたはスリンガーショットで死亡 - はしごを持った農民のコストは4ゴールドではなく20ゴールド"</string>
+  <string name="text_8e5eeb6c" formatted="false">"遠距離ユニットからのダメージに対する槍兵の装甲を増加"</string>
+  <string name="text_c3e8d497" formatted="false">" - 槍兵は、3 つではなく 5 つの弓矢が当たると死亡します\n- 槍兵は、クロスボウの 1 発で死ぬのではなく、かろうじて 1 発生き残ります。"</string>
+  <string name="text_73d4b3b4" formatted="false">"槍兵はデフォルトでは歩く代わりに走ります。"</string>
+  <string name="text_ee55b088" formatted="false">"槍兵はゆっくり歩くのではなく、ゆっくりと走ります。"</string>
+  <string name="text_528a62c4" formatted="false">"革細工師が同じ牛を入手する問題を修正"</string>
+  <string name="text_997e4ebf" formatted="false">"他の革細工師がターゲットの牛を奪った場合、革細工師は牛なしでは戻れなくなります。代わりに、彼らは少し待ってから別の牛を連れて行きます。"</string>
+  <string name="text_b06cab43" formatted="false">"EXEの準備に失敗しました"</string>
+  <string name="text_d9afbeb9" formatted="false">"無効なEXE適応形式です"</string>
+  <string name="text_b1da8da8" formatted="false">"EXE が適応と一致しません"</string>
+  <string name="text_db07b86e" formatted="false">"EXEが切り詰められる"</string>
+  <string name="text_b570e58e" formatted="false">"追加EXE適応データ"</string>
+  <string name="text_709de14b" formatted="false">"適応されたEXEのチェックサムが一致しませんでした"</string>
+  <string name="text_fab87405" formatted="false">"行く・ "</string>
+  <string name="text_87fac83a" formatted="false">" 閉店します"</string>
+  <string name="text_402982c5" formatted="false">"AI · 不具合修正"</string>
+  <string name="text_4c783982" formatted="false">"AI · 改善"</string>
+  <string name="text_73372df1" formatted="false">"不具合修正"</string>
+  <string name="text_2d63d878" formatted="false">"バランス調整"</string>
+  <string name="text_8a6cac11" formatted="false">"利便性"</string>
+  <string name="text_462adbaa" formatted="false">"その他"</string>
+  <string name="text_ec7e9b17" formatted="false">"パッチのカテゴリ"</string>
+  <string name="text_a418107d" formatted="false">"作者: %s"</string>
+</resources>

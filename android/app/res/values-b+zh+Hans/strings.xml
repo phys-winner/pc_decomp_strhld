@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="text_9c3f3eda" formatted="false">"Stronghold HD、Crusader 和 Crusader Extreme · Android ARM64"</string>
+  <string name="text_73226756" formatted="false">"选择游戏"</string>
+  <string name="text_bf25f362" formatted="false">"游戏文件"</string>
+  <string name="text_780ea472" formatted="false">"检查已安装的游戏..."</string>
+  <string name="text_3eccf7d" formatted="false">"选择文件夹…"</string>
+  <string name="text_beab1997" formatted="false">"解压 ZIP…"</string>
+  <string name="text_16342f65" formatted="false">"从 GOG 安装…"</string>
+  <string name="text_997ffce7" formatted="false">"更改游戏文件..."</string>
+  <string name="text_37a30576" formatted="false">"启动"</string>
+  <string name="text_cfea62c8" formatted="false">"跳过视频、广告和在线警告"</string>
+  <string name="text_fca6a79b" formatted="false">"启动选项将在下次启动游戏进程时生效。重新启动前请保存游戏。"</string>
+  <string name="text_452078ee" formatted="false">"界面语言…"</string>
+  <string name="text_c688c5f2" formatted="false">"GitHub 上的 UCP"</string>
+  <string name="text_a7a66ff6" formatted="false">"禁用所有 UCP 功能"</string>
+  <string name="text_5b4d7f78" formatted="false">"更改模组前请先退出正在运行的游戏。新设置将在下次启动时生效。"</string>
+  <string name="text_7e32e4c9" formatted="false">"所有 UCP 功能均被禁用。保存数据和本地化包。"</string>
+  <string name="text_d584799a" formatted="false">"正在检查文件..."</string>
+  <string name="text_398251d5" formatted="false">"玩"</string>
+  <string name="text_65aed1e5" formatted="false">"设置"</string>
+  <string name="text_3be6ad8d" formatted="false">"模组…"</string>
+  <string name="text_1eea9b9" formatted="false">"模组"</string>
+  <string name="text_dc795e10" formatted="false">"模组 · "</string>
+  <string name="text_8604996b" formatted="false">"非官方十字军补丁的特点"</string>
+  <string name="text_235cc110" formatted="false">"数据和本地化包"</string>
+  <string name="text_d773e353" formatted="false">"版本和兼容性"</string>
+  <string name="text_be822985" formatted="false">"UCP3的修正版本：\n"</string>
+  <string name="text_93c07082" formatted="false">"\n\nAndroid 使用已适配的 UCP2 Legacy 功能和数据包。列表中标明了每项功能的支持情况。Windows DLL、ASI 和其他 Lua 插件需要单独适配。\n\n保留原始游戏文件。若文件冲突，列表中第一个已启用的数据包优先。"</string>
+  <string name="text_bc760176" formatted="false">"关闭"</string>
+  <string name="text_e5255a4e" formatted="false">"无法检查模组语言"</string>
+  <string name="text_7fd9ff17" formatted="false">"包裹·按住删除"</string>
+  <string name="text_2559db35" formatted="false">"应用"</string>
+  <string name="text_449106b0" formatted="false">"取消"</string>
+  <string name="text_7e140f28" formatted="false">"安装 ZIP..."</string>
+  <string name="text_ef231dd1" formatted="false">"删除“"</string>
+  <string name="text_702d414b" formatted="false">"游戏和保存文件将被保存。"</string>
+  <string name="text_3d84b2c6" formatted="false">"删除"</string>
+  <string name="text_b2eb0c03" formatted="false">"正在安装模组..."</string>
+  <string name="text_f7d7ea15" formatted="false">"检查并解压 ZIP"</string>
+  <string name="text_6041b138" formatted="false">"存档不可用"</string>
+  <string name="text_4ac71ec" formatted="false">"已安装模组"</string>
+  <string name="text_dbcaedd6" formatted="false">"» 可在模组列表中找到 "</string>
+  <string name="text_26dcbf3d" formatted="false">"手动指定文件夹..."</string>
+  <string name="text_827c9d62" formatted="false">"再次检查"</string>
+  <string name="text_32d1af36" formatted="false">"游戏文件夹或共享游戏文件夹"</string>
+  <string name="text_4303cf88" formatted="false">"游戏文件夹"</string>
+  <string name="text_51b025a2" formatted="false">"检查"</string>
+  <string name="text_215eb3ac" formatted="false">"游戏文件位置："</string>
+  <string name="text_bb517237" formatted="false">"可以启动 · "</string>
+  <string name="text_1b4e6798" formatted="false">"所有这三款游戏都已被发现并进行了测试。"</string>
+  <string name="text_86848d19" formatted="false">"请添加文件："</string>
+  <string name="text_a35721c5" formatted="false">"。自动识别文件夹或ZIP；您可以选择包含游戏的共享文件夹。"</string>
+  <string name="text_ce68736f" formatted="false">"允许访问文件"</string>
+  <string name="text_8216fca" formatted="false">"此设备无法使用系统文件夹选择器。"</string>
+  <string name="text_4b88cede" formatted="false">"此设备无法使用系统文件选择器。"</string>
+  <string name="text_79599422" formatted="false">"文件夹中未找到 setup_*.exe 安装程序。所有 BIN 文件必须与 EXE 位于同一文件夹。"</string>
+  <string name="text_634d6aab" formatted="false">"GOG安装程序·选择语言"</string>
+  <string name="text_bb39e0dd" formatted="false">"正在阅读 GOG 安装程序..."</string>
+  <string name="text_a35f8320" formatted="false">"\n游戏文件： "</string>
+  <string name="text_b22fddf3" formatted="false">"。安装后： "</string>
+  <string name="text_579559c3" formatted="false">"。\n压缩块： "</string>
+  <string name="text_1ee4e1" formatted="false">" 来自 "</string>
+  <string name="text_53bd09" formatted="false">"\n安装需要同一文件夹中的 EXE 及所有 BIN 文件。"</string>
+  <string name="text_4d92cf4d" formatted="false">"\n\n安装文件夹： "</string>
+  <string name="text_8d934598" formatted="false">"\n保留原始安装程序。游戏保存单独存储。"</string>
+  <string name="text_410e21c" formatted="false">"安装GOG"</string>
+  <string name="text_8cfeb85d" formatted="false">"安装"</string>
+  <string name="text_be9830ba" formatted="false">"安装GOG"</string>
+  <string name="text_fb4cb106" formatted="false">"GOG安装用于 "</string>
+  <string name="text_e88699f0" formatted="false">" s。语言： "</string>
+  <string name="text_5637065a" formatted="false">"请选择设备存储中包含 GOG 安装程序 EXE 及其所有配套 BIN 文件的文件夹。"</string>
+  <string name="text_f6993e58" formatted="false">"%.0f KB"</string>
+  <string name="text_f6993e96" formatted="false">"%.0f MB"</string>
+  <string name="text_660e6a9a" formatted="false">"存档 «"</string>
+  <string name="text_d1bd702e" formatted="false">" 将被解压在\n"</string>
+  <string name="text_a8d6d121" formatted="false">"\n\n可用： "</string>
+  <string name="text_c5347de1" formatted="false">"。解压后的游戏大约占用1GB。"</string>
+  <string name="text_4f09e1af" formatted="false">"解压游戏？"</string>
+  <string name="text_e758a48e" formatted="false">"打开包装"</string>
+  <string name="text_a8ab15f" formatted="false">"解压存档"</string>
+  <string name="text_4163fe5" formatted="false">"复制游戏？"</string>
+  <string name="text_1d870e8e" formatted="false">"到文件夹“"</string>
+  <string name="text_d8eccaca" formatted="false">"» 沿途没有直接访问。将其复制到\n"</string>
+  <string name="text_fbbd6344" formatted="false">"复制"</string>
+  <string name="text_bc4d084d" formatted="false">"复制文件夹"</string>
+  <string name="text_3aaea5ba" formatted="false">"准备..."</string>
+  <string name="text_d1f4a247" formatted="false">" 文件· "</string>
+  <string name="text_89d586e4" formatted="false">"创建文件夹失败 "</string>
+  <string name="text_4d3c8d8" formatted="false">"取消了。部分复制的文件保留在 "</string>
+  <string name="text_9ac267bf" formatted="false">"错误： "</string>
+  <string name="text_927d6d18" formatted="false">"存档不可用"</string>
+  <string name="text_3fb73205" formatted="false">"无效的存档路径： "</string>
+  <string name="text_82970e9b" formatted="false">"创建失败 "</string>
+  <string name="text_57596e60" formatted="false">"恢复后无效名称： "</string>
+  <string name="text_62ed0e4a" formatted="false">"恢复卡名失败： "</string>
+  <string name="text_cb6f0ae5" formatted="false">"存档中的文件名不是 UTF-8；使用标准 ZIP 重新打包游戏"</string>
+  <string name="text_2c7db8e6" formatted="false">"存档为空或不是 ZIP"</string>
+  <string name="text_9584175b" formatted="false">"\n档案中丢失的名字 "</string>
+  <string name="text_6f044b61" formatted="false">" 地图：它们保存为“地图...”。所有文件均单独保存。"</string>
+  <string name="text_a5ac9a61" formatted="false">"文件提供程序未返回文件夹内容"</string>
+  <string name="text_24605ef0" formatted="false">"打开失败 "</string>
+  <string name="text_d3ca647b" formatted="false">"要启动您需要访问游戏文件。"</string>
+  <string name="text_ab5540f3" formatted="false">"准备游戏失败： "</string>
+  <string name="text_2bbd5d5e" formatted="false">"兼容性警告"</string>
+  <string name="text_a9002c9" formatted="false">"无论如何都要跑"</string>
+  <string name="text_e6290764" formatted="false">"无法更新启动状态"</string>
+  <string name="text_50c87387" formatted="false">"无法保存启动状态"</string>
+  <string name="text_3c32a8fb" formatted="false">"无法启动游戏： "</string>
+  <string name="text_6df9977b" formatted="false">"比赛以错误结束。检查文件夹并重试。日志：/sdcard/要塞/"</string>
+  <string name="text_bcbda96a" formatted="false">"启动 "</string>
+  <string name="text_f2fc3664" formatted="false">"设置· "</string>
+  <string name="text_39f3c6d" formatted="false">"画面"</string>
+  <string name="text_674b0c2" formatted="false">"分辨率、接口尺寸和图像质量"</string>
+  <string name="text_1ec3892" formatted="false">"声音"</string>
+  <string name="text_e1fcef4c" formatted="false">"音乐、效果和演讲"</string>
+  <string name="text_1ecb04b" formatted="false">"游戏"</string>
+  <string name="text_66aca461" formatted="false">"游戏速度、提示和控制"</string>
+  <string name="text_7bdceb3f" formatted="false">"启动器和游戏文件夹"</string>
+  <string name="text_a2356111" formatted="false">"分辨率"</string>
+  <string name="text_1e909de" formatted="false">"自动"</string>
+  <string name="text_77737898" formatted="false">"最低"</string>
+  <string name="text_dcd7c4a4" formatted="false">"设备"</string>
+  <string name="text_7ae310b2" formatted="false">"分辨率和宽高比将在下次启动游戏时生效"</string>
+  <string name="text_dcfb5f04" formatted="false">"重新启动前请保存游戏。“最低”使用 600 行分辨率，这是引擎支持的最低画面尺寸，并保持屏幕宽高比。"</string>
+  <string name="text_53607ee6" formatted="false">"游戏运行期间不会自动更改分辨率。"</string>
+  <string name="text_2b870dec" formatted="false">"使用设备纵横比"</string>
+  <string name="text_8329db6f" formatted="false">"界面大小"</string>
+  <string name="text_97402fea" formatted="false">"特殊能力面板大小"</string>
+  <string name="text_e82aaf5f" formatted="false">"双三次"</string>
+  <string name="text_d874e791" formatted="false">"清晰像素"</string>
+  <string name="text_f8faebee" formatted="false">"双线性"</string>
+  <string name="text_3278c869" formatted="false">"世界过滤器"</string>
+  <string name="text_7451d9ec" formatted="false">"接口过滤器"</string>
+  <string name="text_7c3ae905" formatted="false">"锐化强度"</string>
+  <string name="text_560f76b4" formatted="false">"平滑梯度"</string>
+  <string name="text_7e78b3ab" formatted="false">"清晰的文字"</string>
+  <string name="text_2768014e" formatted="false">"FSR 1.0 保留清晰的边缘，双三次更柔和，Clear Pixels 保持锯齿状、像素化的外观，双线性最柔和。立即申请。"</string>
+  <string name="text_4e53c7f9" formatted="false">"地图会被放大以适应屏幕，与界面分开。 "</string>
+  <string name="text_308cf9d6" formatted="false">"界面被放大以适应屏幕，与地图分开。 "</string>
+  <string name="text_83e093cf" formatted="false">"锐化图像的能力。立即申请。"</string>
+  <string name="text_1122e28" formatted="false">"删除天空和水中的 16 位色阶。立即申请。"</string>
+  <string name="text_8c127489" formatted="false">"以屏幕分辨率重新绘制标签。立即申请。"</string>
+  <string name="text_8823e982" formatted="false">"调整游戏中面板、窗口、资源显示和提示的大小。大小受画面尺寸限制，以便完整显示界面。更改立即生效。"</string>
+  <string name="text_b35280b9" formatted="false">"侧边栏的大小与主界面无关。立即申请。"</string>
+  <string name="text_9e69e9de" formatted="false">"游戏速度"</string>
+  <string name="text_2fec8049" formatted="false">"工具提示"</string>
+  <string name="text_3a0deda" formatted="false">"平滑的相机移动"</string>
+  <string name="text_1a976048" formatted="false">"滚动速度"</string>
+  <string name="text_d7a19c29" formatted="false">"慢慢地"</string>
+  <string name="text_d3f969a5" formatted="false">"正常"</string>
+  <string name="text_2ee35139" formatted="false">"快"</string>
+  <string name="text_3dcdba6c" formatted="false">"光标"</string>
+  <string name="text_ec7adcfb" formatted="false">"箭头"</string>
+  <string name="text_ff3ce" formatted="false">"剑"</string>
+  <string name="text_3b44416a" formatted="false">"声音打开"</string>
+  <string name="text_166c3f7d" formatted="false">"音乐音量"</string>
+  <string name="text_5c2e3288" formatted="false">"效果音量"</string>
+  <string name="text_f62c5aca" formatted="false">"讲话音量"</string>
+  <string name="text_3b723ff6" formatted="false">"精灵"</string>
+  <string name="text_81c559da" formatted="false">"管理"</string>
+  <string name="text_c16adbbf" formatted="false">"带光标的触摸板"</string>
+  <string name="text_b99001af" formatted="false">"触摸板灵敏度"</string>
+  <string name="text_5d0828c0" formatted="false">"纽扣尺寸"</string>
+  <string name="text_e4f123e1" formatted="false">"按钮不透明度"</string>
+  <string name="text_5f6b07f0" formatted="false">"触摸控制按钮"</string>
+  <string name="text_4064640" formatted="false">"屏幕上、侧面列表和店员的书上有单独的按钮。任意按钮都可以隐藏； LMB 默认隐藏。"</string>
+  <string name="text_7ce69eca" formatted="false">"侧面区域"</string>
+  <string name="text_82162e12" formatted="false">"每个区域的命令列表或单独的点击并按住操作"</string>
+  <string name="text_5e1fff23" formatted="false">"左区"</string>
+  <string name="text_61e3d6f8" formatted="false">"右区"</string>
+  <string name="text_31963493" formatted="false">"完成"</string>
+  <string name="text_fdaf9ab1" formatted="false">"通过滑动切换建筑物的各个部分"</string>
+  <string name="text_62ae5442" formatted="false">"振动"</string>
+  <string name="text_d6ec4c34" formatted="false">"触摸诊断"</string>
+  <string name="text_b7c1cc15" formatted="false">"更改按钮布局"</string>
+  <string name="text_9c62f9a0" formatted="false">"暂停预览：移动、捏合或滑块大小、保存和取消"</string>
+  <string name="text_8d8b72a0" formatted="false">"首先，启动游戏：游戏屏幕顶部的布局发生变化。"</string>
+  <string name="text_7452e6e7" formatted="false">"重置按钮布局"</string>
+  <string name="text_f63bb278" formatted="false">"恢复了原来的位置"</string>
+  <string name="text_e075984c" formatted="false">"命令列表"</string>
+  <string name="text_ff22ffb8" formatted="false">"点击并按住操作"</string>
+  <string name="text_a0d9976b" formatted="false">"模式： "</string>
+  <string name="text_3c346897" formatted="false">"点击： "</string>
+  <string name="text_425441f4" formatted="false">"什么都没有"</string>
+  <string name="text_18219bca" formatted="false">"保持： "</string>
+  <string name="text_e4e01701" formatted="false">"列出命令"</string>
+  <string name="text_79a043" formatted="false">"左侧区域"</string>
+  <string name="text_6766d318" formatted="false">"右侧区域"</string>
+  <string name="text_280c7d94" formatted="false">"边区模式"</string>
+  <string name="text_3bee53e8" formatted="false">"返回"</string>
+  <string name="text_c93e0a86" formatted="false">"保留动作"</string>
+  <string name="text_ea1afa49" formatted="false">"通过点击进行操作"</string>
+  <string name="text_d85b3a2" formatted="false">"在屏幕上"</string>
+  <string name="text_4940f932" formatted="false">"隐藏"</string>
+  <string name="text_940437ba" formatted="false">"在左侧区域"</string>
+  <string name="text_850bf3f3" formatted="false">"在正确的区域"</string>
+  <string name="text_be0cece" formatted="false">"在书记员的书中"</string>
+  <string name="text_381c15a5" formatted="false">"选择一个按钮"</string>
+  <string name="text_6930c0ed" formatted="false">"原装按钮"</string>
+  <string name="text_58dee6e2" formatted="false">"全屏"</string>
+  <string name="text_21fe03e4" formatted="false">"再次开始游戏时适用"</string>
+  <string name="text_a8f56f96" formatted="false">"框架高度来自游戏模式本身。 “全屏”：屏幕比例中的框架宽度，两侧没有边距。 "</string>
+  <string name="text_535e0f4c" formatted="false">"关闭 - 16:9 游戏模式（600 行 - 4:3），有边距。"</string>
+  <string name="text_1c807936" formatted="false">"地图过滤器"</string>
+  <string name="text_b4a6b086" formatted="false">"界面和菜单过滤器"</string>
+  <string name="text_9d5299a9" formatted="false">"设置最小图形"</string>
+  <string name="text_18318ed4" formatted="false">"最小分辨率，双线性滤波器，无锐化，无梯度平滑，无清晰文本。解决方法 - 重新启动游戏后。"</string>
+  <string name="text_d009bb6" formatted="false">"设置最小图形？"</string>
+  <string name="text_e169a424" formatted="false">"将选择最小分辨率和双线性滤波器，锐化、梯度平滑和清晰文本将被禁用。重启游戏后分辨率会改变；保存之前的匹配。"</string>
+  <string name="text_50c0fca2" formatted="false">"最小图形设置。重新开始之前保存比赛。"</string>
+  <string name="text_134c4b51" formatted="false">"施工期间的放大镜"</string>
+  <string name="text_bdc49d14" formatted="false">"放大镜尺寸"</string>
+  <string name="text_d4381850" formatted="false">"用放大镜放大"</string>
+  <string name="text_2802cc6e" formatted="false">" 线条· "</string>
+  <string name="text_a491b1c" formatted="false">" （推荐）"</string>
+  <string name="text_ed627e79" formatted="false">" （最少）"</string>
+  <string name="text_4df3cfcb" formatted="false">"自动 · "</string>
+  <string name="text_a67f2ed1" formatted="false">"最低· "</string>
+  <string name="text_b92cd745" formatted="false">"设备· "</string>
+  <string name="text_1ea4f7a" formatted="false">"关闭"</string>
+  <string name="text_9cc4fef4" formatted="false">"重置设置"</string>
+  <string name="text_13c03dbd" formatted="false">"此版本的图形、声音、游戏玩法、控件和按钮布局"</string>
+  <string name="text_fbdadfcb" formatted="false">"重置设置？"</string>
+  <string name="text_5c9aa70f" formatted="false">"恢复原始图形、声音、游戏和控制设置“"</string>
+  <string name="text_2212d98f" formatted="false">"“？按钮布局也将被重置。保存和游戏文件夹将保留。"</string>
+  <string name="text_20185fcf" formatted="false">"重置"</string>
+  <string name="text_95756cc3" formatted="false">"原始设置已恢复。解决方法 - 重新启动游戏后。"</string>
+  <string name="text_e9b3ed23" formatted="false">"局域网连接丢失"</string>
+  <string name="text_8c56b252" formatted="false">"比赛不再与其他玩家同步。对于新的在线游戏，请返回大厅。"</string>
+  <string name="text_cd2e947f" formatted="false">"打开菜单"</string>
+  <string name="text_397db4c9" formatted="false">"住宿"</string>
+  <string name="text_e17e86d7" formatted="false">"未能保存上一场比赛"</string>
+  <string name="text_e361570e" formatted="false">"雷达：“朋友/敌人”着色"</string>
+  <string name="text_9e26dc2e" formatted="false">"雷达：领主的颜色"</string>
+  <string name="text_5426ab15" formatted="false">"浮雕已平整"</string>
+  <string name="text_b4a44764" formatted="false">"显示浮雕"</string>
+  <string name="text_2d0109a6" formatted="false">"加载游戏库失败： "</string>
+  <string name="text_4cb18659" formatted="false">"记录游戏进程状态失败： "</string>
+  <string name="text_713f2555" formatted="false">"写下 "</string>
+  <string name="text_593c73fa" formatted="false">"致电 "</string>
+  <string name="text_81cc2e8c" formatted="false">"点 "</string>
+  <string name="text_7b2e487f" formatted="false">"小队 "</string>
+  <string name="text_9f626b72" formatted="false">"无法打开配置文件文件夹： "</string>
+  <string name="text_cef3e0b" formatted="false">"写入启动状态失败"</string>
+  <string name="text_f6705b85" formatted="false">"应用模组失败： "</string>
+  <string name="text_9b698f2c" formatted="false">"创建游戏流失败。"</string>
+  <string name="text_b73264df" formatted="false">"自动+：从下一次游戏发布开始 "</string>
+  <string name="text_94178ee5" formatted="false">"地图比例尺 "</string>
+  <string name="text_dbdce9de" formatted="false">"。点击返回100%"</string>
+  <string name="text_f8e1b788" formatted="false">"速度"</string>
+  <string name="text_2ed35202" formatted="false">"游戏速度 "</string>
+  <string name="text_908c5443" formatted="false">"启动器"</string>
+  <string name="text_6505de10" formatted="false">"另一场比赛"</string>
+  <string name="text_3d783ca2" formatted="false">"按钮"</string>
+  <string name="text_b242fa66" formatted="false">"区域行动"</string>
+  <string name="text_3c2749d3" formatted="false">"重置"</string>
+  <string name="text_345e4ebd" formatted="false">"保存"</string>
+  <string name="text_771c4a21" formatted="false">"所有按钮和区域"</string>
+  <string name="text_6da7435b" formatted="false">"所选项目"</string>
+  <string name="text_2bb11c12" formatted="false">"在预览中重置"</string>
+  <string name="text_cbea86b0" formatted="false">"所选元素的大小或宽度"</string>
+  <string name="text_7d09312e" formatted="false">"所选区域的高度"</string>
+  <string name="text_1c91ec15" formatted="false">"较慢"</string>
+  <string name="text_ad86d905" formatted="false">"更快"</string>
+  <string name="text_25736bb0" formatted="false">"逆时针旋转地图"</string>
+  <string name="text_deee81ed" formatted="false">"顺时针旋转地图"</string>
+  <string name="text_9f22a8aa" formatted="false">"设置控件"</string>
+  <string name="text_128ace70" formatted="false">"暂停菜单"</string>
+  <string name="text_3bd45817" formatted="false">"左"</string>
+  <string name="text_46242f22" formatted="false">"右"</string>
+  <string name="text_372daac6" formatted="false">" 命令区：点击显示或隐藏；按住并用手势选择"</string>
+  <string name="text_10846330" formatted="false">" 指挥区。点击： "</string>
+  <string name="text_a31f1f85" formatted="false">";保持： "</string>
+  <string name="text_28198ae" formatted="false">"打开启动器"</string>
+  <string name="text_47d71fc6" formatted="false">"非官方十字军补丁设置"</string>
+  <string name="text_f6b7f63e" formatted="false">"游戏 · "</string>
+  <string name="text_76a9fba6" formatted="false">"暂停/继续"</string>
+  <string name="text_ef035265" formatted="false">"税收、金钱和饮食"</string>
+  <string name="text_366d1184" formatted="false">"恢复主"</string>
+  <string name="text_127fdd5c" formatted="false">"卡型"</string>
+  <string name="text_40f8487d" formatted="false">"移除动物"</string>
+  <string name="text_b40852fd" formatted="false">"地形接缝"</string>
+  <string name="text_b214cb0e" formatted="false">"地图编辑器"</string>
+  <string name="text_996eed65" formatted="false">"：按住保持，再按释放"</string>
+  <string name="text_84a2a892" formatted="false">"：用另一根手指按住并移动光标"</string>
+  <string name="text_c5ff77a4" formatted="false">"左摇杆 - 光标\n右摇杆 - 摄像机\nA / B - LMB / RMB（可按住）\nX - 地形 Y - 暂停\nLB / RB - 比例/列表滚动\nLT - 精确引导 RT - Shift\n方向键 ↑ / ↓ - 速度\n方向键 ← / → - 地图旋转\nL3 - 比例 100% R3 - 锁定 (F1)\n开始 - 菜单选择/返回 -布局"</string>
+  <string name="text_5bdffeb8" formatted="false">"按住选择组合：\n↑ → ↓ ← - 小队 1-4\nA B X Y - 小队 5-8 LB - 小队 9\n添加 RT - 记录小队\n添加 LT - 地图点 1-9\nLT + RT - 记录地图点\nRB - 雷达颜色 L3 - 书籍命令\nR3 - 键盘开始 - 设置\n\n光标在 30 秒不活动后消失。\n关闭：A、B、开始或选择。"</string>
+  <string name="text_feb3681" formatted="false">"游戏手柄·布局"</string>
+  <string name="text_2a77e835" formatted="false">"排列编辑器：用两根手指选择并拖动元素、大小"</string>
+  <string name="text_9824700e" formatted="false">"选择一个项目。拖;尺寸 - 捏合或滑块。"</string>
+  <string name="text_3c04bfa1" formatted="false">"编组"</string>
+  <string name="text_3c3b63e9" formatted="false">"书签"</string>
+  <string name="text_69353b01" formatted="false">"宽度： "</string>
+  <string name="text_73d35386" formatted="false">"尺寸： "</string>
+  <string name="text_6afd712a" formatted="false">"身高： "</string>
+  <string name="text_6663223b" formatted="false">"游戏领域：触摸、拖动选择、两指取地图"</string>
+  <string name="text_31f6a807" formatted="false">"叫个小队"</string>
+  <string name="text_c147bfd8" formatted="false">"记录所选队伍"</string>
+  <string name="text_62460ad7" formatted="false">"前往地图点"</string>
+  <string name="text_4551ce12" formatted="false">"记录地图点"</string>
+  <string name="text_e4ea7ac8" formatted="false">"写入单元格"</string>
+  <string name="text_2079c993" formatted="false">"选择单元格"</string>
+  <string name="text_da5ce02b" formatted="false">"设置"</string>
+  <string name="text_e1d8a8e6" formatted="false">"调用"</string>
+  <string name="text_c3b66742" formatted="false">"中心：取消"</string>
+  <string name="text_d8ce0722" formatted="false">" · 放大镜"</string>
+  <string name="text_c975cf94" formatted="false">"游戏手柄 %.0f, %.0f"</string>
+  <string name="text_1eedcf3" formatted="false">"鼠标"</string>
+  <string name="text_4a6be62a" formatted="false">"触摸板"</string>
+  <string name="text_1cf2a817" formatted="false">"手指 %.0f, %.0f"</string>
+  <string name="text_2e32007a" formatted="false">"\n\n职员手册：按住可打开列表，然后按下命令或滑动以选择它并释放。再次点击该书将隐藏该列表。通过按钮目录更改分配。\n\n侧面区域默认为空。将命令分配给左侧或右侧区域：点击打开垂直列表，再次点击同一区域将其隐藏。按住约三分之一秒并将手指移向命令，松开即可执行。\n\n布局编辑器显示暂停：选择并拖动按钮或区域，用两根手指、滑块或角更改大小。 “按钮”指定命令在屏幕、书中和侧面区域的位置。 “区域操作”切换列表或单独的点击并按住分配。仅通过“保存”应用更改； “取消”或 Android“返回”返回之前的布局。"</string>
+  <string name="text_8d249b77" formatted="false">"控制要塞 HD"</string>
+  <string name="text_fd0b4522" formatted="false">"在地图上点击选择部队或下达命令，滑动手指移动镜头。要陷害部队或画墙，请按住手指约三分之一秒，然后拖动。持有会取消构建或选择。\n\n两根手指：移动 - 相机，捏合或展开 - 围绕手势中间平滑缩放。点击雷达上方的百分比返回 100%，将其旋转约四分之一圈 - 旋转地图 (C / X)，短按 - 取消。握住雷达可以切换地形，用两根手指在雷达上方短按一下即可 - “朋友/敌人”颜色。\n\n在菜单和窗口中，点击可按下按钮或打开文本字段的键盘；拖动会拉动滑块和列表。按住抄写员的书可打开垂直的命令列表。默认情况下，它具有控制设置和暂停菜单。 Android“返回”打开游戏菜单 (Esc)。\n\n在建筑面板上滑动可切换可用部分。所选建筑物会突出显示，其名称和成本显示在旁边。选择位置时的放大镜默认关闭；它的大小和接近度可以在设置中更改。\n\nSquad 和 Point 按钮是通过布局编辑器中的按钮目录添加的。群组：点击选定部队-录音、按住-通话；再次呼叫将相机居中。点：点击 - 开始，按住 - 记录当前视图。取消选择圆后面的中心或区域。\n\n游戏速度、声音、滚动、界面大小、明文、触摸板和按钮布局均可在设置中找到。 “全屏”选择设备的宽高比。 “⇄”按钮可打开游戏和启动器之间的转换。"</string>
+  <string name="text_7bbca9d2" formatted="false">"我明白了"</string>
+  <string name="text_7b305f23" formatted="false">"在地图上：点击 - 选择或顺序，双击 - 相同类型的单位。滑动手指即可移动相机；对于一个框架，首先按住手指约三分之一秒，然后拉动。\n\n按住地图会取消突出显示、结构或能力；如果没有什么可以取消的，它就能平衡缓解的压力。握住雷达也可以改变地形。\n\n两根手指移动相机并更改变焦。用两根手指旋转大约四分之一圈即可将卡旋转 90°。用两根手指短按 - 取消；雷达上方是“朋友/敌人”颜色。点击雷达上方的刻度值返回 100%。\n\n在菜单中，轻按按钮，按住显示说明；可以拖动滑块和列表。拿着抄写员的书打开一个垂直的命令列表；在编辑器中，将笔放在面板的左侧。排列按钮允许您单独拖动每个按钮。 Android“返回”打开游戏菜单。\n\nSquad 和 Point 按钮是通过布局编辑器中的按钮目录添加的。群组：点击选定部队-录音、按住-通话；再次呼叫将相机居中。点：点击 - 开始，按住 - 记录当前视图。取消选择圆后面的中心或区域。\n\n在建筑物面板上滑动可滚动浏览可用部分：左 - 下一个，右 - 上一个；从一个小节中，向任意方向滑动可打开下一个节。所选建筑物在其按钮上突出显示。\n\n放大镜：当您的手指选择建筑物、墙壁、拆除或能力的位置时，附近会显示地图的放大部分。只需轻按一下即可立即查看，无需使用放大镜。\n\n振动将缩放设置标记为 100%，改变建筑物的剖面，按住、旋转和选择单位和地图点。放大镜和振动可以在设置中关闭。\n\n鼠标和键盘（USB 或蓝牙）：使用鼠标，游戏的工作方式就像在 PC 上一样 - 指向、LMB 和 RMB、滚动屏幕边缘的相机。匹配轮改变光标周围的比例并滚动菜单和列表。使用中间按钮拖动移动地图，单击中间按钮返回 100%。键 - 与原版相同：Esc - 菜单，空格 - 浮雕，+/- 数字键盘 - 速度，X/C - 旋转。点击屏幕可重新激活触摸控制。\n\n触摸板 - 附加光标模式。通过LMB进行触摸；可以在控制设置中启用单独的 LMB 按钮。"</string>
+  <string name="text_3974cee0" formatted="false">"选定字段中的文本"</string>
+  <string name="text_9dcaa1b2" formatted="false">"输入文字"</string>
+  <string name="text_156c037a" formatted="false">"发送短信失败。重复。"</string>
+  <string name="text_e75a395d" formatted="false">"需要重新启动游戏"</string>
+  <string name="text_8eb11e4d" formatted="false">"启动选项已更改。如果比赛尚未保存，请返回游戏并保存。然后关闭游戏并从启动器启动它。"</string>
+  <string name="text_1f3ca4a8" formatted="false">"关闭游戏"</string>
+  <string name="text_7aa86411" formatted="false">"返回游戏"</string>
+  <string name="text_7bda8a8" formatted="false">"当您再次启动游戏时，分辨率将会改变。首先保存比赛。"</string>
+  <string name="text_6bbeeed" formatted="false">"无法打开文件夹： "</string>
+  <string name="text_700a6ce" formatted="false">"在所选文件夹中找不到受支持的游戏文件（sh.tex 或 cr.tex、gfx、地图、EXE 和 DLL）。"</string>
+  <string name="text_a4644fc1" formatted="false">"地图%08X.map"</string>
+  <string name="text_ab4773ef" formatted="false">"未知语言（"</string>
+  <string name="text_fb8eb11f" formatted="false">"语言文件不可用"</string>
+  <string name="text_7fefc6fe" formatted="false">"指定游戏文件夹的绝对路径（小于 512 字节）。"</string>
+  <string name="text_9f82bc76" formatted="false">"游戏文件夹不可用： "</string>
+  <string name="text_77e593d2" formatted="false">"游戏文件夹丢失或无法访问： "</string>
+  <string name="text_1d7e051d" formatted="false">"Extreme 需要一个mapsExtreme 文件夹。"</string>
+  <string name="text_28b1d162" formatted="false">"未找到 "</string>
+  <string name="text_27fd156" formatted="false">"\n选择解压后的带有EXE和DLL的游戏或保存相邻文件夹 "</string>
+  <string name="text_b8a27c7e" formatted="false">"EXE 版本与用于构建端口的版本不同： "</string>
+  <string name="text_9d1f8785" formatted="false">"\n不保证兼容性：可能会发生错误或崩溃。"</string>
+  <string name="text_6e53cedb" formatted="false">"不支持的文件版本： "</string>
+  <string name="text_5bd43a34" formatted="false">"。需要原始文件 "</string>
+  <string name="text_1cc40d25" formatted="false">"，在组装端口时使用。"</string>
+  <string name="text_5bb3e0b9" formatted="false">"检查失败 "</string>
+  <string name="text_1c8469ed" formatted="false">"mod.properties 不正确：需要 id、名称和版本"</string>
+  <string name="text_b2bafaf5" formatted="false">"无模组属性"</string>
+  <string name="text_eb403ade" formatted="false">"mod里没有文件夹"</string>
+  <string name="text_a50d5f02" formatted="false">"Mod ID 与文件夹不匹配"</string>
+  <string name="text_bf68a7c2" formatted="false">"创建 mods 文件夹失败"</string>
+  <string name="text_e301efe5" formatted="false">"Mod 安装已取消"</string>
+  <string name="text_da0f7a1b" formatted="false">"mod中的文件太多"</string>
+  <string name="text_1d86aacf" formatted="false">"无效的模组路径： "</string>
+  <string name="text_ac61087a" formatted="false">"mod文件夹外的路径"</string>
+  <string name="text_2dbc90bc" formatted="false">"创建文件夹失败"</string>
+  <string name="text_4806bcdb" formatted="false">"模组太大或空间不足"</string>
+  <string name="text_c0c24538" formatted="false">"带 ID 的模组 "</string>
+  <string name="text_589d7d1e" formatted="false">" 已经安装；首先卸载旧版本"</string>
+  <string name="text_dfc00caa" formatted="false">"mods文件夹外的路径"</string>
+  <string name="text_dcab549e" formatted="false">"UCP 设置文件太大"</string>
+  <string name="text_3885cbb8" formatted="false">"UCP 设置版本不兼容"</string>
+  <string name="text_37ee1202" formatted="false">"UCP 版本不正确"</string>
+  <string name="text_21477ff3" formatted="false">"UCP ID 无效"</string>
+  <string name="text_d8f45539" formatted="false">"连接 mod 文件夹失败"</string>
+  <string name="text_9eb924ea" formatted="false">"安装程序数据不正确"</string>
+  <string name="text_bb7b574e" formatted="false">"不受支持的 GOG 安装程序"</string>
+  <string name="text_a7626e40" formatted="false">"安装程序尺寸不正确"</string>
+  <string name="text_935d7c39" formatted="false">"安装程序文件名无效"</string>
+  <string name="text_3a38ea3a" formatted="false">"无法读取GOG安装程序"</string>
+  <string name="text_e9f593c1" formatted="false">"安装程序不可用"</string>
+  <string name="text_71aaf593" formatted="false">"安装程序已损坏或尚未下载"</string>
+  <string name="text_fe6aedd5" formatted="false">"30 秒内无法读取安装程序"</string>
+  <string name="text_b941bd0a" formatted="false">"安装程序数据过多"</string>
+  <string name="text_8650ed8e" formatted="false">"无法读取GOG EXE。检查 EXE 和相邻 BIN 的加载。\n"</string>
+  <string name="text_a028f060" formatted="false">"没有足够的安装空间"</string>
+  <string name="text_8daf5f21" formatted="false">"安装程序字符串太长"</string>
+  <string name="text_cb58dac1" formatted="false">"UCP 目录太大"</string>
+  <string name="text_baeab032" formatted="false">"说明和限制"</string>
+  <string name="text_d4663468" formatted="false">"长按一行可阅读功能说明。\n\n参数使用准备好的 Android 配置文件值。所有功能最初均被禁用。\n\n尚不可用：\n"</string>
+  <string name="text_c4ca9a3e" formatted="false">"重新启动游戏时会应用更改。"</string>
+  <string name="text_761ec6a6" formatted="false">"此功能与已启用的功能冲突。选择其中之一。"</string>
+  <string name="text_894c55a6" formatted="false">"应用并重启"</string>
+  <string name="text_c1d8dcca" formatted="false">"全部禁用"</string>
+  <string name="text_5eac72ff" formatted="false">"设备语言"</string>
+  <string name="text_4c8d6e38" formatted="false">"界面语言"</string>
+  <string name="text_1ee890a" formatted="false">"菜单"</string>
+  <string name="text_3c0ab0cb" formatted="false">"暂停"</string>
+  <string name="text_1e9f216" formatted="false">"文字输入"</string>
+  <string name="text_e72d2f88" formatted="false">"布局"</string>
+  <string name="text_2f4b6762" formatted="false">"其他游戏/启动器"</string>
+  <string name="text_6de00461" formatted="false">"F1 · 城堡"</string>
+  <string name="text_47436775" formatted="false">"地形"</string>
+  <string name="text_c55b4d28" formatted="false">"缩放"</string>
+  <string name="text_789ab605" formatted="false">"编辑器操作"</string>
+  <string name="text_fec9d" formatted="false">"左键"</string>
+  <string name="text_ffba1" formatted="false">"右键"</string>
+  <string name="text_b2b43e17" formatted="false">"地图缩放"</string>
+  <string name="text_1feddd8" formatted="false">"不拆除无通路建筑"</string>
+  <string name="text_452ad1bd" formatted="false">"ai会反复建造又拆除无通路但需要通路的建筑，打开此选项可以避免此问题。"</string>
+  <string name="text_ac28330" formatted="false">"调整ai每波进攻额外增加的兵力"</string>
+  <string name="text_defb6765" formatted="false">"在原版，ai每波进攻都会额外增加5的兵力，这个同时生效于\n所有ai的数值可以在此处改变。"</string>
+  <string name="text_c8794600" formatted="false">"进攻时不改变目标"</string>
+  <string name="text_ea7d305f" formatted="false">"当ai进攻时，如果目标发生改变，将会改变已派出部队的目标，比如ai目标若是最弱的敌人，当ai已派出进攻部队时，如果最弱的敌人改变了，将会改变进攻部队的路径转而攻击新目标。打开这个选项可以防止这种现象的发生。已派出的部队不会中途改变目标。"</string>
+  <string name="text_3a58fc20" formatted="false">"调整ai的进攻部队数量限制"</string>
+  <string name="text_9f0fa654" formatted="false">"ai的进攻部队的数量会随时间而增加，额外增加的部队数量上限\n在原版是200。你可以在此处修改这个值。"</string>
+  <string name="text_e53043e9" formatted="false">"设置ai的目标敌人"</string>
+  <string name="text_c1544a8a" formatted="false">"提升ai的进攻"</string>
+  <string name="text_56bf559c" formatted="false">"在原版中，ai在进攻时，只会派出能够得着城墙的数量的士兵，比如说一圈城堡有50格城墙，那么只有50个人可以在不重叠的情况下砍城墙，此时哪怕有100名士兵集结在敌人城堡附近，也只会派出50人前去攻击城堡，打开此选项后将可以避免此现象。并且，打开此选项后，ai的士兵将会主动攻击城堡建筑和经济建筑。此外，ai将会派出更多的士兵去攻击敌人的领主。"</string>
+  <string name="text_87f0374c" formatted="false">"购买足够木头"</string>
+  <string name="text_1a97404f" formatted="false">"ai购买木头用于建筑时，将会购买2根额外的木头，防止刚购买的木头被\n工人拿走使得木头不足以建造目标建筑。"</string>
+  <string name="text_9d075c1d" formatted="false">"修复ai不会补充防守兵种"</string>
+  <string name="text_8ff5c08c" formatted="false">"当ai城墙防守部队出现减员时，如果城外防守部队仍然存在，那么ai将\n不会补充城墙防守部队。"</string>
+  <string name="text_285bc551" formatted="false">"停用ai拆毁以下类型建筑来获取资金"</string>
+  <string name="text_dd03c78" formatted="false">"修复AI的欧洲弓箭手不会点燃沥青"</string>
+  <string name="text_dc18c73c" formatted="false">"AI的欧洲弓箭手可以和阿拉伯弓箭手一样点燃沥青。"</string>
+  <string name="text_3b8c03e6" formatted="false">"修复了ai在城堡无通路时不使用云梯兵的错误"</string>
+  <string name="text_48597cd" formatted="false">"当ai(尤其是蛇)在自己城堡无通路到外界时，不再会停止使用云梯兵。"</string>
+  <string name="text_65f9d31a" formatted="false">"AI建造民房更加智能"</string>
+  <string name="text_bce08238" formatted="false">"资源不足时ai不再休眠建筑"</string>
+  <string name="text_5436458" formatted="false">"ai通常会将正在生产中的建筑休眠，因为有部分建筑缺乏原料，哪怕原料\n正在运回的路上，打开此选项可以防止ai将建筑休眠。"</string>
+  <string name="text_dae17703" formatted="false">"增强ai修复和建筑能力"</string>
+  <string name="text_b470fb65" formatted="false">"打开后，ai将会在废墟中重建塔楼，修复微小损坏的城墙。工程师协会，隧道工协会，油锅被摧毁后，如果后半截仍然存在，打开后ai将可以正确重建。采石场被摧毁后，如果存放石头点仍然存在，打开后ai可以无视存放石头点放置建筑。"</string>
+  <string name="text_c6d39296" formatted="false">"加快所有ai的训练士兵速度"</string>
+  <string name="text_81a08df1" formatted="false">"将所有ai的训练时间间隔降低至最低(老鼠和狮心王的程度)"</string>
+  <string name="text_5852fbee" formatted="false">"AI在初期阶段只招募防御士兵"</string>
+  <string name="text_98504523" formatted="false">"改善 AI 对所需物资的补货"</string>
+  <string name="text_e5362373" formatted="false">"AI 即使有足够的金币，也经常不补充物资，导致生产链停工。此选项缩短 AI 在库存耗尽后补充所需物资的等待时间。"</string>
+  <string name="text_411fb045" formatted="false">"防止ai牛栏堆积"</string>
+  <string name="text_b0668156" formatted="false">"通常，ai会为每个新的采石场建筑一个新的牛栏，而不管已经存在多少牛栏。\n当采石场被反复摧毁时，会导致牛栏数量很多。打开此选项可以避免这种现象。"</string>
+  <string name="text_58c13e33" formatted="false">"解除ai的器械数量限制"</string>
+  <string name="text_fd22b83d" formatted="false">"在原版，每种器械ai最多只能放置3个，打开此选项可以解除此限制。"</string>
+  <string name="text_75701bbb" formatted="false">"修正苹果园建造时的面积"</string>
+  <string name="text_1155fd0d" formatted="false">"将建造时苹果园需求的面积修正为苹果园的实际面积，这也可以让AI正确的放置苹果园。"</string>
+  <string name="text_399176b3" formatted="false">"调整武器库和市场中武器的顺序"</string>
+  <string name="text_729e4f00" formatted="false">"调整了武器在武器库和市场中的排序，同时将皮甲移至链锤和弩之间，将铁甲移至戟和剑之间，使得在浏览时更方便。"</string>
+  <string name="text_b7349c41" formatted="false">"器械建造完成时将位于帐篷中央"</string>
+  <string name="text_1c8fc28d" formatted="false">"器械建造完成时将不再位于帐篷的右上角，而是位于帐篷的中央。"</string>
+  <string name="text_9644382a" formatted="false">"设置多人游戏中的默认游戏速度"</string>
+  <string name="text_589c7e28" formatted="false">"无需重复选择工程师帐篷类型"</string>
+  <string name="text_18b28856" formatted="false">"打开这个选择之后，选择一次工程师帐篷类型后即可一直放置该类型的工程师\n帐篷，而不需要每次都再选择一次。"</string>
+  <string name="text_4feb7c60" formatted="false">"快速放置"</string>
+  <string name="text_1ef65230" formatted="false">"调整刚灭火建筑的免疫火灾时间"</string>
+  <string name="text_cc03f437" formatted="false">"着火的建筑在火被扑灭后，会有一段免疫着火的时间，此处可修改时间长短。"</string>
+  <string name="text_6e6b12a1" formatted="false">"修复面包工人消失"</string>
+  <string name="text_fccb5bb" formatted="false">"当面包工人到达储存区却没有面粉时，不再会消失。"</string>
+  <string name="text_cf14e917" formatted="false">"修复弓弩工人的路线"</string>
+  <string name="text_8361dffd" formatted="false">"现在弓弩工人在武器库放下弓弩后会直接去储存区拿原料，而不是先返回作坊。"</string>
+  <string name="text_ca54190c" formatted="false">"修复士兵爬上云梯后遗失目的地bug"</string>
+  <string name="text_eb50f98e" formatted="false">"士兵现在爬上云梯后将会记住目的地，而不会被困在云梯上。"</string>
+  <string name="text_61a70c46" formatted="false">"启用多人游戏地图传输"</string>
+  <string name="text_9e950ce" formatted="false">"缩短待发送的地图名称，使地图传输恢复正常。"</string>
+  <string name="text_159da4d9" formatted="false">"修复挖河士兵消失"</string>
+  <string name="text_c2d9827d" formatted="false">"挖河士兵在挖护城河时不再会随机消失。注意的是，当挖河士兵正好位于无通路地区时，如果你对其下达命令，他仍会消失！"</string>
+  <string name="text_863b3398" formatted="false">"修复快速拆除时的资源返还"</string>
+  <string name="text_f103a852" formatted="false">"使用快速自动连点器拆除建筑时，不再重复返还同一建筑的资源。"</string>
+  <string name="text_325c982e" formatted="false">"免费市场"</string>
+  <string name="text_8f03ccd2" formatted="false">"有时ai的市场被拆除且没有木头时，ai将会彻底瘫痪。使市场免费可以避免此问题。"</string>
+  <string name="text_f069c318" formatted="false">"拓宽游戏速度限制"</string>
+  <string name="text_fc01c356" formatted="false">"游戏速度的限制更改为如下所示:\n - 在10到90之间以5为间隔\n - 在90到200之间以10为间隔\n - 在200到1000之间以100为间隔\n新的游戏速度范围仅可通过键盘上的+ -号来改变，菜单中的游戏速度\n调整不到新的范围。"</string>
+  <string name="text_678f0452" formatted="false">"医生会治愈伤员"</string>
+  <string name="text_d80b35ab" formatted="false">"药房的医生现在会积极寻找兵治疗受伤的士兵，平民或者动物。\n优先治疗最近的目标。每次治疗动画中，可恢复长矛兵血量的1/3。 游览＆\n花园和治疗瘟疫的功能依旧存在！ 只有游览城堡的行为会被跳过，直到该\n地区不再有受伤的目标."</string>
+  <string name="text_5537ff62" formatted="false">"寻路检测频率增加"</string>
+  <string name="text_c2320354" formatted="false">"在原版，每200游戏刻会检测一次可行通路，经常导致ai的单位在摧毁了敌人的城门或者塔楼时不能立刻进入城堡。\n\n打开后，每50个游戏刻就会进行一次检测，使得单位的反应速度加快。"</string>
+  <string name="text_7b910129" formatted="false">"WASD键移动以及Ctrl+S/L键保存读取"</string>
+  <string name="text_da9cb22e" formatted="false">"打开此选项后，可以使用WASD键移动屏幕，以及Ctrl+S键打开保存界面，\nCtrl+L键打开读取界面。"</string>
+  <string name="text_663f3a2c" formatted="false">"一直显示规划中的护城河"</string>
+  <string name="text_c57cf934" formatted="false">"你将可以一直看到规划中的护城河，而不需要点选单位。"</string>
+  <string name="text_c3793199" formatted="false">"打开观察者模式"</string>
+  <string name="text_980be06e" formatted="false">"移除了玩家1使得玩家只能以观察的视角观看游戏，这使得8个ai同时出场成为了可能。该模式下保存的游戏可以被正常读取。偶尔可能会出现物体随机遍布在整个地图的bug，这只是视觉上的bug并不影响游戏本身，保存游戏，退出游戏，再读取游戏可以清除该bug。"</string>
+  <string name="text_b5130776" formatted="false">"在设置菜单里添加一些新的选择"</string>
+  <string name="text_346aae56" formatted="false">"增加了玩家初始兵种的选择的功能，只在普通模式下生效。"</string>
+  <string name="text_8951aea4" formatted="false">"改变玩家1号的颜色"</string>
+  <string name="text_e5c92bd" formatted="false">"城门快速反应"</string>
+  <string name="text_796f1f14" formatted="false">"敌人在靠近城门一定距离时城门将会关闭，该距离由200调整至140。\n敌人在远离城门一定距离时城门将会打开，该距离由1200调整至100。"</string>
+  <string name="text_e11c16a2" formatted="false">"工程师切换为阿拉伯语音"</string>
+  <string name="text_47bf4b5e" formatted="false">"当玩家使用阿拉伯领主时，工程师的语音将会切换为阿拉伯语。"</string>
+  <string name="text_ccbd6746" formatted="false">"要塞修改"</string>
+  <string name="text_b9c448ff" formatted="false">"玩家的大本营会根据所处地图方位进行旋转"</string>
+  <string name="text_c6a03e85" formatted="false">"玩家的大本营将可以和AI一样，会根据所处地图方位进行旋转，使篝火处永远背向地图中央。"</string>
+  <string name="text_7431cbf3" formatted="false">"移除增强版的技能条"</string>
+  <string name="text_732ad036" formatted="false">"移除要塞十字军东征增强版中的技能条。"</string>
+  <string name="text_40f0ed66" formatted="false">"u_arabwall"</string>
+  <string name="text_40f165ee" formatted="false">"u_arabxbow"</string>
+  <string name="text_fc37c472" formatted="false">"-阿拉伯剑士在中3发弩箭后死亡改为6发弩箭后死亡。"</string>
+  <string name="text_ea90a6d6" formatted="false">"巨火弩正确攻击僧侣和隧道工"</string>
+  <string name="text_c2f7c701" formatted="false">"巨火弩将会自动攻击敌人的僧侣和隧道工。"</string>
+  <string name="text_6b6a494d" formatted="false">"修复苹果园工人被堵路"</string>
+  <string name="text_395fdc85" formatted="false">"当农场的左上方被建筑堵住时，将不再阻止苹果园工人进入苹果园。"</string>
+  <string name="text_51c1fc58" formatted="false">"修正领主摧毁建筑物后的人物动画"</string>
+  <string name="text_6a6653f" formatted="false">"修正了领主的姿势，当领主停止移动或者摧毁一个建筑物后，他将会站立，而不是被卡在地上。"</string>
+  <string name="text_e40f72c0" formatted="false">"增强云梯兵对于箭矢的抗性"</string>
+  <string name="text_fcd33444" formatted="false">"- 云梯兵在中5发箭后死亡改为中12发箭后死亡\n - 云梯兵在中2发弩箭后死亡改为中5发弩箭后死亡\n - 云梯兵价钱从4提升为20"</string>
+  <string name="text_8e5eeb6c" formatted="false">"增强长矛手抵抗箭矢的能力"</string>
+  <string name="text_c3e8d497" formatted="false">"- 长矛手在中3发箭后死亡改为5发箭后死亡，\n - 长矛手承受1发弩箭后还可以刚好存活。"</string>
+  <string name="text_73d4b3b4" formatted="false">"矛兵默认为奔跑状态而不是步行"</string>
+  <string name="text_ee55b088" formatted="false">"矛兵在默认状态下将使用奔跑作为移动方式，而不是步行。"</string>
+  <string name="text_528a62c4" formatted="false">"修复所有皮革工人获取同一头牛"</string>
+  <string name="text_997e4ebf" formatted="false">"现在皮革工人到达牧场后，若发现想要牵走的牛已被其他工人牵去，会转而去牵另外一头牛，而不是直接回到作坊。极大提高皮革作坊的效率。"</string>
+  <string name="text_b06cab43" formatted="false">"准备EXE失败"</string>
+  <string name="text_d9afbeb9" formatted="false">"EXE适配格式无效"</string>
+  <string name="text_b1da8da8" formatted="false">"EXE不匹配适配"</string>
+  <string name="text_db07b86e" formatted="false">"EXE 被截断"</string>
+  <string name="text_b570e58e" formatted="false">"额外的EXE适配数据"</string>
+  <string name="text_709de14b" formatted="false">"改编后的 EXE 的校验和不匹配"</string>
+  <string name="text_fab87405" formatted="false">"去吧· "</string>
+  <string name="text_87fac83a" formatted="false">" 将关闭"</string>
+  <string name="text_402982c5" formatted="false">"AI · 错误修复"</string>
+  <string name="text_4c783982" formatted="false">"AI · 改进"</string>
+  <string name="text_73372df1" formatted="false">"错误修复"</string>
+  <string name="text_2d63d878" formatted="false">"平衡性"</string>
+  <string name="text_8a6cac11" formatted="false">"便捷功能"</string>
+  <string name="text_462adbaa" formatted="false">"其他"</string>
+  <string name="text_ec7e9b17" formatted="false">"补丁类别"</string>
+  <string name="text_a418107d" formatted="false">"作者：%s"</string>
+</resources>

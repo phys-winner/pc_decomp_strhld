@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="text_9c3f3eda" formatted="false">"Stronghold HD, Crusader and Crusader Extreme Android ARM64"</string>
+  <string name="text_73226756" formatted="false">"Select a game"</string>
+  <string name="text_bf25f362" formatted="false">"Game files"</string>
+  <string name="text_780ea472" formatted="false">"Checking installed games..."</string>
+  <string name="text_3eccf7d" formatted="false">"Select folder…"</string>
+  <string name="text_beab1997" formatted="false">"Extract ZIP…"</string>
+  <string name="text_16342f65" formatted="false">"Install from GOG..."</string>
+  <string name="text_997ffce7" formatted="false">"Change game files..."</string>
+  <string name="text_37a30576" formatted="false">"Launch"</string>
+  <string name="text_cfea62c8" formatted="false">"Skip videos, ads and online warnings"</string>
+  <string name="text_fca6a79b" formatted="false">"The launch options are applied when the game process is started again. Save the match before restarting."</string>
+  <string name="text_452078ee" formatted="false">"Interface language..."</string>
+  <string name="text_c688c5f2" formatted="false">"UCP on GitHub"</string>
+  <string name="text_a7a66ff6" formatted="false">"Disable all UCP features"</string>
+  <string name="text_5b4d7f78" formatted="false">"Complete a running game before changing mods. The new settings are applied the next time you start."</string>
+  <string name="text_7e32e4c9" formatted="false">"All UCP features are disabled. Data and localization packages are saved."</string>
+  <string name="text_d584799a" formatted="false">"Checking files..."</string>
+  <string name="text_398251d5" formatted="false">"Play"</string>
+  <string name="text_65aed1e5" formatted="false">"Settings"</string>
+  <string name="text_3be6ad8d" formatted="false">"Mods…"</string>
+  <string name="text_1eea9b9" formatted="false">"Mods"</string>
+  <string name="text_dc795e10" formatted="false">"Mods · "</string>
+  <string name="text_8604996b" formatted="false">"Features of Unofficial Crusader Patch"</string>
+  <string name="text_235cc110" formatted="false">"Data and localization packs"</string>
+  <string name="text_d773e353" formatted="false">"Version and compatibility"</string>
+  <string name="text_be822985" formatted="false">"Fixed version of UCP3:\n"</string>
+  <string name="text_93c07082" formatted="false">"\n\nAndroid uses UCP2 Legacy prepared functions and data packages. Support for each feature is listed. Windows DLL, ASI and arbitrary Lua plugins require separate adaptation.\n\nThe original game files are preserved. If there is a match between files, the first included package in the list takes precedence."</string>
+  <string name="text_bc760176" formatted="false">"Close"</string>
+  <string name="text_e5255a4e" formatted="false">"Failed to check mod language"</string>
+  <string name="text_7fd9ff17" formatted="false">"Packages · hold to delete"</string>
+  <string name="text_2559db35" formatted="false">"Apply"</string>
+  <string name="text_449106b0" formatted="false">"Cancel"</string>
+  <string name="text_7e140f28" formatted="false">"Install ZIP..."</string>
+  <string name="text_ef231dd1" formatted="false">"Delete \""</string>
+  <string name="text_702d414b" formatted="false">"The game and save files will be saved."</string>
+  <string name="text_3d84b2c6" formatted="false">"Delete"</string>
+  <string name="text_b2eb0c03" formatted="false">"Installing the mod..."</string>
+  <string name="text_f7d7ea15" formatted="false">"Checking and unpacking ZIP"</string>
+  <string name="text_6041b138" formatted="false">"Archive unavailable"</string>
+  <string name="text_4ac71ec" formatted="false">"Mod installed"</string>
+  <string name="text_dbcaedd6" formatted="false">"» available in the list of mods for "</string>
+  <string name="text_26dcbf3d" formatted="false">"Specify folder manually..."</string>
+  <string name="text_827c9d62" formatted="false">"Check again"</string>
+  <string name="text_32d1af36" formatted="false">"Game folder or shared games folder"</string>
+  <string name="text_4303cf88" formatted="false">"Game files folder"</string>
+  <string name="text_51b025a2" formatted="false">"Check"</string>
+  <string name="text_215eb3ac" formatted="false">"Game files in "</string>
+  <string name="text_bb517237" formatted="false">"Ready to launch · "</string>
+  <string name="text_1b4e6798" formatted="false">"All three games have been found and tested."</string>
+  <string name="text_86848d19" formatted="false">"Add files: "</string>
+  <string name="text_a35721c5" formatted="false">". The folder or ZIP is recognized automatically; You can select a shared folder with games."</string>
+  <string name="text_ce68736f" formatted="false">"Allow access to files"</string>
+  <string name="text_8216fca" formatted="false">"System folder selection is not available on this device."</string>
+  <string name="text_4b88cede" formatted="false">"System file selection is not available on this device."</string>
+  <string name="text_79599422" formatted="false">"No setup_*.exe installers were found in the folder. All BINs must be located next to the EXE."</string>
+  <string name="text_634d6aab" formatted="false">"GOG installer · select language"</string>
+  <string name="text_bb39e0dd" formatted="false">"Reading the GOG installer..."</string>
+  <string name="text_a35f8320" formatted="false">"\nGame files: "</string>
+  <string name="text_b22fddf3" formatted="false">". After installation: "</string>
+  <string name="text_579559c3" formatted="false">".\nCompressed blocks: "</string>
+  <string name="text_1ee4e1" formatted="false">" of "</string>
+  <string name="text_53bd09" formatted="false">"\nFor installation you need EXE and all BINs from the same folder."</string>
+  <string name="text_4d92cf4d" formatted="false">"\n\nInstallation folder: "</string>
+  <string name="text_8d934598" formatted="false">"\nThe original installer is retained. Game saves are stored separately."</string>
+  <string name="text_410e21c" formatted="false">"Install GOG"</string>
+  <string name="text_8cfeb85d" formatted="false">"Install"</string>
+  <string name="text_be9830ba" formatted="false">"Installing GOG"</string>
+  <string name="text_fb4cb106" formatted="false">"GOG installed for "</string>
+  <string name="text_e88699f0" formatted="false">" s. Language: "</string>
+  <string name="text_5637065a" formatted="false">"For GOG, select the folder in the device memory with the EXE and all adjacent BINs."</string>
+  <string name="text_f6993e58" formatted="false">"%.0f KB"</string>
+  <string name="text_f6993e96" formatted="false">"%.0f MB"</string>
+  <string name="text_660e6a9a" formatted="false">"Archive «"</string>
+  <string name="text_d1bd702e" formatted="false">" will be unpacked in\n"</string>
+  <string name="text_a8d6d121" formatted="false">"\n\nAvailable: "</string>
+  <string name="text_c5347de1" formatted="false">". The unpacked game takes up about 1 GB."</string>
+  <string name="text_4f09e1af" formatted="false">"Unpack the game?"</string>
+  <string name="text_e758a48e" formatted="false">"Unpack"</string>
+  <string name="text_a8ab15f" formatted="false">"Unpacking the archive"</string>
+  <string name="text_4163fe5" formatted="false">"Copy the game?"</string>
+  <string name="text_1d870e8e" formatted="false">"To the folder \""</string>
+  <string name="text_d8eccaca" formatted="false">"» no direct access along the way. Copy it to\n"</string>
+  <string name="text_fbbd6344" formatted="false">"Copy"</string>
+  <string name="text_bc4d084d" formatted="false">"Copying a folder"</string>
+  <string name="text_3aaea5ba" formatted="false">"Preparation..."</string>
+  <string name="text_d1f4a247" formatted="false">" files · "</string>
+  <string name="text_89d586e4" formatted="false">"Failed to create folder "</string>
+  <string name="text_4d3c8d8" formatted="false">"Canceled. Partially copied files remain in "</string>
+  <string name="text_9ac267bf" formatted="false">"Error: "</string>
+  <string name="text_927d6d18" formatted="false">"archive unavailable"</string>
+  <string name="text_3fb73205" formatted="false">"invalid archive path: "</string>
+  <string name="text_82970e9b" formatted="false">"failed to create "</string>
+  <string name="text_57596e60" formatted="false">"invalid name after recovery: "</string>
+  <string name="text_62ed0e4a" formatted="false">"Failed to restore card name: "</string>
+  <string name="text_cb6f0ae5" formatted="false">"file names in the archive are not in UTF-8; repackage the game with a standard ZIP"</string>
+  <string name="text_2c7db8e6" formatted="false">"archive is empty or not a ZIP"</string>
+  <string name="text_9584175b" formatted="false">"\nNames lost in the archive "</string>
+  <string name="text_6f044b61" formatted="false">" maps: they are saved as “Map...”. All files are saved separately."</string>
+  <string name="text_a5ac9a61" formatted="false">"the file provider did not return the contents of the folder"</string>
+  <string name="text_24605ef0" formatted="false">"failed to open "</string>
+  <string name="text_d3ca647b" formatted="false">"To launch you need access to the game files."</string>
+  <string name="text_ab5540f3" formatted="false">"Failed to prepare the game: "</string>
+  <string name="text_2bbd5d5e" formatted="false">"Compatibility Warning"</string>
+  <string name="text_a9002c9" formatted="false">"Run anyway"</string>
+  <string name="text_e6290764" formatted="false">"Failed to update startup state"</string>
+  <string name="text_50c87387" formatted="false">"Failed to save startup state"</string>
+  <string name="text_3c32a8fb" formatted="false">"Failed to start the game: "</string>
+  <string name="text_6df9977b" formatted="false">"The game ended with an error. Check the folder and try again. Log: /sdcard/Stronghold/"</string>
+  <string name="text_bcbda96a" formatted="false">"Launch "</string>
+  <string name="text_f2fc3664" formatted="false">"Settings · "</string>
+  <string name="text_39f3c6d" formatted="false">"Graphics"</string>
+  <string name="text_674b0c2" formatted="false">"Resolution, interface size and image quality"</string>
+  <string name="text_1ec3892" formatted="false">"Sound"</string>
+  <string name="text_e1fcef4c" formatted="false">"Music, effects and speech"</string>
+  <string name="text_1ecb04b" formatted="false">"Game"</string>
+  <string name="text_66aca461" formatted="false">"Game speed, tips and controls"</string>
+  <string name="text_7bdceb3f" formatted="false">"Launcher and game folders"</string>
+  <string name="text_a2356111" formatted="false">"Resolution"</string>
+  <string name="text_1e909de" formatted="false">"Auto"</string>
+  <string name="text_77737898" formatted="false">"Minimum"</string>
+  <string name="text_dcd7c4a4" formatted="false">"Device"</string>
+  <string name="text_7ae310b2" formatted="false">"Resolution and aspect ratio are applied when starting the game again"</string>
+  <string name="text_dcfb5f04" formatted="false">"Save the match before restarting. “Minimum” - 600 lines, the smallest frame of the engine, with screen proportions. "</string>
+  <string name="text_53607ee6" formatted="false">"The resolution does not change automatically during gameplay."</string>
+  <string name="text_2b870dec" formatted="false">"Use device aspect ratio"</string>
+  <string name="text_8329db6f" formatted="false">"Interface size"</string>
+  <string name="text_97402fea" formatted="false">"Powers panel size"</string>
+  <string name="text_e82aaf5f" formatted="false">"Bicubic"</string>
+  <string name="text_d874e791" formatted="false">"Sharp pixels"</string>
+  <string name="text_f8faebee" formatted="false">"Bilinear"</string>
+  <string name="text_3278c869" formatted="false">"World filter"</string>
+  <string name="text_7451d9ec" formatted="false">"Interface filter"</string>
+  <string name="text_7c3ae905" formatted="false">"Sharpness"</string>
+  <string name="text_560f76b4" formatted="false">"Smoothing Gradients"</string>
+  <string name="text_7e78b3ab" formatted="false">"Clear text"</string>
+  <string name="text_2768014e" formatted="false">"FSR 1.0 retains crisp edges, bicubic is softer, Clear Pixels maintains a jagged, pixelated look, bilinear is the softest. Apply immediately."</string>
+  <string name="text_4e53c7f9" formatted="false">"The map is enlarged to fit the screen separately from the interface. "</string>
+  <string name="text_308cf9d6" formatted="false">"The interface is enlarged to fit the screen separately from the map. "</string>
+  <string name="text_83e093cf" formatted="false">"The power to sharpen an image. Apply immediately."</string>
+  <string name="text_1122e28" formatted="false">"Removes 16-bit color steps from sky and water. Apply immediately."</string>
+  <string name="text_8c127489" formatted="false">"Redraws labels in screen resolution. Apply immediately."</string>
+  <string name="text_8823e982" formatted="false">"Scales the panel, windows, resources and tooltips during a match. The size is limited so the entire interface fits on screen. Takes effect immediately."</string>
+  <string name="text_b35280b9" formatted="false">"The size of the sidebar forces regardless of the main interface. Apply immediately."</string>
+  <string name="text_9e69e9de" formatted="false">"Game speed"</string>
+  <string name="text_2fec8049" formatted="false">"Tooltips"</string>
+  <string name="text_3a0deda" formatted="false">"Smooth camera movement"</string>
+  <string name="text_1a976048" formatted="false">"Scroll speed"</string>
+  <string name="text_d7a19c29" formatted="false">"Slowly"</string>
+  <string name="text_d3f969a5" formatted="false">"Normal"</string>
+  <string name="text_2ee35139" formatted="false">"Fast"</string>
+  <string name="text_3dcdba6c" formatted="false">"Cursor"</string>
+  <string name="text_ec7adcfb" formatted="false">"Arrow"</string>
+  <string name="text_ff3ce" formatted="false">"Sword"</string>
+  <string name="text_3b44416a" formatted="false">"Sound on"</string>
+  <string name="text_166c3f7d" formatted="false">"Music volume"</string>
+  <string name="text_5c2e3288" formatted="false">"Effects Volume"</string>
+  <string name="text_f62c5aca" formatted="false">"Speech volume"</string>
+  <string name="text_3b723ff6" formatted="false">"Genie"</string>
+  <string name="text_81c559da" formatted="false">"Management"</string>
+  <string name="text_c16adbbf" formatted="false">"Touchpad with cursor"</string>
+  <string name="text_b99001af" formatted="false">"Touchpad sensitivity"</string>
+  <string name="text_5d0828c0" formatted="false">"Button size"</string>
+  <string name="text_e4f123e1" formatted="false">"Button opacity"</string>
+  <string name="text_5f6b07f0" formatted="false">"Touch Control Buttons"</string>
+  <string name="text_4064640" formatted="false">"Separate buttons on the screen, in side lists and the clerk\'s book. Any button can be hidden; LMB is hidden by default."</string>
+  <string name="text_7ce69eca" formatted="false">"Side zones"</string>
+  <string name="text_82162e12" formatted="false">"List of commands or separate tap and hold actions for each zone"</string>
+  <string name="text_5e1fff23" formatted="false">"Left zone"</string>
+  <string name="text_61e3d6f8" formatted="false">"Right zone"</string>
+  <string name="text_31963493" formatted="false">"Done"</string>
+  <string name="text_fdaf9ab1" formatted="false">"Switch sections of buildings by swiping"</string>
+  <string name="text_62ae5442" formatted="false">"Vibration"</string>
+  <string name="text_d6ec4c34" formatted="false">"Touch diagnostics"</string>
+  <string name="text_b7c1cc15" formatted="false">"Change button layout"</string>
+  <string name="text_9c62f9a0" formatted="false">"Preview over pause: move, pinch or slider size, save and cancel"</string>
+  <string name="text_8d8b72a0" formatted="false">"First, launch the game: the layout changes on top of the game screen."</string>
+  <string name="text_7452e6e7" formatted="false">"Reset button layout"</string>
+  <string name="text_f63bb278" formatted="false">"Original location restored"</string>
+  <string name="text_e075984c" formatted="false">"List of commands"</string>
+  <string name="text_ff22ffb8" formatted="false">"Tap and hold actions"</string>
+  <string name="text_a0d9976b" formatted="false">"Mode: "</string>
+  <string name="text_3c346897" formatted="false">"Tap: "</string>
+  <string name="text_425441f4" formatted="false">"Nothing"</string>
+  <string name="text_18219bca" formatted="false">"Hold: "</string>
+  <string name="text_e4e01701" formatted="false">"List commands"</string>
+  <string name="text_79a043" formatted="false">"Left side zone"</string>
+  <string name="text_6766d318" formatted="false">"Right side zone"</string>
+  <string name="text_280c7d94" formatted="false">"Side Zone Mode"</string>
+  <string name="text_3bee53e8" formatted="false">"Back"</string>
+  <string name="text_c93e0a86" formatted="false">"Retention action"</string>
+  <string name="text_ea1afa49" formatted="false">"Action by tap"</string>
+  <string name="text_d85b3a2" formatted="false">"On the screen"</string>
+  <string name="text_4940f932" formatted="false">"Hidden"</string>
+  <string name="text_940437ba" formatted="false">"In the left zone"</string>
+  <string name="text_850bf3f3" formatted="false">"In the right zone"</string>
+  <string name="text_be0cece" formatted="false">"In the scribe\'s book"</string>
+  <string name="text_381c15a5" formatted="false">"Select a button"</string>
+  <string name="text_6930c0ed" formatted="false">"Original buttons"</string>
+  <string name="text_58dee6e2" formatted="false">"Full screen"</string>
+  <string name="text_21fe03e4" formatted="false">"Applies when starting the game again"</string>
+  <string name="text_a8f56f96" formatted="false">"The frame height is from the game modes itself. “Full screen”: frame width in screen proportions, without margins on the sides. "</string>
+  <string name="text_535e0f4c" formatted="false">"Off - 16:9 game modes (600 lines - 4:3) with margins."</string>
+  <string name="text_1c807936" formatted="false">"Map filter"</string>
+  <string name="text_b4a6b086" formatted="false">"Interface and menu filter"</string>
+  <string name="text_9d5299a9" formatted="false">"Set minimum graphics"</string>
+  <string name="text_18318ed4" formatted="false">"Minimum resolution, bilinear filters, no sharpening, no gradient smoothing, no clear text. Resolution - after restarting the game."</string>
+  <string name="text_d009bb6" formatted="false">"Set minimum graphics?"</string>
+  <string name="text_e169a424" formatted="false">"The minimum resolution and bilinear filters will be selected, sharpening, gradient smoothing and clear text will be disabled. The resolution will change after restarting the game; save the match before it."</string>
+  <string name="text_50c0fca2" formatted="false">"Minimum graphics set. Save the match before restarting."</string>
+  <string name="text_134c4b51" formatted="false">"Magnifying glass during construction"</string>
+  <string name="text_bdc49d14" formatted="false">"Magnifier size"</string>
+  <string name="text_d4381850" formatted="false">"Zooming in with a magnifying glass"</string>
+  <string name="text_2802cc6e" formatted="false">" lines · "</string>
+  <string name="text_a491b1c" formatted="false">" (recommended)"</string>
+  <string name="text_ed627e79" formatted="false">" (minimum)"</string>
+  <string name="text_4df3cfcb" formatted="false">"Auto · "</string>
+  <string name="text_a67f2ed1" formatted="false">"Minimum · "</string>
+  <string name="text_b92cd745" formatted="false">"Device · "</string>
+  <string name="text_1ea4f7a" formatted="false">"Off"</string>
+  <string name="text_9cc4fef4" formatted="false">"Reset settings"</string>
+  <string name="text_13c03dbd" formatted="false">"Graphics, sound, gameplay, controls and button layout of this edition"</string>
+  <string name="text_fbdadfcb" formatted="false">"Reset settings?"</string>
+  <string name="text_5c9aa70f" formatted="false">"Restore original graphics, sound, game and control settings for \""</string>
+  <string name="text_2212d98f" formatted="false">"\"? The button layout will also be reset. The saves and game folder will remain."</string>
+  <string name="text_20185fcf" formatted="false">"Reset"</string>
+  <string name="text_95756cc3" formatted="false">"The original settings have been restored. Resolution - after restarting the game."</string>
+  <string name="text_e9b3ed23" formatted="false">"LAN connection lost"</string>
+  <string name="text_8c56b252" formatted="false">"The match no longer syncs with other players. For a new online game, return to the lobby."</string>
+  <string name="text_cd2e947f" formatted="false">"Open menu"</string>
+  <string name="text_397db4c9" formatted="false">"Stay"</string>
+  <string name="text_e17e86d7" formatted="false">"Failed to save last game"</string>
+  <string name="text_e361570e" formatted="false">"Radar: “friend/foe” coloring"</string>
+  <string name="text_9e26dc2e" formatted="false">"Radar: the colors of the lords"</string>
+  <string name="text_5426ab15" formatted="false">"The relief is leveled"</string>
+  <string name="text_b4a44764" formatted="false">"Relief shown"</string>
+  <string name="text_2d0109a6" formatted="false">"Failed to load game library: "</string>
+  <string name="text_4cb18659" formatted="false">"Failed to record game process state: "</string>
+  <string name="text_713f2555" formatted="false">"Write down "</string>
+  <string name="text_593c73fa" formatted="false">"Call "</string>
+  <string name="text_81cc2e8c" formatted="false">"point "</string>
+  <string name="text_7b2e487f" formatted="false">"squad "</string>
+  <string name="text_9f626b72" formatted="false">"Failed to open profile folder: "</string>
+  <string name="text_cef3e0b" formatted="false">"Failed to write startup status"</string>
+  <string name="text_f6705b85" formatted="false">"Failed to apply mods: "</string>
+  <string name="text_9b698f2c" formatted="false">"Failed to create game stream."</string>
+  <string name="text_b73264df" formatted="false">"Auto+: from next game launch "</string>
+  <string name="text_94178ee5" formatted="false">"Map scale "</string>
+  <string name="text_dbdce9de" formatted="false">". Click to return 100%"</string>
+  <string name="text_f8e1b788" formatted="false">"Speed"</string>
+  <string name="text_2ed35202" formatted="false">"Game speed "</string>
+  <string name="text_908c5443" formatted="false">"Launcher"</string>
+  <string name="text_6505de10" formatted="false">"Another game"</string>
+  <string name="text_3d783ca2" formatted="false">"Buttons"</string>
+  <string name="text_b242fa66" formatted="false">"Zone Actions"</string>
+  <string name="text_3c2749d3" formatted="false">"Reset"</string>
+  <string name="text_345e4ebd" formatted="false">"Save"</string>
+  <string name="text_771c4a21" formatted="false">"All buttons and zones"</string>
+  <string name="text_6da7435b" formatted="false">"Selected item"</string>
+  <string name="text_2bb11c12" formatted="false">"Reset in preview"</string>
+  <string name="text_cbea86b0" formatted="false">"Size or width of the selected element"</string>
+  <string name="text_7d09312e" formatted="false">"Height of the selected zone"</string>
+  <string name="text_1c91ec15" formatted="false">"Slower"</string>
+  <string name="text_ad86d905" formatted="false">"Faster"</string>
+  <string name="text_25736bb0" formatted="false">"Rotate map counterclockwise"</string>
+  <string name="text_deee81ed" formatted="false">"Rotate map clockwise"</string>
+  <string name="text_9f22a8aa" formatted="false">"Set up controls"</string>
+  <string name="text_128ace70" formatted="false">"Pause menu"</string>
+  <string name="text_3bd45817" formatted="false">"Left"</string>
+  <string name="text_46242f22" formatted="false">"Right"</string>
+  <string name="text_372daac6" formatted="false">" command area: click to show or hide; hold and select with gesture"</string>
+  <string name="text_10846330" formatted="false">" command zone. Tap: "</string>
+  <string name="text_a31f1f85" formatted="false">"; hold: "</string>
+  <string name="text_28198ae" formatted="false">"Open launcher"</string>
+  <string name="text_47d71fc6" formatted="false">"Unofficial Crusader Patch Settings"</string>
+  <string name="text_f6b7f63e" formatted="false">"Game · "</string>
+  <string name="text_76a9fba6" formatted="false">"Pause / continue"</string>
+  <string name="text_ef035265" formatted="false">"Taxes, money and diet"</string>
+  <string name="text_366d1184" formatted="false">"Restore the lord"</string>
+  <string name="text_127fdd5c" formatted="false">"Card type"</string>
+  <string name="text_40f8487d" formatted="false">"Remove animals"</string>
+  <string name="text_b40852fd" formatted="false">"Terrain seams"</string>
+  <string name="text_b214cb0e" formatted="false">"Map editor"</string>
+  <string name="text_996eed65" formatted="false">": Press to hold, press again to release"</string>
+  <string name="text_84a2a892" formatted="false">": Hold and move the cursor with another finger"</string>
+  <string name="text_c5ff77a4" formatted="false">"Left stick - cursor\nRight stick - camera\nA / B - LMB / RMB (can be held)\nX - terrain Y - pause\nLB / RB - scale / list scroll\nLT - precise guidance RT - Shift\nD-pad ↑ / ↓ - speed\nD-pad ← / → - map rotation\nL3 - scale 100% R3 - lock (F1)\nStart - menu Select / Back - layout"</string>
+  <string name="text_5bdffeb8" formatted="false">"Hold Select for combinations:\n↑ → ↓ ← - squads 1-4\nA B X Y - squads 5-8 LB - squad 9\nAdd RT - record squad\nAdd LT - map points 1-9\nLT + RT - record map point\nRB - radar colors L3 - book commands\nR3 - keyboard Start - settings\n\nThe cursor disappears after 30 seconds of inactivity.\nClose: A, B, Start or Select."</string>
+  <string name="text_feb3681" formatted="false">"Gamepad · layout"</string>
+  <string name="text_2a77e835" formatted="false">"Arrangement editor: select and drag an element, size with two fingers"</string>
+  <string name="text_9824700e" formatted="false">"Select an item. Drag; size - pinch or slider."</string>
+  <string name="text_3c04bfa1" formatted="false">"Groups"</string>
+  <string name="text_3c3b63e9" formatted="false">"Bookmarks"</string>
+  <string name="text_69353b01" formatted="false">"Width: "</string>
+  <string name="text_73d35386" formatted="false">"Size: "</string>
+  <string name="text_6afd712a" formatted="false">"Height: "</string>
+  <string name="text_6663223b" formatted="false">"Game field: touch, drag selection, two fingers for map"</string>
+  <string name="text_31f6a807" formatted="false">"Call a squad"</string>
+  <string name="text_c147bfd8" formatted="false">"Record the selected squad"</string>
+  <string name="text_62460ad7" formatted="false">"Go to map point"</string>
+  <string name="text_4551ce12" formatted="false">"Record map point"</string>
+  <string name="text_e4ea7ac8" formatted="false">"Write to cell"</string>
+  <string name="text_2079c993" formatted="false">"Select cell"</string>
+  <string name="text_da5ce02b" formatted="false">"Assign"</string>
+  <string name="text_e1d8a8e6" formatted="false">"Recall"</string>
+  <string name="text_c3b66742" formatted="false">"Center: cancel"</string>
+  <string name="text_d8ce0722" formatted="false">" · magnifying glass"</string>
+  <string name="text_c975cf94" formatted="false">"Gamepad %.0f, %.0f"</string>
+  <string name="text_1eedcf3" formatted="false">"Mouse"</string>
+  <string name="text_4a6be62a" formatted="false">"Touchpad"</string>
+  <string name="text_1cf2a817" formatted="false">"Finger %.0f, %.0f"</string>
+  <string name="text_2e32007a" formatted="false">"\n\nClerk\'s Book: Hold to open the list, then press a command or swipe to select it and release. Tapping the book again hides the list. Assignments are changed through the button catalog.\n\nSide zones are empty by default. Assign commands to the left or right zone: tap opens a vertical list, tap again on the same zone hides it. Hold for about a third of a second and move your finger towards the command, release to execute.\n\nThe layout editor shows a pause: select and drag a button or zone, change the size with two fingers, a slider or a corner. “Buttons” specifies the placement of commands on the screen, in the book and in the side areas. “Zone Actions” switches the list or individual tap and hold assignments. Changes are applied only through “Save”; “Cancel” or Android “Back” returns the previous layout."</string>
+  <string name="text_8d249b77" formatted="false">"Controls Stronghold HD"</string>
+  <string name="text_fd0b4522" formatted="false">"On the map, tap selects troops or gives orders, sliding your finger moves the camera. To frame troops or draw a wall, hold your finger for about a third of a second, then drag. Holding cancels the construction or selection.\n\nTwo fingers: shift - camera, pinch or spread - smooth zoom around the middle of the gesture. Tapping on the percentage above the radar returns 100%, turning it about a quarter of a turn - rotate the map (C / X), short tap - cancel. Holding the radar switches the terrain, a short tap with two fingers above it - the “friends / foes” coloring.\n\nIn menus and windows, tap presses a button or opens the keyboard for a text field; dragging pulls sliders and lists. Holding down the scribe\'s book opens a vertical list of commands. By default, it has control settings and a pause menu. Android \"Back\" opens the game menu (Esc).\n\nSwiping across the building panel switches available sections. The selected building is highlighted, and its name and cost are shown next to it. The magnifying glass when selecting a location is turned off by default; its size and proximity can be changed in the settings.\n\nSquad and Point buttons are added via the button catalog in the layout editor. Groups: tap on selected troops - record, hold - call; calling again centers the camera. Dots: tap - go, hold - record the current view. The center or area behind the circle deselects.\n\nGame speed, sound, scrolling, interface size, clear text, touchpad and button layout are available in the settings. “Full Screen” selects the aspect ratio of the device. The “⇄” button opens the transition between games and the launcher."</string>
+  <string name="text_7bbca9d2" formatted="false">"I see"</string>
+  <string name="text_7b305f23" formatted="false">"On the map: tap - choice or order, double tap - unit of the same type. Sliding your finger moves the camera; for a frame, first hold your finger down for about a third of a second, then pull.\n\nHolding on the map cancels a highlight, structure, or ability; if there is nothing to cancel, it evens out the relief. Holding the radar also switches the terrain.\n\nTwo fingers move the camera and change the zoom. A two-finger twist of about a quarter turn rotates the card 90°. Short tap with two fingers - cancel; above the radar is the “friend/foe” coloring. Tapping on the scale value above the radar returns 100%.\n\nIn the menu, tap presses the button, holding shows the description; Sliders and lists can be dragged. Holding the scribe\'s book opens a vertical list of commands; in the editor, hold the pen to the left of the panel. The Arrangement button allows you to drag each button individually. Android \"Back\" opens the game menu.\n\nSquad and Point buttons are added via the button catalog in the layout editor. Groups: tap on selected troops - record, hold - call; calling again centers the camera. Dots: tap - go, hold - record the current view. The center or area behind the circle deselects.\n\nSwiping across the buildings panel scrolls through the available sections: left - next, right - previous; From a subsection, swiping in any direction opens the next section. The selected building is highlighted on its button.\n\nMagnifying Glass: While your finger selects a location for a building, wall, demolition, or ability, a magnified portion of the map is shown nearby. A short tap puts it right away, without a magnifying glass.\n\nVibration marks the zoom setting to 100%, changing the section of buildings, holding, rotating and selecting units and map points. Magnifying glass and vibration can be turned off in the settings.\n\nMouse and keyboard (USB or Bluetooth): with a mouse, the game works like on a PC - pointing, LMB and RMB, scrolling the camera at the edge of the screen. The match wheel changes scale around the cursor and scrolls through menus and lists. Dragging with the middle button moves the map, clicking with the middle button returns 100%. Keys - as in the original: Esc - menu, space - relief, +/− number pad - speed, X/C - rotation. Tapping the screen reactivates touch controls.\n\nTouchpad - additional cursor mode. The touch is performed by LMB; A separate LMB button can be enabled in the control settings."</string>
+  <string name="text_3974cee0" formatted="false">"Text in selected field"</string>
+  <string name="text_9dcaa1b2" formatted="false">"Entering text"</string>
+  <string name="text_156c037a" formatted="false">"Failed to send text. Repeat."</string>
+  <string name="text_e75a395d" formatted="false">"Need to restart the game"</string>
+  <string name="text_8eb11e4d" formatted="false">"Launch options have been changed. If the match has not yet been saved, return to the game and save it. Then close the game and launch it from the launcher."</string>
+  <string name="text_1f3ca4a8" formatted="false">"Close game"</string>
+  <string name="text_7aa86411" formatted="false">"Return to game"</string>
+  <string name="text_7bda8a8" formatted="false">"The resolution will change when you start the game again. First save the match."</string>
+  <string name="text_6bbeeed" formatted="false">"Failed to open folder: "</string>
+  <string name="text_700a6ce" formatted="false">"No supported game files (sh.tex or cr.tex, gfx, maps, EXE and DLL) were found in the selected folder."</string>
+  <string name="text_a4644fc1" formatted="false">"Map %08X.map"</string>
+  <string name="text_ab4773ef" formatted="false">"Unknown language ("</string>
+  <string name="text_fb8eb11f" formatted="false">"Language file not available"</string>
+  <string name="text_7fefc6fe" formatted="false">"Specify the absolute path to the game folder (shorter than 512 bytes)."</string>
+  <string name="text_9f82bc76" formatted="false">"Game folder unavailable: "</string>
+  <string name="text_77e593d2" formatted="false">"Missing or inaccessible in the game folder: "</string>
+  <string name="text_1d7e051d" formatted="false">"Extreme requires a mapsExtreme folder."</string>
+  <string name="text_28b1d162" formatted="false">"Not found "</string>
+  <string name="text_27fd156" formatted="false">"\nSelect the unpacked game with EXE and DLL or save the adjacent folder "</string>
+  <string name="text_b8a27c7e" formatted="false">"The EXE version differs from the one used to build the port: "</string>
+  <string name="text_9d1f8785" formatted="false">"\nCompatibility is not guaranteed: errors or crashes may occur."</string>
+  <string name="text_6e53cedb" formatted="false">"Unsupported file version: "</string>
+  <string name="text_5bd43a34" formatted="false">". Original files required "</string>
+  <string name="text_1cc40d25" formatted="false">", used when assembling the port."</string>
+  <string name="text_5bb3e0b9" formatted="false">"Failed to check "</string>
+  <string name="text_1c8469ed" formatted="false">"Incorrect mod.properties: id, name and edition needed"</string>
+  <string name="text_b2bafaf5" formatted="false">"No mod.properties"</string>
+  <string name="text_eb403ade" formatted="false">"There is no files folder in the mod"</string>
+  <string name="text_a50d5f02" formatted="false">"Mod ID does not match folder"</string>
+  <string name="text_bf68a7c2" formatted="false">"Failed to create mods folder"</string>
+  <string name="text_e301efe5" formatted="false">"Mod installation canceled"</string>
+  <string name="text_da0f7a1b" formatted="false">"There are too many files in the mod"</string>
+  <string name="text_1d86aacf" formatted="false">"Invalid mod path: "</string>
+  <string name="text_ac61087a" formatted="false">"Path outside the mod folder"</string>
+  <string name="text_2dbc90bc" formatted="false">"Failed to create folder"</string>
+  <string name="text_4806bcdb" formatted="false">"Mod too big or not enough space"</string>
+  <string name="text_c0c24538" formatted="false">"Mod with ID "</string>
+  <string name="text_589d7d1e" formatted="false">" already installed; first uninstall the old version"</string>
+  <string name="text_dfc00caa" formatted="false">"Path outside the mods folder"</string>
+  <string name="text_dcab549e" formatted="false">"UCP settings file is too large"</string>
+  <string name="text_3885cbb8" formatted="false">"Incompatible version of UCP settings"</string>
+  <string name="text_37ee1202" formatted="false">"Incorrect UCP version"</string>
+  <string name="text_21477ff3" formatted="false">"Invalid UCP ID"</string>
+  <string name="text_d8f45539" formatted="false">"Failed to connect mod folder"</string>
+  <string name="text_9eb924ea" formatted="false">"Incorrect installer data"</string>
+  <string name="text_bb7b574e" formatted="false">"Unsupported GOG installer"</string>
+  <string name="text_a7626e40" formatted="false">"Incorrect installer size"</string>
+  <string name="text_935d7c39" formatted="false">"Invalid installer file name"</string>
+  <string name="text_3a38ea3a" formatted="false">"Failed to read GOG installer"</string>
+  <string name="text_e9f593c1" formatted="false">"Installer not available"</string>
+  <string name="text_71aaf593" formatted="false">"The installer is corrupted or has not yet been downloaded"</string>
+  <string name="text_fe6aedd5" formatted="false">"Failed to read installer in 30 seconds"</string>
+  <string name="text_b941bd0a" formatted="false">"Too much installer data"</string>
+  <string name="text_8650ed8e" formatted="false">"Failed to read GOG EXE. Check the loading of EXE and neighboring BINs.\n"</string>
+  <string name="text_a028f060" formatted="false">"Not enough space for installation"</string>
+  <string name="text_8daf5f21" formatted="false">"Installer string too long"</string>
+  <string name="text_cb58dac1" formatted="false">"The UCP directory is too large"</string>
+  <string name="text_baeab032" formatted="false">"Description and limitations"</string>
+  <string name="text_d4663468" formatted="false">"Long press on a line to read the function description.\n\nParameters use prepared Android profile values. All functions are initially disabled.\n\nNot available yet:\n"</string>
+  <string name="text_c4ca9a3e" formatted="false">"Changes are applied when the game is restarted."</string>
+  <string name="text_761ec6a6" formatted="false">"This function conflicts with the one already enabled. Choose one of them."</string>
+  <string name="text_894c55a6" formatted="false">"Apply and restart"</string>
+  <string name="text_c1d8dcca" formatted="false">"Disable all"</string>
+  <string name="text_5eac72ff" formatted="false">"Device language"</string>
+  <string name="text_4c8d6e38" formatted="false">"Interface language"</string>
+  <string name="text_1ee890a" formatted="false">"Menu"</string>
+  <string name="text_3c0ab0cb" formatted="false">"Pause"</string>
+  <string name="text_1e9f216" formatted="false">"Text input"</string>
+  <string name="text_e72d2f88" formatted="false">"Layout"</string>
+  <string name="text_2f4b6762" formatted="false">"Other game/launcher"</string>
+  <string name="text_6de00461" formatted="false">"F1 · castle"</string>
+  <string name="text_47436775" formatted="false">"Terrain"</string>
+  <string name="text_c55b4d28" formatted="false">"Zoom"</string>
+  <string name="text_789ab605" formatted="false">"Editor Actions"</string>
+  <string name="text_fec9d" formatted="false">"LMB"</string>
+  <string name="text_ffba1" formatted="false">"RMB"</string>
+  <string name="text_b2b43e17" formatted="false">"Map zoom"</string>
+  <string name="text_1feddd8" formatted="false">"No demolishing of inaccessible buildings"</string>
+  <string name="text_452ad1bd" formatted="false">"The AI will no longer demolish and rebuild its buildings continuously, when they can\'t be reached by a worker."</string>
+  <string name="text_ac28330" formatted="false">"Change the increase of army per attack wave"</string>
+  <string name="text_defb6765" formatted="false">"In vanilla each AI lord increases their army by 5 additional units for each main attack. You can adjust the amount here."</string>
+  <string name="text_c8794600" formatted="false">"Disable AI switching attack targets during a siege"</string>
+  <string name="text_ea7d305f" formatted="false">"AIs with the target choice set to gold or weakest were sometimes reevaluating who they would attack in the midst of a siege, running their troops across the whole map. With this fix, the AI will stick with their previously chosen target."</string>
+  <string name="text_3a58fc20" formatted="false">"Adjust AI limit for recruiting attack troops"</string>
+  <string name="text_9f0fa654" formatted="false">"The AI\'s number of main army units are capped at the size of their first attack plus this value (200 in vanilla). After reaching this limit, the AI stops recruiting troops and no longer sends out main attacks.\nNOTE: Very high values can cause the global unit limit to be reached in longer games, resulting in peasants being unable to spawn."</string>
+  <string name="text_e53043e9" formatted="false">"Override AI attack targets"</string>
+  <string name="text_c1544a8a" formatted="false">"More active AI attacking behaviour"</string>
+  <string name="text_56bf559c" formatted="false">"In vanilla the AI only sends out a single soldier per wallpiece in an attack and the rest of the army wait until a wallsegment is free again if there are more troops than avaviable walltile. \nthis option will allow the AI to send multiple Units per wallsegment to take them down faster and will also have units attack buildings and towers which were previously ignored.\nAdditionally the Ai will also send all its remaining attack troops to the enemy keep once the walls have been breached.\nAdjust the percentage of troops attacking outside castle buildings before a breach happens below:"</string>
+  <string name="text_87f0374c" formatted="false">"Buy additional wood"</string>
+  <string name="text_1a97404f" formatted="false">"In vanilla, the AIs when constructing a building are only stocking up on wood to match the exact price of the building they are about to construct. This leaves no buffer for active weapon production consuming wood. To prevent this issue, 2 additional wood are stocked up by the AI in this case."</string>
+  <string name="text_9d075c1d" formatted="false">"More reliable repleneshing of castle defenders"</string>
+  <string name="text_8ff5c08c" formatted="false">"Fixes a bug which stopped the AI from replacing missing troops on walls and towers, as long as defensive patrols were still around."</string>
+  <string name="text_285bc551" formatted="false">"Demolishing buildings for money"</string>
+  <string name="text_dd03c78" formatted="false">"Enable European archers to light pitch"</string>
+  <string name="text_dc18c73c" formatted="false">"AI\'s European archers light pitch the same way Arabian archers do, when defending against enemy units."</string>
+  <string name="text_3b8c03e6" formatted="false">"Enable enclosed AIs to deploy laddermen"</string>
+  <string name="text_48597cd" formatted="false">"AIs no longer stop assaulting enemy walls with their Laddermen if their own keep is enclosed."</string>
+  <string name="text_65f9d31a" formatted="false">"Smarter housing management"</string>
+  <string name="text_bce08238" formatted="false">"Disable sleep mode for production facilities"</string>
+  <string name="text_5436458" formatted="false">"The AI lords put their production buildings to sleep, if they run out of a resources they depend on for their Industry. E.g. all bakers are put to sleep when Saladin runs out of flour. \nHowever, this often disregards goods still being processed or midst their delivery leading to a constant loss of goods.\nHere you can disable this sleep mode for the AI entirely."</string>
+  <string name="text_dae17703" formatted="false">"Improved AI repairs"</string>
+  <string name="text_b470fb65" formatted="false">"With this setting the AIs will replace tower ruins and slightly damaged walls. They will also overbuild gathering grounds of recruitment buildings if their main building went missing."</string>
+  <string name="text_c6d39296" formatted="false">"Override and maximize recruitment speed"</string>
+  <string name="text_81a08df1" formatted="false">"Sets the recruitment interval of all AIs to the lowest value, recruiting as fast as the Vanilla Rat/Richard.\nNOTE: There is a more granular way to set individual recruitment speed for AIs AIC using the aiSwapper module."</string>
+  <string name="text_5852fbee" formatted="false">"Set AIs initial time until they recruit according to the AIC parameters"</string>
+  <string name="text_98504523" formatted="false">"Improve AI restocking of needed goods"</string>
+  <string name="text_e5362373" formatted="false">"The AI often doesn\'t restock goods even if it has the gold for it, leaving its production chains running dry. This option reduces the amount of time the AI waits for its stocks to be empty before restocking the necessary goods."</string>
+  <string name="text_411fb045" formatted="false">"Set ox tethers to a maximum of 10 per AI lord"</string>
+  <string name="text_b0668156" formatted="false">"Usually, the AI builds a new ox tether for every new quarry it constructs, even if it exceeds the usual limit of 10 ox tethers per lord. This can lead to a spam of ox tethers, reaching the housing limit for an AI lord causing no new peasants to spawn. With this setting you can disable the placement of that extra ox tether when a new quarry is built."</string>
+  <string name="text_58c13e33" formatted="false">"Increase the siege engine limit of the AI"</string>
+  <string name="text_fd22b83d" formatted="false">"Usually the AI only builds up to three mangonels and ballistas on its towers. With this option this limit is increased to 5 per engine."</string>
+  <string name="text_75701bbb" formatted="false">"Shrink apple orchard\'s build size"</string>
+  <string name="text_1155fd0d" formatted="false">"Changes the apple orchard\'s build preview to the size it occupies after the farm is placed down. This saves some space when building apple orchards and makes it easier for the AI to find space to place them on oasisgrass."</string>
+  <string name="text_399176b3" formatted="false">"Match armory/marketplace weapon order"</string>
+  <string name="text_729e4f00" formatted="false">"Reorders weapon icons in the the marketplace to be the same as in the armory. This includes the switching of pages in the market, as well as the display in the main category."</string>
+  <string name="text_b7349c41" formatted="false">"Spawn siege engines in the center of their tent"</string>
+  <string name="text_1c8fc28d" formatted="false">"In Vanilla the siegeengines are being spawned in the top right of their construction tent. This options places them in the middle of the tent instead\n(however, the tent itself is still not centered at the location designated in the AIV editor)."</string>
+  <string name="text_9644382a" formatted="false">"Set default multiplayer speed"</string>
+  <string name="text_589c7e28" formatted="false">"Continuous siege tent placement"</string>
+  <string name="text_18b28856" formatted="false">"This option allows the player to continuously place siegeengines down, without the game automatically deselecting the engine after the tent has been placed."</string>
+  <string name="text_4feb7c60" formatted="false">"Continuous placement for common buildings"</string>
+  <string name="text_1ef65230" formatted="false">"Adjust the fireproof period for buildings after extinguishment."</string>
+  <string name="text_cc03f437" formatted="false">"The amount of time during which extinguished buildings cannot catch fire again. In vanilla the duration is 2000 gameticks, which equals 2 1/2 months."</string>
+  <string name="text_6e6b12a1" formatted="false">"Fix bakers despawning"</string>
+  <string name="text_fccb5bb" formatted="false">"Bakers no longer disappear when they don\'t find flour at their targeted stockpile."</string>
+  <string name="text_cf14e917" formatted="false">"Fix fletchers inefficient pathing"</string>
+  <string name="text_8361dffd" formatted="false">"Fixes the behaviour where fletchers would go back to their workplace after delivering the bow/crossbow at the armory, instead of going straight to the stockpile to grab wood for the next production cycle."</string>
+  <string name="text_ca54190c" formatted="false">"Units climbing ladders retain their move command target"</string>
+  <string name="text_eb50f98e" formatted="false">"Units will keep remembering their original destination after climbing a ladder, instead of getting stuck on the ladders and just waiting on the walltile they climbed up onto."</string>
+  <string name="text_61a70c46" formatted="false">"Enable map sending for multiplayer"</string>
+  <string name="text_9e950ce" formatted="false">"Reduces the length of the sent map name, to make map sending possible again."</string>
+  <string name="text_159da4d9" formatted="false">"Fix despawning digging troops"</string>
+  <string name="text_c2d9827d" formatted="false">"Fixes the bug where moat digging units would disappear while digging. \nNote: Units can still despwawn if you order them to move while standing on unwalkable terrain!"</string>
+  <string name="text_863b3398" formatted="false">"Fix resource dublication from rapid deletion"</string>
+  <string name="text_f103a852" formatted="false">"Deleting buildings with a fast auto clicker no longer deletes the building multiple times. This way you dont get more resources back from deleting than the game has intended."</string>
+  <string name="text_325c982e" formatted="false">"Free trading post"</string>
+  <string name="text_8f03ccd2" formatted="false">"This option makes the trading post cost no resources to prevent the AI from getting stuck due to not having enough resources to build the marketplace. In multiplayer games, this prevents the need to restart entirely or demolish buildings for wood when a trading post is forgotten."</string>
+  <string name="text_f069c318" formatted="false">"Extended game speed limits"</string>
+  <string name="text_fc01c356" formatted="false">"Enable the change of the gamespeed as follows:\n- From 10 to 90 in intervals of 5\n- From 90 to 200 in intervals of 10\n- From 200 to 1000 in intervals of 100\nThe new values are only available ingame via the +- keys, the slider in the ingame menu remains unchanged."</string>
+  <string name="text_678f0452" formatted="false">"Apothecary worker now doubles as a healer"</string>
+  <string name="text_d80b35ab" formatted="false">"The healer of the apothecary building now actively seeks out injured soldiers, siegeengines, civilians and animals to heal them. The nearest targets are treated first. With each healing animation about 1/3 of a spearman\'s health is recovered. The strolling through gardens and investigation of plague clouds is not replaced. \nOnly the strolling through the castle is skipped until no more wounded targets are in the area."</string>
+  <string name="text_5537ff62" formatted="false">"Check more often for available paths"</string>
+  <string name="text_c2320354" formatted="false">"In vanilla, it took 200 game ticks to check for new pathing being avaviable, often stopping units to move into the castle after destroying a gate or tower immediately.\nChange the calcualtion of availability to every 50 gameticks, allowing the units to \'realize\' new paths being avaviable more quickly."</string>
+  <string name="text_7b910129" formatted="false">"Move camera with WASD-Keys and enable quicksaves"</string>
+  <string name="text_da9cb22e" formatted="false">"The WASD-keys can be used to move the camera around as well as CTRL-S and CTRL-L for quicksaving and loading respectively.\nNote: Writing map descriptions and selecting the Armory with A become infeasabile with this option."</string>
+  <string name="text_663f3a2c" formatted="false">"Always show planned moat"</string>
+  <string name="text_c57cf934" formatted="false">"With this option you will always see your unfinished planned moat even when deselecting the moat tool or not having any units selected."</string>
+  <string name="text_c3793199" formatted="false">"Activate Spectator-mode [bug possible]"</string>
+  <string name="text_980be06e" formatted="false">"Removes the human player from the first slot, enabeling you to spectate games between up to 8 AIs without interferance. Savegames load properly in this mode but if a player was present he will not be controllable. Sometimes a bug appears in which random objects spawn all over the map. This is just visually and can be removed by saving the game, ending the mission and reloading the save file."</string>
+  <string name="text_b5130776" formatted="false">"Override the Set-up Identity menu adding new features"</string>
+  <string name="text_346aae56" formatted="false">"Adds Ranged and Melee unit selection to Set-up Identity menu for the normal game mode in skirmish games.\nNote: To further alter the starting troops, you can enable different starting troops in the startResources module."</string>
+  <string name="text_8951aea4" formatted="false">"Swap this slots color with the first slot."</string>
+  <string name="text_e5c92bd" formatted="false">"Quicker automatic detection of gates"</string>
+  <string name="text_796f1f14" formatted="false">"Gates often kept AIs trapped and felt unresponsive in themselves shuttin down traffic for too long. They now automatically close later if enemies get into their detection range and open faster after the danger is gone. \nReduce the detection range from 200 to 140 and the gameticks to reopen the gates after no enemies are detected from 1200 to 100."</string>
+  <string name="text_e11c16a2" formatted="false">"Restore arabian engineer voicelines"</string>
+  <string name="text_47bf4b5e" formatted="false">"When you use the arabian lord, your engineers now use the originally recorded arabian voicelines."</string>
+  <string name="text_ccbd6746" formatted="false">"Strongholdify"</string>
+  <string name="text_b9c448ff" formatted="false">"Rotate the players keep towards the map center"</string>
+  <string name="text_c6a03e85" formatted="false">"Player keeps now get rotated similar to the way that AIs keeps rotate on a map, pointing their campfire outwards towards the map edge.\nNote: This won\'t rotate any other buildings, their entrances and gathering grounds will still point towards the south-west corner of the map."</string>
+  <string name="text_7431cbf3" formatted="false">"Remove the magic bar in Crusader Extreme"</string>
+  <string name="text_732ad036" formatted="false">"Removes magic icons from Stronghold Crusader Extreme."</string>
+  <string name="text_40f0ed66" formatted="false">"Arabic swordsmen destroy walls faster"</string>
+  <string name="text_40f165ee" formatted="false">"Increased armor for Arabic swordsmen against crossbow bolts"</string>
+  <string name="text_fc37c472" formatted="false">"Arabic swordsmen now die after getting hit 6 times by crossbow bolts instead of only 3"</string>
+  <string name="text_ea90a6d6" formatted="false">"Fire ballistae now auto target monks and tunnelers"</string>
+  <string name="text_c2f7c701" formatted="false">"Fire ballistas automatically fire at monks and tunnel diggers."</string>
+  <string name="text_6b6a494d" formatted="false">"Fix apple farm worker getting blocked"</string>
+  <string name="text_395fdc85" formatted="false">"Apple farmers can no longer be blocked while collecting apples from their farm by placing buildings at the top left side of their farm."</string>
+  <string name="text_51c1fc58" formatted="false">"Reset lord animation after destroying buildings"</string>
+  <string name="text_6a6653f" formatted="false">"Reset the pose of the lord after he stops moving or destroying a building into his upright posture. Usually it would get stuck bend down to the ground."</string>
+  <string name="text_e40f72c0" formatted="false">"Increased armor of laddermen against ranged units"</string>
+  <string name="text_fcd33444" formatted="false">"- Laddermen die after 12 arrow hits instead of 5\n- Laddermen die after 5 crossbow or slinger hits instead of 2\n- Laddermen cost 20 gold instead of 4"</string>
+  <string name="text_8e5eeb6c" formatted="false">"Increased armor of spearmen against ranged units"</string>
+  <string name="text_c3e8d497" formatted="false">"- Spearmen only die after 5 arrow hits instead of 3\n- Spearmen barely survive one crossbowbolt, instead of getting killed in one shot"</string>
+  <string name="text_73d4b3b4" formatted="false">"Spearmen run by default instead of walking."</string>
+  <string name="text_ee55b088" formatted="false">"Makes spearmen run by default like slaves and macemen."</string>
+  <string name="text_528a62c4" formatted="false">"Fix tanners returning without a cow"</string>
+  <string name="text_997e4ebf" formatted="false">"Tanners will no longer return without a cow when another tanner took their targeted cow. They will now wait a bit and then select a different cow."</string>
+  <string name="text_b06cab43" formatted="false">"Failed to prepare EXE"</string>
+  <string name="text_d9afbeb9" formatted="false">"Invalid EXE adaptation format"</string>
+  <string name="text_b1da8da8" formatted="false">"EXE does not match the adaptation"</string>
+  <string name="text_db07b86e" formatted="false">"EXE is truncated"</string>
+  <string name="text_b570e58e" formatted="false">"Extra EXE adaptation data"</string>
+  <string name="text_709de14b" formatted="false">"The checksum of the adapted EXE did not match"</string>
+  <string name="text_fab87405" formatted="false">"Go · "</string>
+  <string name="text_87fac83a" formatted="false">" will close"</string>
+  <string name="text_402982c5" formatted="false">"AI · fixes"</string>
+  <string name="text_4c783982" formatted="false">"AI · improvements"</string>
+  <string name="text_73372df1" formatted="false">"Bug fixes"</string>
+  <string name="text_2d63d878" formatted="false">"Balance"</string>
+  <string name="text_8a6cac11" formatted="false">"Quality of life"</string>
+  <string name="text_462adbaa" formatted="false">"Miscellaneous"</string>
+  <string name="text_ec7e9b17" formatted="false">"Patch category"</string>
+  <string name="text_a418107d" formatted="false">"Authors: %s"</string>
+</resources>

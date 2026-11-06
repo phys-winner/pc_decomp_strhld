@@ -21,6 +21,7 @@ import display_hooks
 import audio_hooks
 import fix_hooks
 import original_hooks
+import ucp
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULES = ("game", "mss", "bink")
@@ -45,7 +46,7 @@ NATIVE_OVERRIDES = ()
 # transfers at every call, tail, yield and exit). The generated sources stay
 # shared with the Windows build; these definitions go round each such body in
 # the Android copy.
-FUNCTION_START = re.compile(rb"^void sub_\w+\(void\) \{\r?$", re.M)   # generated files use CRLF
+FUNCTION_START = re.compile(rb"^void (?:sub_|ucp_code_)\w+\(void\) \{\r?$", re.M)   # generated files use CRLF
 FUNCTION_END = re.compile(rb"\n\}\r?\n")
 XMM_LOCAL = (b"#undef _xmm\n#undef RECOMP_XMM_OUT\n#undef RECOMP_XMM_IN\n#define _xmm l_xmm\n"
              b"#define RECOMP_XMM_OUT() memcpy(g_xmm, l_xmm, sizeof l_xmm)\n"
@@ -305,6 +306,8 @@ def override_source(source, local_xmm):
     patched copy under build/ when it defines one of NATIVE_OVERRIDES or (with
     local_xmm) a body that uses the SSE file, and with direct jump tables."""
     original = text = source.read_bytes()
+    if source.parent.name in ('classic-x86', 'game-x86'):
+        text = ucp.apply(text, source.parent.name[:-len('-x86')])
     for name in NATIVE_OVERRIDES:
         text = text.replace(b"\nvoid %s(void) {" % name.encode(), b"\nvoid %s_lifted(void) {" % name.encode(), 1)
     if source.name != "recomp_dispatch.c":
@@ -359,6 +362,8 @@ def generated_sources():
     if not dispatch.exists():
         raise SystemExit(f"{dispatch}: run tools/lift.py for the selected edition")
     sources.append(dispatch)
+    if EDITION != 'stronghold':
+        sources.append(ROOT / f'generated/{"classic" if EDITION == "classic" else "game"}-x86/ucp_extra.c')
     return sources
 
 
@@ -476,7 +481,8 @@ def main():
     gen_digest = header_digest(runtime_headers + sorted(p for name in available_modules()
                                                         for p in (ROOT / f"generated/{name}-x86").glob("*.h")))
     host_digest = header_digest(runtime_headers + sorted((ROOT / "android/host").glob("*.h")) +
-                                [ROOT / "reference/dlmalloc/malloc.c"])
+                                [ROOT / "reference/dlmalloc/malloc.c"] +
+                                ([ROOT / f'generated/{"classic" if EDITION == "classic" else "game"}-x86/ucp_data.h'] if EDITION != 'stronghold' else []))
     jobs = []
     if not args.host_only:
         _display_hooks_seen.clear()
@@ -506,6 +512,8 @@ def main():
             if missing:
                 raise SystemExit(f"{EDITION}: missing {hooks.__name__}: {sorted(missing)}")
     host_flags = HOST_FLAGS + (["-DVOID_ANDROID_APP"] if args.shared else [])
+    if EDITION != 'stronghold':
+        host_flags += ['-Igenerated/' + ('classic' if EDITION == 'classic' else 'game') + '-x86']
     if EDITION == "classic":
         host_flags += ["-DSTRONGHOLD_CLASSIC"]
     elif EDITION == "stronghold":

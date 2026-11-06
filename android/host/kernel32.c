@@ -257,13 +257,14 @@ static uint32_t real_cp(uint32_t cp)
 static int cp_supported(uint32_t cp)
 {
     cp = real_cp(cp);
-    return cp == 1252 || cp == 1251 || cp == 437 || cp == 65001 || cp == 20127 || cp == 28591;
+    return cp == 1252 || cp == 1251 || cp == 1250 || cp == 437 || cp == 65001 || cp == 20127 || cp == 28591;
 }
 
 static uint16_t byte_to_u16(uint32_t cp, uint8_t c)
 {
     if (c < 0x80) return c;
     switch (cp) {
+    case 1250: return void_cp1250_to_u16(c);
     case 1251: return void_cp1251_to_u16(c);
     case 28591: return c;
     case 20127: return '?';
@@ -274,6 +275,7 @@ static uint16_t byte_to_u16(uint32_t cp, uint8_t c)
 static int u16_to_byte(uint32_t cp, uint16_t u, uint8_t *out)
 {
     if (u < 0x80) { *out = (uint8_t)u; return 1; }
+    if (cp == 1250) return void_u16_to_cp1250(u, out);
     if (cp == 1251) return void_u16_to_cp1251(u, out);
     if (cp == 28591 && u < 0x100) { *out = (uint8_t)u; return 1; }
     return void_u16_to_cp1252(u, out);

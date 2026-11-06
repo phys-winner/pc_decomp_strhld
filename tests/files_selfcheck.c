@@ -19,6 +19,16 @@ static int scans, pause_scan, scan_started, worker_ran, fail_scan;
 static void_object *objects[64];
 static int mapping_calls;
 static uint32_t mapping_size;
+static char overlay_root[1200];
+static int overlay_enabled;
+int stronghold_mod_count(void) { return overlay_enabled; }
+const char *stronghold_mod_root(int index) { return overlay_enabled && index==0 ? overlay_root : NULL; }
+int void_vm_writable(uint32_t address,uint32_t size) { return address<0x10000u && size<=0x10000u-address; }
+uint32_t void_utf8_to_ga(const char *text,uint32_t out,uint32_t cap) { snprintf(GPTR(out),cap,"%s",text); return (uint32_t)strlen(text); }
+uint32_t void_utf8_to_gw(const char *text,uint32_t out,uint32_t cap) {
+    uint32_t n=0;while(text[n]&&n+1<cap){MEM16(out+n*2)=(unsigned char)text[n];n++;}MEM16(out+n*2)=0;return n;
+}
+void void_object_release(void_object *o) { if(o->destroy)o->destroy(o);free(o); }
 
 /* Mapping bounds are the file layer's responsibility; the VM syscall path
  * is independently exercised by vm16_selfcheck.c against the real kernel. */
@@ -150,6 +160,29 @@ int main(void) {
     assert(asset("crusader.wav") == WIN_INVALID_HANDLE);
     expect_data(asset("crusader.wav"), "original"); /* A failed readdir cannot become a complete absent-file index. */
     mapping_bounds();
+    snprintf(overlay_root,sizeof overlay_root,"%s/mod",root);
+    snprintf(file,sizeof file,"%s/FX/music",overlay_root); mkdirs(file);
+    snprintf(file,sizeof file,"%s/FX/music/CRUSADER.wav",overlay_root);write_fixture(file,"modded");
+    snprintf(file,sizeof file,"%s/FX/music/added.wav",overlay_root);write_fixture(file,"added");
+    overlay_enabled=1;
+    expect_data(asset("crusader.wav"),"modded");expect_data(asset("added.wav"),"added");
+    expect_data(asset("glory.mp3"),"second");
+    uint32_t write_handle=create_file(GAME_INSTALL "\\FX\\MUSIC\\crusader.wav",GENERIC_WRITE_,OPEN_EXISTING_,0);
+    assert(write_handle!=WIN_INVALID_HANDLE);assert(write(void_file_host_fd(write_handle),"base",4)==4);void_handle_close(write_handle);
+    expect_data(asset("crusader.wav"),"modded");
+    snprintf(file,sizeof file,"%s/Stronghold.exe",overlay_root);write_fixture(file,"forbidden");
+    assert(!mod_host(GAME_INSTALL "\\Stronghold.exe",0,0));
+    assert(!mod_host(GAME_INSTALL "\\..\\outside.tex",0,0));
+    snprintf(file,sizeof file,"%s/maps/new",overlay_root);mkdirs(file);
+    snprintf(file,sizeof file,"%s/maps/new/only.map",overlay_root);write_fixture(file,"newmap");
+    assert(attributes_of(GAME_INSTALL "\\maps\\new")==0x10u);
+    uint32_t found=find_first(GAME_INSTALL "\\maps\\new\\*.map",0x6000,0);
+    assert(found!=WIN_INVALID_HANDLE && !strcmp((char*)GPTR(0x6000+44),"only.map"));void_handle_close(found);
+    found=find_first(GAME_INSTALL "\\FX\\music\\*.wav",0x6000,0);assert(found!=WIN_INVALID_HANDLE);
+    int overridden=0,added=0;
+    do { const char *name=GPTR(0x6000+44);overridden+=!strcasecmp(name,"crusader.wav");added+=!strcasecmp(name,"added.wav"); } while(find_next(found,0x6000,0));
+    assert(overridden==1 && added==1);void_handle_close(found);
+    overlay_enabled=0;expect_data(asset("crusader.wav"),"baseinal");
     owned = 0; pthread_mutex_unlock(&machine);
     puts("files_selfcheck: unlocked lookup/CWD+guest snapshot, directory index, invalidation, errors, userdata and mapping EOF bounds PASS");
     return 0;

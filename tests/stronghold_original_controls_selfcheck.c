@@ -19,9 +19,12 @@ uint32_t void_call_guest_this(uint32_t fn,uint32_t self,int count,const uint32_t
     if(fn==0x4B5070u){
         assert(self==CAMERA&&count==1&&args[0]<=1);
         MEM32(CAMERA+0x8C)=args[0];MEM32(CAMERA+0x74)+=777;MEM32(CAMERA+0x78)+=999;
+        MEM32(CAMERA+0x84)=((MEM32(SCREEN_WIDTH)+31)/32+5)<<args[0];
+        MEM32(CAMERA+0x88)=((MEM32(SCREEN_HEIGHT)-HUD_BAND)/8+4)<<args[0];
         ++native_zoom_calls;stamp=0;return 0;
     }
     if(fn==CAMERA_CLAMP){assert(self==CAMERA&&!count);++clamp_calls;stronghold_original_view(self);stamp=0;return 0;}
+    if(fn==0x45BEB0u&&args[0]==17){assert(self==0x1503D30u&&count==2);MEM32(STATE+12)=17;stamp=0;return 0;}
     assert(fn==0x45BEB0u&&self==0x1503D30u&&count==2&&args[0]==48&&args[1]==0);
     ++startup_calls;stamp=0;return 0;
 }
@@ -63,6 +66,7 @@ void void_regs_save(void_regs *r) { memset(r, 0, sizeof *r); r->eax = (uint32_t)
 void void_regs_load(const void_regs *r) { stamp = (int)r->eax; }
 uint32_t void_call_guest(uint32_t fn, int count, const uint32_t *args, int pops)
 {
+    if(fn==0x4394E0u){assert(count==1&&args[0]==25&&!pops);MEM32(STATE+12)=1002;stamp=0;return 0;}
     assert(fn == 0x4923D0 && count == 4 && pops == 1);
     ++calls; stamp = 0; last_key = (int)args[2];
     last_modifiers = (MEM32(0xAB49BC) ? 1 : 0) | (MEM32(0xAB49C4) ? 2 : 0);
@@ -179,6 +183,11 @@ int main(void)
     for (int i = 0; i < 20; ++i) stronghold_game_command('Z', 0);
     original_commands(); assert(calls == 17 && !last_modifiers);
     MEM32(DIALOG) = 7; stronghold_game_command('1', 1); original_commands(); assert(calls == 17);
+    MEM32(DIALOG)=UINT32_MAX;MEM32(STATE)=12;
+    stronghold_game_command(0xDE,2);original_commands();assert(calls==17&&command_count==1&&MEM32(STATE+12)==1002);
+    MEM32(STATE)=1002;original_commands();assert(calls==18&&last_key==0xDE&&last_modifiers==2&&!command_count&&stamp==1234);
+    MEM32(STATE)=12;stronghold_game_command(0xBC,2);original_commands();assert(calls==18&&command_count==1&&MEM32(STATE+12)==17);
+    MEM32(STATE)=17;original_commands();assert(calls==19&&last_key==0xBC&&last_modifiers==2&&!command_count&&stamp==1234);
     zoom_camera();
     puts("HD controls: live groups/marks/speed, bounded original commands, runtime HUD book/radar bounds+guards, lock-owned actions, team radar colours/neutral/format-independent index, original debug state/registers preserved PASS");
     return 0;

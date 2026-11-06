@@ -13,14 +13,19 @@
 /android/**
 !/android/**/
 !/android/**/*.c
+!/android/gog/*.cpp
 !/android/**/*.h
 !/android/**/*.java
 !/android/**/*.xml
+!/android/gog/CMakeLists.txt
+!/android/licenses/*.txt
 
 !/config/
 /config/*
 !/config/inputs.json
 !/config/seeds.json
+!/config/compatibility.json
+!/config/ucp-android.json
 
 !/tools/
 /tools/*

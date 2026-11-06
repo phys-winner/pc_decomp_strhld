@@ -73,10 +73,53 @@ vendored by this repository:
 | capstone | 5.0.7 | BSD-3-Clause | https://github.com/capstone-engine/capstone |
 | pefile | 2024.8.26 | MIT | https://github.com/erocarrera/pefile |
 | unicorn | 2.1.4 | GPL-2.0-only core; BSD Python bindings; upstream component notices apply | https://github.com/unicorn-engine/unicorn |
+| lupa | 2.6 | MIT; bundled Lua uses its upstream MIT license | https://github.com/scoder/lupa |
+| PyYAML | 6.0.3 | MIT | https://github.com/yaml/pyyaml |
 
 Unicorn is used for original-code regression checks on the build computer; it is
 not linked into the Android app. The Android SDK, NDK and JDK are separately
 installed toolchains with their own licenses.
+
+## Unofficial Crusader Patch — GPL-3.0
+
+Source: https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch
+
+Pinned umbrella revision: `db6755fbfa55a4abeb2d1231487d1e9f3e434413`.
+UCP3 framework: `fd326a41d8927eaee42dfb542658843138c15867`.
+UCP2 Legacy module: `04e826d00f1a5f8a623e15acffc743f115ee7fb1`.
+
+Copyright remains with the Unofficial Crusader Patch contributors. The upstream
+LICENSE files and authorship remain in the pinned checkout. The Android build
+translates supported Legacy patch instructions to guarded ARM64 functions and
+checked guest-data writes. Android-specific adjustments are in `tools/ucp.py`,
+`config/ucp-android.json` and `android/host/mods.c`; upstream files are unmodified.
+The complete GPL version 3 text is in the repository LICENSE and APK assets.
+Lupa and Lua execute the original patch scripts only on the build computer.
+
+## GOG installer reader and compression libraries
+
+The APK includes an ARM64 executable built from these pinned sources. The
+Android CMake build and metadata entry point are separate adaptations in
+`android/gog`; upstream files are unmodified. This software reads installers as
+data and does not run their Windows programs.
+
+| Component | Revision / version | License | Source |
+| --- | --- | --- | --- |
+| innoextract | `81fd9b95b76ee5115ce116bfdbc3bc6b887b809d` | Zlib | https://github.com/dscharrer/innoextract |
+| Boost | 1.84.0 | Boost Software License 1.0 | https://www.boost.org/ |
+| bzip2 / libbzip2 | `6a8690fc8d26c815e798c588f796eabe9d684cf0` | bzip2 license | https://gitlab.com/bzip2/bzip2 |
+| liblzma from XZ Utils | `061a1e4d2d0b1c3f5c9a637fd94bac035a826340` | Public domain | https://github.com/tukaani-project/xz |
+
+innoextract is Copyright (C) 2011–2020 Daniel Scharrer. bzip2 is Copyright
+(C) 1996–2019 Julian R Seward. Boost retains the copyright notices in its source
+files. The selected XZ revision places liblzma in the public domain; its GPL
+shell scripts and LGPL getopt are not linked into this executable. Android's
+system zlib supplies deflate support. Full upstream notices are retained in
+`android/licenses` and packaged under `assets/licenses` in the APK.
+
+The APK's small native payload decoder also uses the same pinned public-domain
+liblzma. Game libraries are stored as ARM64-filtered XZ chunks and unpacked into
+private app storage before loading; the XZ license above covers this decoder.
 
 ## Original games and middleware
 

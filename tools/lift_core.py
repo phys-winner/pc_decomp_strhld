@@ -40,6 +40,14 @@ class CheckedLifter(Lifter):
 
     def lift_instruction(self, instruction):
         mnemonic = instruction.mnemonic.split()[-1]
+        if mnemonic == 'pushf':
+            return [f'esp -= 2; MEM16(esp) = (uint16_t)recomp_eflags(_flag_k, _flag_a, _flag_b, _cf, _df); '
+                    f'/* 0x{instruction.address:08X}: pushf */']
+        if mnemonic == 'popf':
+            self._flag_state = None
+            return [f'{{ uint32_t _fl = (recomp_eflags(_flag_k, _flag_a, _flag_b, _cf, _df) & 0xffff0000u) | MEM16(esp); '
+                    f'esp += 2; _flag_k = FK_EFLAGS; _flag_a = _fl; _flag_b = 0; '
+                    f'_cf = _fl & 1u; _df = (_fl & 0x400u) ? -1 : 1; }} /* 0x{instruction.address:08X}: popf */']
         if mnemonic in ("fsave", "fnsave", "frstor", "fstenv", "fnstenv", "fldenv",
                         "fxsave", "fxsave64", "fxrstor", "fxrstor64"):
             # No complete x87 memory/environment model exists; never silently discard it.

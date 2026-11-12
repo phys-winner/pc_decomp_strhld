@@ -76,7 +76,9 @@ final class GogInstaller {
         finally { process.destroy(); }
     }
     static void extract(Context context, Info info, File target, BooleanSupplier cancelled, Consumer<Process> active, Progress progress) throws IOException {
-        if (!target.isDirectory() || target.getUsableSpace() < info.bytes + 64L * 1024 * 1024) throw new IOException(I18n.t("Недостаточно места для установки"));
+        long required = info.bytes + 64L * 1024 * 1024, free = target.getUsableSpace();
+        if (!target.isDirectory() || free < required) throw new IOException(String.format(I18n.t("Не хватает места: нужно %1$s, свободно %2$s."),
+                android.text.format.Formatter.formatFileSize(context, required), android.text.format.Formatter.formatFileSize(context, free)));
         if (cancelled.getAsBoolean()) throw new InterruptedIOException();
         List<String> command = new ArrayList<>();
         java.util.Collections.addAll(command, executable(context), "--extract", "--exclude-temp", "--color=0", "--progress=0", "--no-extract-unknown",

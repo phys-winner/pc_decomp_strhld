@@ -508,4 +508,11 @@
   <string name="text_462adbaa" formatted="false">"Miscellaneous"</string>
   <string name="text_ec7e9b17" formatted="false">"Patch category"</string>
   <string name="text_a418107d" formatted="false">"Authors: %s"</string>
+    <string name="text_8e886125" formatted="false">"Diagnostics"</string>
+    <string name="text_10832fa5" formatted="false">"Copy diagnostic report"</string>
+    <string name="text_f7348f16" formatted="false">"Preparing report…"</string>
+    <string name="text_7e9fd602" formatted="false">"Diagnostic report copied"</string>
+    <string name="text_6d2c4c1d" formatted="false">"Could not copy the report"</string>
+    <string name="text_c2e44cfd" formatted="false">"Not enough space: %1$s needed, %2$s free."</string>
+    <string name="text_4186bcd5">Game memory limit up to 4 GB</string>
 </resources>

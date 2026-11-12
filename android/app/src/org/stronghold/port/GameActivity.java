@@ -490,6 +490,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         applyGameSettings();
         String modError = nativeMods(new File(getFilesDir(), "mods-" + edition + ".cfg").getAbsolutePath());
         if (modError != null) { launchError(I18n.t("Не удалось применить моды: ") + modError); return; }
+        try { android.system.Os.setenv("PORT_OPTION_LARGE_ADDRESS_AWARE", LauncherActivity.largeAddressAware(this) ? "1" : "0", true); }
+        catch (android.system.ErrnoException error) { launchError(error.toString()); return; }
         if (!nativeStart(gamePath, data.getAbsolutePath(), imagePath == null ? GameFiles.images(new File(gamePath), edition).getAbsolutePath() : imagePath,
                 GameFiles.pending(getFilesDir(), edition).getAbsolutePath(), requestedWidth, requestedHeight,
                 new File(base, "verbose").exists(), skipMovies)) { launchError(I18n.t("Не удалось создать поток игры.")); return; }

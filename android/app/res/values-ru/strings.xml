@@ -508,4 +508,11 @@
   <string name="text_462adbaa" formatted="false">"Прочее"</string>
   <string name="text_ec7e9b17" formatted="false">"Категория патчей"</string>
   <string name="text_a418107d" formatted="false">"Авторы: %s"</string>
+    <string name="text_8e886125" formatted="false">"Диагностика"</string>
+    <string name="text_10832fa5" formatted="false">"Скопировать отчёт диагностики"</string>
+    <string name="text_f7348f16" formatted="false">"Подготовка отчёта…"</string>
+    <string name="text_7e9fd602" formatted="false">"Отчёт диагностики скопирован"</string>
+    <string name="text_6d2c4c1d" formatted="false">"Не удалось скопировать отчёт"</string>
+    <string name="text_c2e44cfd" formatted="false">"Не хватает места: нужно %1$s, свободно %2$s."</string>
+    <string name="text_4186bcd5">Лимит памяти игры до 4 ГБ</string>
 </resources>

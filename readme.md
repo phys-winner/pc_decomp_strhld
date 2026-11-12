@@ -14,7 +14,7 @@ respective owners.
 
 ## Status and features
 
-Current application version: **1.0-release**. All three editions are packaged into
+Current application version: **1.1-release**. All three editions are packaged into
 one APK, with separate Android processes, settings and save directories.
 
 - The original game logic is translated ahead of time with
@@ -252,8 +252,10 @@ without disabling localization or other asset packs. The selector also has a
 **Disable all** action for its current edition. Changes apply at the next launch
 and are stored separately for each edition. In the game's main menu, the edition
 switch dialog also opens the same UCP selector; applying it restarts the current
-edition. Newly created player profiles, including Japanese names, are saved when
-the main menu opens, so an Android process restart does not discard the profile.
+edition. All three editions save accepted player names when the main menu opens
+and save changed campaign progress, including Crusader trail stages, best times
+and consumed skips, through the original config writer. An Android process restart
+does not require first exiting through the original game menu.
 UCP functions start disabled. Hold a function to read its description; parameters
 use the prepared Android profile in [config/ucp-android.json](config/ucp-android.json).
 The selector groups patches into AI fixes, AI improvements, bug fixes, balance,

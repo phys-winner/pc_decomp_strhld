@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -38,8 +39,10 @@ import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,6 +55,15 @@ public final class LauncherActivity extends Activity {
     /* Tile order: Crusader, Crusader Extreme, the original Stronghold HD. */
     private static final String[] EDITIONS = GameFiles.EDITIONS;
     private static final String EXTERNAL_STORAGE = "com.android.externalstorage.documents";
+    static boolean largeAddressAware(Context context) {
+        if (!android.os.Process.is64Bit()) return false;
+        android.app.ActivityManager manager = (android.app.ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+        android.app.ActivityManager.MemoryInfo memory = new android.app.ActivityManager.MemoryInfo();
+        if (manager != null) manager.getMemoryInfo(memory);
+        return context.getSharedPreferences("LauncherActivity", Context.MODE_PRIVATE)
+            .getBoolean("large_address_aware", memory.totalMem >= (5L << 30));
+    }
+
     private SharedPreferences preferences;
     private LinearLayout setupActions;
     private Button changeFiles;
@@ -59,7 +71,17 @@ public final class LauncherActivity extends Activity {
     private boolean showingLauncher, selectingFiles, pickingGog;
     private Switch skip;
     private TextView status;
+    private TextView filesHeading, ucpStatus, modStatus;
+    private TextView diagnosticNote;
+    private Button diagnosticButton;
+    private boolean copyingDiagnostics;
+    private final Map<TextView, LinearLayout> recoveryActions = new HashMap<>();
+    private final View[] gameRecovery = new View[3];
+    private LinearLayout fileDetails, fileProgress, modProgress;
+    private boolean filesExpanded;
     private final TextView[] gameStatus = new TextView[3];
+    private final TextView[] gameNotes = new TextView[3];
+    private final LinearLayout[] gameCards = new LinearLayout[3];
     private Button access;
     private final Button[] play = new Button[3];
     private int scanVersion;
@@ -74,11 +96,15 @@ public final class LauncherActivity extends Activity {
         I18n.apply(this);
         Theme.edgeToEdge(this);
         preferences = getSharedPreferences("LauncherActivity", MODE_PRIVATE);
-        if (state != null) modEdition = state.getString("modEdition");
+        if (state != null) {
+            modEdition = state.getString("modEdition");
+            filesExpanded = state.getBoolean("filesExpanded");
+        }
         handleIntent(getIntent());
     }
     @Override protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state); state.putString("modEdition", modEdition);
+        state.putBoolean("filesExpanded", filesExpanded);
     }
     @Override public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
@@ -111,6 +137,7 @@ public final class LauncherActivity extends Activity {
     }
     private void showLauncher(String error) {
         showingLauncher = true;
+        recoveryActions.clear();
         FrameLayout frame = new FrameLayout(this);
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(true); scroll.setClipToPadding(false);
         LinearLayout page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
@@ -130,11 +157,16 @@ public final class LauncherActivity extends Activity {
         if (!wide) { gap(page, 8); page.addView(access, new LinearLayout.LayoutParams(-1, -2)); }
         gap(page, 14);
 
-        status = Theme.text(this, error == null ? I18n.t("Выберите игру") : error, 14, error == null ? Theme.MUTED : Theme.BAD, false);
-        status.setPadding(dp(4), 0, dp(4), dp(10)); page.addView(status);
-
-        LinearLayout source = Theme.card(this);
-        heading(source, I18n.t("Файлы игр"));
+        LinearLayout sourceCard = Theme.card(this);
+        filesHeading = Theme.text(this, "", 16, Theme.ACCENT, true);
+        filesHeading.setMinHeight(dp(48));
+        filesHeading.setFocusable(true);
+        filesHeading.setOnClickListener(v -> { filesExpanded = !filesExpanded; foldFiles(); });
+        sourceCard.addView(filesHeading);
+        LinearLayout source = new LinearLayout(this);
+        source.setOrientation(LinearLayout.VERTICAL);
+        fileDetails = source;
+        sourceCard.addView(source);
         filesHint = note(source, I18n.t("Проверка установленных игр…"));
         setupActions = Theme.row(this);
         Button choose = Theme.button(this, I18n.t("Выбрать папку…"), false);
@@ -149,7 +181,17 @@ public final class LauncherActivity extends Activity {
         changeFiles = Theme.button(this, I18n.t("Изменить файлы игр…"), false);
         changeFiles.setVisibility(View.GONE); changeFiles.setOnClickListener(v -> fileActions());
         source.addView(changeFiles, new LinearLayout.LayoutParams(-1, -2));
-        page.addView(source);
+        status = inlineStatus(sourceCard);
+        status.setVisibility(View.GONE);
+        status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        if (fileProgress == null) {
+            fileProgress = new LinearLayout(this);
+            fileProgress.setOrientation(LinearLayout.VERTICAL);
+            fileProgress.setVisibility(View.GONE);
+        }
+        attach(sourceCard, fileProgress);
+        foldFiles();
+        page.addView(sourceCard);
 
         LinearLayout columns = new LinearLayout(this); columns.setOrientation(wide ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         LinearLayout games = new LinearLayout(this), files = new LinearLayout(this);
@@ -165,6 +207,14 @@ public final class LauncherActivity extends Activity {
         skip.setTextColor(Theme.TEXT); skip.setChecked(preferences.getBoolean("skipMovies", false)); skip.setPadding(0, dp(6), 0, dp(6));
         skip.setOnCheckedChangeListener((button, checked) -> preferences.edit().putBoolean("skipMovies", checked).apply());
         options.addView(skip);
+        if (android.os.Process.is64Bit()) {
+            Switch memory = new Switch(this);
+            memory.setText(I18n.t("Лимит памяти игры до 4 ГБ"));
+            memory.setTextColor(Theme.TEXT); memory.setChecked(largeAddressAware(this));
+            memory.setPadding(0, dp(6), 0, dp(6));
+            memory.setOnCheckedChangeListener((button, checked) -> preferences.edit().putBoolean("large_address_aware", checked).apply());
+            options.addView(memory);
+        }
         note(options, I18n.t("Параметры запуска применяются при новом запуске процесса игры. Перед перезапуском сохраните матч."));
         files.addView(options);
         Button language = Theme.button(this, I18n.t("Язык интерфейса…"), false);
@@ -176,11 +226,12 @@ public final class LauncherActivity extends Activity {
         Button github = Theme.button(this, I18n.t("UCP на GitHub"), false);
         github.setOnClickListener(v -> {
             try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(UcpOptions.WEBSITE))); }
-            catch (ActivityNotFoundException unavailable) { setStatus(UcpOptions.WEBSITE, false); }
+            catch (ActivityNotFoundException unavailable) { setStatus(ucpStatus, UcpOptions.WEBSITE, false); }
         });
         ucp.addView(github);
         Button disable = Theme.button(this, I18n.t("Отключить все функции UCP"), false);
         disable.setOnClickListener(v -> {
+            modStatus = ucpStatus;
             for (String game : EDITIONS) if (running(game)) {
                 modProblem(new IOException(I18n.t("Завершите запущенную игру перед изменением модов. Новые настройки применяются при следующем запуске."))); return;
             }
@@ -188,10 +239,22 @@ public final class LauncherActivity extends Activity {
                 String revision = modCatalog().getJSONObject("upstream").getString("framework_revision");
                 for (String game : new String[]{"classic", "extreme"})
                     GameMods.configureFeatures(UcpOptions.config(this, game), revision, java.util.Collections.emptySet());
-                setStatus(I18n.t("Все функции UCP отключены. Пакеты данных и локализации сохранены."), false);
+                setStatus(ucpStatus, I18n.t("Все функции UCP отключены. Пакеты данных и локализации сохранены."), false);
             } catch (Exception failure) { modProblem(failure); }
         });
         ucp.addView(disable); files.addView(ucp);
+        ucpStatus = inlineStatus(ucp);
+        ucpStatus.setVisibility(View.GONE);
+        if (error != null) setStatus(gameNotes[editionIndex(preferences.getString("edition", "extreme"))], error, true);
+
+        LinearLayout diagnostics = Theme.card(this);
+        heading(diagnostics, I18n.t("Диагностика"));
+        diagnosticButton = Theme.button(this, I18n.t("Скопировать отчёт диагностики"), false);
+        diagnosticButton.setOnClickListener(v -> copyDiagnostics());
+        Theme.enable(diagnosticButton, !copyingDiagnostics);
+        diagnostics.addView(diagnosticButton);
+        diagnosticNote = inlineStatus(diagnostics);
+        files.addView(diagnostics);
 
         frame.setOnApplyWindowInsetsListener((view, insets) -> Theme.padInsets(page, insets, dp(20), dp(14), dp(20), dp(20)));
         setContentView(frame);
@@ -202,6 +265,7 @@ public final class LauncherActivity extends Activity {
     private View gameTile(int index) {
         final String item = EDITIONS[index];
         LinearLayout card = Theme.card(this);
+        gameCards[index] = card;
         LinearLayout top = Theme.row(this);
         ImageView icon = new ImageView(this); icon.setImageResource(resource(index == 0 ? "ic_classic" : index == 1 ? "ic_extreme" : "ic_stronghold", "mipmap"));
         top.addView(icon, new LinearLayout.LayoutParams(dp(56), dp(56)));
@@ -211,14 +275,31 @@ public final class LauncherActivity extends Activity {
         titles.addView(gameStatus[index]);
         top.addView(titles, new LinearLayout.LayoutParams(0, -2, 1));
         card.addView(top);
+        gameNotes[index] = inlineStatus(card);
+        gameNotes[index].setVisibility(View.GONE);
+        gameNotes[index].setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        if (item.equals(modEdition)) {
+            modStatus = gameNotes[index];
+            if (modProgress != null) attach(card, modProgress);
+        }
         gap(card, 10);
         LinearLayout actions = Theme.row(this);
-        Button button = Theme.button(this, I18n.t("Играть"), true); play[index] = button; Theme.enable(button, false);
+        Button button = Theme.button(this, I18n.t("Играть"), true, item); play[index] = button; Theme.enable(button, false);
         button.setOnClickListener(v -> attempt(item, gamePath(item), skip.isChecked()));
         Button settings = Theme.button(this, I18n.t("Настройки"), false);
         settings.setOnClickListener(v -> startActivity(new Intent(this, settingsClass(item))));
         actions.addView(button, Theme.weight(this, 1.3f, 0)); actions.addView(settings, Theme.weight(this, 1, 8));
         card.addView(actions);
+        LinearLayout repair = Theme.row(this);
+        Button folder = Theme.button(this, I18n.t("Выбрать папку…"), false);
+        folder.setOnClickListener(v -> { if (!checking && !requestStorage()) { pickingGog = false; pickFolder(); } });
+        Button retry = Theme.button(this, I18n.t("Проверить снова"), false);
+        retry.setOnClickListener(v -> { if (!checking && !requestStorage()) detectGames(); });
+        repair.addView(folder, Theme.weight(this, 1, 0));
+        repair.addView(retry, Theme.weight(this, 1, 8));
+        repair.setVisibility(View.GONE);
+        gameRecovery[index] = repair;
+        card.addView(repair);
         if (!GameFiles.original(item)) {
             Button mods = Theme.button(this, I18n.t("Моды…"), false);
             mods.setOnClickListener(v -> modsMenu(item));
@@ -233,14 +314,15 @@ public final class LauncherActivity extends Activity {
     }
     private JSONObject modCatalog() throws Exception { return UcpOptions.catalog(this); }
     private void modProblem(Exception error) {
-        new AlertDialog.Builder(this).setTitle(I18n.t("Моды")).setMessage(error.getMessage()).setPositiveButton("OK", null).show();
+        setStatus(modStatus != null ? modStatus : status, error.getMessage(), true);
     }
     private void modsMenu(String edition) {
         if (GameFiles.original(edition)) return;
         if (checking) return;
+        modStatus = gameNotes[editionIndex(edition)];
         for (String game : EDITIONS) if (running(game)) {
-            new AlertDialog.Builder(this).setTitle(I18n.t("Моды")).setMessage(I18n.t("Завершите запущенную игру перед изменением модов. Новые настройки применяются при следующем запуске."))
-                    .setPositiveButton("OK", null).show(); return;
+            modProblem(new IOException(I18n.t("Завершите запущенную игру перед изменением модов. Новые настройки применяются при следующем запуске.")));
+            return;
         }
         try {
             JSONObject catalog = modCatalog();
@@ -304,21 +386,29 @@ public final class LauncherActivity extends Activity {
     private void installMod(Uri uri) {
         if (checking || modEdition == null) return;
         String edition = modEdition; checking = true; transferCancelled = false;
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(I18n.t("Установка мода…")).setMessage(I18n.t("Проверка и распаковка ZIP"))
-                .setCancelable(false).setNegativeButton(I18n.t("Отмена"), (d,w) -> transferCancelled = true).show();
+        for (Button button : play) Theme.enable(button, false);
+        modStatus = gameNotes[editionIndex(edition)];
+        if (modProgress == null) {
+            modProgress = new LinearLayout(this); modProgress.setOrientation(LinearLayout.VERTICAL);
+        }
+        attach(gameCards[editionIndex(edition)], modProgress);
+        setStatus(modStatus, null, false);
+        Progress progress = showProgress(modProgress, I18n.t("Установка мода…"), () -> transferCancelled = true);
         new Thread(() -> {
             Exception error = null; GameMods.Pack pack = null;
             try (InputStream input = getContentResolver().openInputStream(uri)) {
                 if (input == null) throw new IOException(I18n.t("Архив недоступен"));
-                pack = GameMods.install(input, modsFolder(), () -> transferCancelled);
+                long total = documentSize(uri);
+                pack = GameMods.install(new Counting(input, bytes -> progress.update(bytes, total, 0)), modsFolder(), () -> transferCancelled);
             } catch (Exception failure) { error = failure; }
             final Exception problem = error; final GameMods.Pack installed = pack;
             runOnUiThread(() -> {
-                checking = false; dialog.dismiss();
+                checking = false; modProgress.setVisibility(View.GONE);
                 if (isFinishing() || isDestroyed()) return;
+                detectGames();
                 if (problem != null) modProblem(problem);
-                else if (!installed.supports(edition)) new AlertDialog.Builder(this).setTitle(I18n.t("Мод установлен"))
-                        .setMessage("«"+installed.name+I18n.t("» доступен в списке модов для ")+installed.edition).setPositiveButton("OK", null).show();
+                else if (!installed.supports(edition)) setStatus(gameNotes[editionIndex(edition)],
+                        "«"+installed.name+I18n.t("» доступен в списке модов для ")+installed.edition, false);
                 else try { assetMods(edition, modCatalog()); } catch (Exception failure) { modProblem(failure); }
             });
         }, "mod-import").start();
@@ -342,8 +432,75 @@ public final class LauncherActivity extends Activity {
                 .setNegativeButton(I18n.t("Отмена"), null).show();
     }
     private void setStatus(String text, boolean problem) {
-        if (status == null) return;
-        status.setText(text); status.setTextColor(problem ? Theme.BAD : Theme.MUTED);
+        setStatus(status, text, problem);
+    }
+    private void setStatus(TextView target, String text, boolean problem) {
+        if (target == null) return;
+        boolean unchanged = (text == null ? target.getVisibility() == View.GONE : text.contentEquals(target.getText()))
+                && target.getCurrentTextColor() == (problem ? Theme.BAD : Theme.MUTED);
+        target.setText(text); target.setTextColor(problem ? Theme.BAD : Theme.MUTED);
+        target.setVisibility(text == null || text.isEmpty() ? View.GONE : View.VISIBLE);
+        if (unchanged) return;
+        LinearLayout actions = recoveryActions.get(target);
+        if (actions == null) return;
+        actions.removeAllViews();
+        if (!problem || text == null || text.isEmpty()) return;
+        preferences.edit().putString("last_error", text).apply();
+        if (target == status) {
+            Button folder = Theme.button(this, I18n.t("Выбрать папку…"), false);
+            folder.setOnClickListener(v -> { if (!checking && !requestStorage()) { pickingGog = false; pickFolder(); } });
+            Button archive = Theme.button(this, I18n.t("Распаковать ZIP…"), false);
+            archive.setOnClickListener(v -> { if (!checking && !requestStorage()) pickArchive(); });
+            actions.addView(folder); actions.addView(archive);
+        } else if (target == diagnosticNote) {
+            Button retry = Theme.button(this, I18n.t("Скопировать отчёт диагностики"), false);
+            retry.setOnClickListener(v -> copyDiagnostics()); actions.addView(retry);
+        }
+    }
+
+    private TextView inlineStatus(LinearLayout parent) {
+        TextView view = note(parent, ""); view.setVisibility(View.GONE);
+        view.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        LinearLayout actions = new LinearLayout(this); actions.setOrientation(LinearLayout.VERTICAL);
+        parent.addView(actions); recoveryActions.put(view, actions);
+        return view;
+    }
+
+    private void showLaunchError(String edition, String text) {
+        if (!showingLauncher) { showLauncher(text); return; }
+        setStatus(gameNotes[editionIndex(edition)], text, true);
+        detectGames();
+    }
+
+    private void copyDiagnostics() {
+        if (copyingDiagnostics) return;
+        copyingDiagnostics = true; Theme.enable(diagnosticButton, false);
+        setStatus(diagnosticNote, I18n.t("Подготовка отчёта…"), false);
+        String edition = preferences.getString("edition", "extreme"), error = preferences.getString("last_error", "");
+        new Thread(() -> {
+            String gpuText;
+            try { Gpu found = Gpu.get(this); gpuText = found.renderer + " (" + found.vendor + ")"; }
+            catch (RuntimeException | LinkageError failure) { gpuText = "unavailable: " + failure; }
+            String report = Diagnostics.report(this, GameFiles.title(edition), gpuText, "native 2D", "original 2D assets", error);
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                copyingDiagnostics = false; Theme.enable(diagnosticButton, true);
+                boolean copied = Diagnostics.copy(this, report);
+                setStatus(diagnosticNote, I18n.t(copied ? "Отчёт диагностики скопирован" : "Не удалось скопировать отчёт"), !copied);
+            });
+        }, "launcher-diagnostics").start();
+    }
+    private int editionIndex(String edition) {
+        for (int i = 0; i < EDITIONS.length; ++i) if (EDITIONS[i].equals(edition)) return i;
+        return 1;
+    }
+    private void foldFiles() {
+        filesHeading.setText((filesExpanded ? "▾ " : "▸ ") + I18n.t("Файлы игр"));
+        fileDetails.setVisibility(filesExpanded && fileProgress.getVisibility() != View.VISIBLE ? View.VISIBLE : View.GONE);
+    }
+    private static void attach(LinearLayout parent, View view) {
+        if (view.getParent() != null) ((android.view.ViewGroup) view.getParent()).removeView(view);
+        parent.addView(view);
     }
     private void detectGames() {
         if (selectingFiles) return; // Returning from the picker must not cancel its pending validation.
@@ -377,6 +534,7 @@ public final class LauncherActivity extends Activity {
                     gameStatus[i].setText(valid ? warning == null ? I18n.t("Готов к запуску · ") + languages[i] : warning : problem);
                     gameStatus[i].setTextColor(valid ? warning == null ? Theme.GOOD : Theme.ACCENT : Theme.BAD);
                     Theme.enable(play[i], valid);
+                    gameRecovery[i].setVisibility(valid ? View.GONE : View.VISIBLE);
                 }
                 settings.apply();
                 boolean complete = result.complete();
@@ -558,32 +716,19 @@ public final class LauncherActivity extends Activity {
     }
     private interface Progress { void update(long bytes, long total, int files); }
     private interface Work { void run(Progress progress) throws IOException; }
-    /* Long copies run off the UI thread with a cancellable progress dialog. */
+    /* Long copies keep their progress and cancellation in the files card. */
     private void transfer(String title, File target, Work work) {
         if (checking) return;
         checking = true;
+        for (Button button : play) Theme.enable(button, false);
         transferCancelled = false;
         transferNotice = "";
-        LinearLayout content = new LinearLayout(this); content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(24), dp(12), dp(24), dp(4));
-        ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal); bar.setMax(1000); bar.setIndeterminate(true);
-        TextView label = Theme.text(this, I18n.t("Подготовка…"), 14, Theme.MUTED, false); label.setPadding(0, dp(8), 0, 0);
-        content.addView(bar); content.addView(label);
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(title).setView(content).setCancelable(false)
-                .setNegativeButton(I18n.t("Отмена"), (d, which) -> {
-                    transferCancelled = true; Process process = gogProcess; if (process != null) process.destroyForcibly();
-                }).show();
+        Progress progress = showProgress(fileProgress, title, () -> {
+            transferCancelled = true; Process process = gogProcess; if (process != null) process.destroyForcibly();
+        });
+        setStatus(null, false);
+        foldFiles();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        long[] shown = {0};
-        Progress progress = (bytes, total, files) -> {
-            long now = System.nanoTime();
-            if (now - shown[0] < 120_000_000L) return;
-            shown[0] = now;
-            runOnUiThread(() -> {
-                if (total > 0) { bar.setIndeterminate(false); bar.setProgress((int)Math.min(1000, bytes * 1000 / total)); }
-                label.setText(files + I18n.t(" файлов · ") + megabytes(bytes) + (total > 0 ? I18n.t(" из ") + megabytes(total) : ""));
-            });
-        };
         new Thread(() -> {
             String error = null;
             try {
@@ -596,27 +741,59 @@ public final class LauncherActivity extends Activity {
             runOnUiThread(() -> {
                 checking = false;
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                if (dialog.isShowing()) dialog.dismiss();
+                fileProgress.removeAllViews();
+                fileProgress.setVisibility(View.GONE);
+                foldFiles();
                 if (isFinishing() || isDestroyed()) return;
-                if (problem != null) { setStatus(problem, true); return; }
+                if (problem != null) { setStatus(problem, true); detectGames(); return; }
                 selectFolder(target, transferNotice);
             });
         }, "game-transfer").start();
     }
+    private Progress showProgress(LinearLayout parent, String title, Runnable stop) {
+        parent.removeAllViews(); parent.setVisibility(View.VISIBLE);
+        LinearLayout content = new LinearLayout(this); content.setOrientation(LinearLayout.VERTICAL);
+        note(content, title);
+        ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal); bar.setMax(1000); bar.setIndeterminate(true);
+        TextView label = Theme.text(this, I18n.t("Подготовка…"), 14, Theme.MUTED, false);
+        content.addView(bar); content.addView(label);
+        Button cancel = Theme.button(this, I18n.t("Отмена"), false);
+        cancel.setOnClickListener(v -> { stop.run(); Theme.enable(cancel, false); });
+        content.addView(cancel); parent.addView(content);
+        long[] latest = {0, -1, 0};
+        WorkProgress meter = new WorkProgress();
+        label.post(new Runnable() {
+            @Override public void run() {
+                if (!checking || parent.getChildCount() == 0 || parent.getChildAt(0) != content || isFinishing() || isDestroyed()) return;
+                long done, total, files;
+                synchronized (latest) { done = latest[0]; total = latest[1]; files = latest[2]; }
+                label.setText(meter.describe(I18n.language(), false, done, total, files, 0));
+                bar.setIndeterminate(meter.percent < 0);
+                if (meter.percent >= 0) bar.setProgress(meter.percent * 10);
+                label.postDelayed(this, 250);
+            }
+        });
+        return (bytes, total, files) -> { synchronized (latest) { latest[0] = bytes; latest[1] = total; latest[2] = files; } };
+    }
+
     private static final class Counting extends FilterInputStream {
         long count;
-        Counting(InputStream in) { super(in); }
-        @Override public int read() throws IOException { int b = super.read(); if (b >= 0) count++; return b; }
+        final java.util.function.LongConsumer changed;
+        Counting(InputStream in) { this(in, null); }
+        Counting(InputStream in, java.util.function.LongConsumer changed) { super(in); this.changed = changed; }
+        @Override public int read() throws IOException { int b = super.read(); if (b >= 0) { count++; if (changed != null) changed.accept(count); } return b; }
         @Override public int read(byte[] data, int offset, int length) throws IOException {
-            int n = super.read(data, offset, length); if (n > 0) count += n; return n;
+            int n = super.read(data, offset, length); if (n > 0) { count += n; if (changed != null) changed.accept(count); } return n;
         }
     }
-    private void copyStream(InputStream input, File file) throws IOException {
+    private void copyStream(InputStream input, File file, java.util.function.LongConsumer progress) throws IOException {
+        long done = 0;
         byte[] buffer = new byte[1 << 18];
         try (OutputStream output = new FileOutputStream(file)) {
             for (int n; (n = input.read(buffer)) > 0; ) {
                 if (transferCancelled) throw new InterruptedIOException();
                 output.write(buffer, 0, n);
+                progress.accept(done += n);
             }
         }
     }
@@ -639,7 +816,8 @@ public final class LauncherActivity extends Activity {
                     if (parent != null && !parent.isDirectory() && !parent.mkdirs()) throw new IOException(I18n.t("не удалось создать ") + parent);
                     File intended = GameFiles.uniqueFile(out);
                     out = GameFiles.archiveStaging(intended, files);
-                    copyStream(zip, out);
+                    final int completed = files;
+                    copyStream(zip, out, bytes -> progress.update(counted.count, size, completed));
                     String recovered = GameFiles.archiveMapName(name, entry.getCrc());
                     if (!name.equals(recovered)) unnamed++;
                     File restored = name.equals(recovered) ? intended : new File(target, recovered);
@@ -679,7 +857,8 @@ public final class LauncherActivity extends Activity {
                     }
                     try (InputStream input = getContentResolver().openInputStream(DocumentsContract.buildDocumentUriUsingTree(tree, cursor.getString(0)))) {
                         if (input == null) throw new IOException(I18n.t("не удалось открыть ") + out.getName());
-                        copyStream(new BufferedInputStream(input, 1 << 16), out);
+                        final long previous = bytes; final int completed = files;
+                        copyStream(new BufferedInputStream(input, 1 << 16), out, copied -> progress.update(previous + copied, -1, completed));
                     }
                     bytes += out.length();
                     progress.update(bytes, -1, ++files);
@@ -704,9 +883,9 @@ public final class LauncherActivity extends Activity {
     private void attempt(String item, String directory, boolean skipMovies) {
         if (checking) return;
         preferences.edit().putString(pathKey(item), directory).putBoolean("skipMovies", skipMovies).putString("edition", item).commit();
-        if (requestStorage()) { showLauncher(I18n.t("Для запуска нужен доступ к файлам игры.")); return; }
+        if (requestStorage()) { showLaunchError(item, I18n.t("Для запуска нужен доступ к файлам игры.")); return; }
         checking = true;
-        setStatus(I18n.t("Проверка файлов…"), false);
+        setStatus(gameNotes[editionIndex(item)], I18n.t("Проверка файлов…"), false);
         new Thread(() -> {
             GameFiles.Check check = GameFiles.check(new File(directory), item, true);
             String images = null, preparationError = null;
@@ -718,8 +897,8 @@ public final class LauncherActivity extends Activity {
             runOnUiThread(() -> {
                 checking = false;
                 if (isFinishing() || isDestroyed()) return;
-                if (check.error != null) { showLauncher(check.error); return; }
-                if (failedPreparation != null) { showLauncher(failedPreparation); return; }
+                if (check.error != null) { showLaunchError(item, check.error); return; }
+                if (failedPreparation != null) { showLaunchError(item, failedPreparation); return; }
                 if (check.warning != null) {
                     checking = true;
                     new AlertDialog.Builder(this).setTitle(I18n.t("Предупреждение о совместимости"))
@@ -747,7 +926,7 @@ public final class LauncherActivity extends Activity {
             for (ActivityManager.AppTask task : ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).getAppTasks())
                 if (task.getTaskInfo().baseActivity == null) task.finishAndRemoveTask();
             finishAndRemoveTask();
-        } catch (IOException | RuntimeException failure) { showLauncher(I18n.t("Не удалось запустить игру: ") + failure.getMessage()); }
+        } catch (IOException | RuntimeException failure) { showLaunchError(item, I18n.t("Не удалось запустить игру: ") + failure.getMessage()); }
     }
     private void handleIntent(Intent intent) {
         I18n.apply(this);

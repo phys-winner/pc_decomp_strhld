@@ -2,6 +2,7 @@
 #include "host.h"
 #include "game_ui.h"
 #include "game_text.h"
+#include "game_profile.h"
 #include "edition.h"
 #include "display.h"
 #include "dplay.h"
@@ -27,7 +28,6 @@ static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static int events, available, values[SH_GAME_SETTINGS], requested[SH_GAME_SETTINGS];
 static unsigned changed,applying;
 static int skip_startup, skipped;
-static uint16_t saved_player_name[250];
 static int control_state[SH_CONTROL_STATE], command_keys[16], command_modifiers[16], command_count;
 void stronghold_game_control_state(int *out)
 { pthread_mutex_lock(&lock);memcpy(out,control_state,sizeof control_state);pthread_mutex_unlock(&lock); }
@@ -173,15 +173,7 @@ void stronghold_game_ui_frame(void)
         }
     }
     if(dirty){call(A(0x496C20,0x496DB0),0,0,NULL);void_log("[settings] applied and saved original game options");}
-    if(state==41&&!modal&&MEM32(MAIN_DIALOG)==UINT32_MAX) {
-        uint16_t name[250];memcpy(name,GPTR(EDITOR+336),sizeof name);name[249]=0;
-        /* Android may terminate a game without reaching its original Exit callback. */
-        if(name[0]&&memcmp(name,saved_player_name,sizeof name)) {
-            call(A(0x496C20,0x496DB0),0,0,NULL);
-            memcpy(saved_player_name,name,sizeof name);
-            void_log("[profile] saved accepted player name");
-        }
-    }
+    stronghold_profile_frame(state,state==41&&!modal&&MEM32(MAIN_DIALOG)==UINT32_MAX);
     pthread_mutex_lock(&lock);
     for(int i=0;i<SH_GAME_SETTINGS;i++)values[i]=(int)MEM32(addresses[i]);available=1;applying=0;
     pthread_mutex_unlock(&lock);

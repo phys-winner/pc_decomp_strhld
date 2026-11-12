@@ -1,5 +1,14 @@
 package org.stronghold.port;
 
+import android.animation.ValueAnimator;
+import android.graphics.Canvas;
+import android.graphics.LinearGradient;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Shader;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -101,19 +110,110 @@ final class Theme {
     }
 
     static Button button(Context context, String value, boolean primary) {
-        Button button = new Button(context); button.setText(value); button.setAllCaps(false);
+        return button(context, value, primary, "classic");
+    }
+
+    static Button button(Context context, String value, boolean primary, String edition) {
+        Button button = primary ? new PlayButton(context, edition) : new Button(context);
+        button.setText(value); button.setAllCaps(false);
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
         button.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        button.setTextColor(primary ? ON_ACCENT : TEXT);
-        GradientDrawable shape = rounded(context, primary ? ACCENT : SURFACE_HIGH, 14);
-        if (!primary) shape.setStroke(dp(context, 1), OUTLINE);
+        button.setTextColor(TEXT);
+        GradientDrawable shape = rounded(context, primary ? ((PlayButton) button).fill : SURFACE_HIGH, 14);
+        shape.setStroke(dp(context, primary ? 2 : 1), primary ? ((PlayButton) button).stroke : OUTLINE);
         button.setBackground(new RippleDrawable(ColorStateList.valueOf(primary ? 0x40ffffff : 0x30e7b45c), shape, null));
         button.setBackgroundTintList(null); /* Material's colorButtonNormal tint would darken the accent */
         button.setStateListAnimator(null);
-        button.setMinHeight(dp(context, 46)); button.setMinimumHeight(dp(context, 46));
+        button.setMinHeight(dp(context, primary ? 54 : 46)); button.setMinimumHeight(dp(context, primary ? 54 : 46));
         int padding = dp(context, 18); button.setPadding(padding, 0, padding, 0);
         button.setGravity(Gravity.CENTER);
         return button;
+    }
+
+    static int[] playColours(String edition) {
+        if ("stronghold".equals(edition)) return new int[] {0xFF183126, 0xFF9E8A50, 0xFFC3AE72, 0xFFDCF0BE};
+        if ("extreme".equals(edition)) return new int[] {0xFF3A1518, 0xFFC95C3F, 0xFFF08048, 0xFFFFD09A};
+        return new int[] {0xFF3C2B15, 0xFFAE8245, 0xFFE7B45C, 0xFFFFE3AA};
+    }
+
+    private static final class PlayButton extends Button {
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Path clip = new Path();
+        private final Matrix shift = new Matrix();
+        final int fill, stroke;
+        private final int glow, particles;
+        private final LinearGradient sheen;
+
+        PlayButton(Context context, String edition) {
+            super(context);
+            int[] colours = playColours(edition);
+            fill = colours[0]; stroke = colours[1];
+            glow = colours[2]; particles = colours[3];
+            int rgb = particles & 0x00FFFFFF;
+            sheen = new LinearGradient(0, 0, dp(80), 0,
+                new int[] {rgb, 0x28000000 | rgb, rgb}, null, Shader.TileMode.CLAMP);
+        }
+
+        private int dp(float value) { return Theme.dp(getContext(), value); }
+
+        @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            clip.reset();
+            clip.addRoundRect(0, 0, w, h, dp(14), dp(14), Path.Direction.CW);
+        }
+
+        @Override public void onWindowFocusChanged(boolean focused) {
+            super.onWindowFocusChanged(focused);
+            invalidate();
+        }
+
+        @Override protected void onWindowVisibilityChanged(int visibility) {
+            super.onWindowVisibilityChanged(visibility);
+            invalidate();
+        }
+
+        @Override protected void onDraw(Canvas canvas) {
+            if (isEnabled()) {
+                boolean motion = Build.VERSION.SDK_INT >= 26 ? ValueAnimator.areAnimatorsEnabled()
+                    : Settings.Global.getFloat(getContext().getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0;
+                float phase = motion ? (SystemClock.uptimeMillis() % 3600) / 3600f : 0.25f;
+                float pulse = (float) (0.5 - 0.5 * Math.cos(phase * Math.PI * 2));
+                float inset = dp(1);
+                int saved = canvas.save();
+                canvas.clipPath(clip);
+                paint.setColor(glow);
+                paint.setAlpha((int) (12 + 22 * pulse));
+                canvas.drawRoundRect(0, 0, getWidth(), getHeight(), dp(14), dp(14), paint);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(dp(2));
+                paint.setAlpha((int) (45 + 85 * pulse));
+                canvas.drawRoundRect(inset, inset, getWidth() - inset, getHeight() - inset, dp(13), dp(13), paint);
+                paint.setStyle(Paint.Style.FILL);
+                shift.setTranslate(-dp(80) + phase * (getWidth() + dp(160)), 0);
+                sheen.setLocalMatrix(shift);
+                paint.setShader(sheen);
+                paint.setAlpha(255);
+                canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+                paint.setShader(null);
+                paint.setColor(particles);
+                for (int i = 0; i < 6; ++i) {
+                    float age = (phase + i / 6f) % 1;
+                    float x = getWidth() * (0.08f + ((i * 0.173f) % 0.84f));
+                    float y = getHeight() * (0.95f - age * 0.85f);
+                    float radius = dp(1.5f) * (float) Math.sin(age * Math.PI);
+                    paint.setAlpha((int) (190 * Math.sin(age * Math.PI)));
+                    canvas.drawCircle(x, y, radius, paint);
+                    if (i % 2 == 0) {
+                        paint.setStrokeWidth(dp(1));
+                        canvas.drawLine(x - radius * 2, y, x + radius * 2, y, paint);
+                        canvas.drawLine(x, y - radius * 2, x, y + radius * 2, paint);
+                    }
+                }
+                canvas.restoreToCount(saved);
+                if (motion && hasWindowFocus() && getWindowVisibility() == View.VISIBLE && isShown()) postInvalidateDelayed(33);
+            }
+            super.onDraw(canvas);
+        }
     }
 
     static void enable(View view, boolean enabled) { view.setEnabled(enabled); view.setAlpha(enabled ? 1 : .42f); }

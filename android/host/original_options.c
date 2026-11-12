@@ -4,6 +4,7 @@
 #include "host.h"
 #include "game_ui.h"
 #include "original_options.h"
+#include "game_profile.h"
 #include <string.h>
 #define OPTIONS_SOUND 0xBC8AE0u
 static const uint32_t option_addresses[]={0x1503DE4u,0x1503DE8u,0xBCAFA8u,0xABC54Cu,
@@ -66,6 +67,7 @@ int stronghold_original_options_frame(void)
         }
     }
     if(dirty){options_call(0x47F2C0u,0,0,NULL);void_log("[settings] applied and saved original game options");}
+    stronghold_profile_frame(state,state==41&&!MEM32(0xBC7314u)&&MEM32(0x1503CE4u)==UINT32_MAX);
     pthread_mutex_lock(&options_lock);
     for(int i=0;i<8;++i)options_values[i]=(int)MEM32(option_addresses[i]);
     options_values[8]=0;options_ready=1;options_applying=0;

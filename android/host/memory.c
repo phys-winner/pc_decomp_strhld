@@ -37,9 +37,24 @@ static uint8_t granule_used[GRANULES];
 static uint8_t granule_view[GRANULES];
 static uint32_t host_page_size = GUEST_PAGE;
 static pthread_mutex_t vm_lock = PTHREAD_MUTEX_INITIALIZER;
+static uint32_t guest_user_top = GUEST_USER_TOP;
+
+uint32_t void_vm_user_top(void) { return guest_user_top; }
+
+uint32_t void_vm_available(void)
+{
+    uint32_t free_granules = 0;
+    pthread_mutex_lock(&vm_lock);
+    for (uint32_t g = 1; g < (guest_user_top >> 16); ++g) free_granules += !granule_used[g];
+    pthread_mutex_unlock(&vm_lock);
+    return free_granules << 16;
+}
 
 int void_guest_reserve(void)
 {
+    const char *large_address = getenv("PORT_OPTION_LARGE_ADDRESS_AWARE");
+    guest_user_top = large_address && (!strcmp(large_address, "1") || !strcmp(large_address, "true"))
+        ? 0xFFFE0000u : 0x7FFE0000u;
     long actual = sysconf(_SC_PAGESIZE);
     if (actual < GUEST_PAGE || actual > GUEST_GRANULARITY ||
         (actual & (actual - 1)) || GUEST_GRANULARITY % actual) {
@@ -64,7 +79,7 @@ int void_guest_reserve(void)
     /* Synthetic thunk VAs: reserved, never accessible. */
     for (uint32_t g = GUEST_THUNK_BASE >> 16; g < (GUEST_THUNK_LIMIT >> 16); ++g) granule_used[g] = 1;
     /* Everything above the user top stays unavailable. */
-    for (uint32_t g = GUEST_USER_TOP >> 16; g < GRANULES; ++g) granule_used[g] = 1;
+    for (uint32_t g = guest_user_top >> 16; g < GRANULES; ++g) granule_used[g] = 1;
     void_log("[void] guest window %p..%p reserved (host page %u, guest page %u)", want,
         (void *)((uintptr_t)want + VOID_GUEST_SPAN), host_page_size, GUEST_PAGE);
     return 1;
@@ -149,9 +164,9 @@ static void discard_uncommitted_host_pages(uint32_t first, uint32_t count)
 
 static uint32_t find_free(uint32_t size, int top_down)
 {
-    uint32_t need = (size + GUEST_GRANULARITY - 1) / GUEST_GRANULARITY;
+    uint32_t need = (uint32_t)(((uint64_t)size + GUEST_GRANULARITY - 1) / GUEST_GRANULARITY);
     if (!need) return 0;
-    uint32_t limit = GUEST_USER_TOP >> 16;
+    uint32_t limit = guest_user_top >> 16;
     if (top_down) {
         uint32_t run = 0;
         for (uint32_t g = limit; g-- > 1;) {
@@ -208,10 +223,10 @@ static void release_pages(uint32_t first, uint32_t count)
 static int reserve_exact(uint32_t address, uint32_t size, uint32_t protect)
 {
     uint32_t g0 = address >> 16, g1 = (uint32_t)(((uint64_t)address + size + GUEST_GRANULARITY - 1) >> 16);
-    if ((address & (GUEST_GRANULARITY - 1)) || g1 > (GUEST_USER_TOP >> 16) || g1 <= g0) return 0;
+    if ((address & (GUEST_GRANULARITY - 1)) || g1 > (guest_user_top >> 16) || g1 <= g0) return 0;
     for (uint32_t g = g0; g < g1; ++g) if (granule_used[g]) return 0;
     for (uint32_t g = g0; g < g1; ++g) granule_used[g] = 1;
-    uint32_t pages = (size + GUEST_PAGE - 1) / GUEST_PAGE;
+    uint32_t pages = (uint32_t)(((uint64_t)size + GUEST_PAGE - 1) / GUEST_PAGE);
     set_pages(address >> 12, pages, ST_RESERVE, 0, address >> 12);
     alloc_protect[address >> 12] = (uint16_t)protect;
     return 1;
@@ -219,7 +234,7 @@ static int reserve_exact(uint32_t address, uint32_t size, uint32_t protect)
 
 uint32_t void_vm_alloc(uint32_t address, uint32_t size, uint32_t type, uint32_t protect)
 {
-    if (!size || (uint64_t)address + size > GUEST_USER_TOP ||
+    if (!size || (uint64_t)address + size > guest_user_top ||
         !(type & (MEM_COMMIT_ | MEM_RESERVE_)) || !valid_protect(protect)) {
         void_set_last_error(ERROR_INVALID_PARAMETER_);
         return 0;
@@ -268,7 +283,7 @@ uint32_t void_vm_alloc(uint32_t address, uint32_t size, uint32_t type, uint32_t 
 
 int void_vm_claim(uint32_t address, uint32_t size, uint32_t protect)
 {
-    if (!size || (uint64_t)address + size > GUEST_USER_TOP || !valid_protect(protect)) return 0;
+    if (!size || (uint64_t)address + size > guest_user_top || !valid_protect(protect)) return 0;
     pthread_mutex_lock(&vm_lock);
     uint32_t span = (size + GUEST_PAGE - 1) & ~(GUEST_PAGE - 1);
     int reserved = reserve_exact(address, span, protect);
@@ -281,7 +296,7 @@ int void_vm_claim(uint32_t address, uint32_t size, uint32_t protect)
 
 int void_vm_free(uint32_t address, uint32_t size, uint32_t type)
 {
-    if ((uint64_t)address + size > VOID_GUEST_SPAN) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
+    if ((address >= guest_user_top || (uint64_t)address + size > guest_user_top)) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
     pthread_mutex_lock(&vm_lock);
     uint32_t page = address >> 12;
     if (type & MEM_RELEASE_) {
@@ -327,7 +342,7 @@ int void_vm_free(uint32_t address, uint32_t size, uint32_t type)
 
 int void_vm_protect(uint32_t address, uint32_t size, uint32_t protect, uint32_t *old)
 {
-    if (!size || (uint64_t)address + size > VOID_GUEST_SPAN || !valid_protect(protect)) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
+    if (!size || (address >= guest_user_top || (uint64_t)address + size > guest_user_top) || !valid_protect(protect)) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
     pthread_mutex_lock(&vm_lock);
     uint32_t first = address >> 12, last = (uint32_t)(((uint64_t)address + size - 1) >> 12);
     for (uint32_t p = first; p <= last; ++p) {
@@ -346,23 +361,35 @@ int void_vm_protect(uint32_t address, uint32_t size, uint32_t protect, uint32_t 
 
 uint32_t void_vm_query(uint32_t address, uint32_t info)
 {
+    if (address >= guest_user_top || !void_vm_writable(info, 28)) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
     pthread_mutex_lock(&vm_lock);
     uint32_t page = address >> 12;
     uint8_t state = page_state[page];
     uint32_t base_page = page_alloc[page];
     uint16_t protect = page_protect[page];
+    uint32_t limit = guest_user_top >> 12;
     uint32_t p = page;
-    while (p < PAGES && page_state[p] == state && page_alloc[p] == base_page && page_protect[p] == protect) ++p;
-    uint32_t region = (p - page) << 12;
-    if (state == ST_FREE) {
-        /* A free region extends to the next allocated page. */
-        p = page;
-        while (p < PAGES && page_state[p] == ST_FREE) ++p;
-        region = (p - page) << 12;
+    int thunk = page >= (GUEST_THUNK_BASE >> 12) && page < (GUEST_THUNK_LIMIT >> 12);
+    if (thunk) {
+        /* Query-only metadata: keep synthetic thunks unavailable to guest VM mutations. */
+        state = ST_RESERVE;
+        base_page = GUEST_THUNK_BASE >> 12;
+        protect = 0;
+        p = GUEST_THUNK_LIMIT >> 12;
+        if (p > limit) p = limit;
+    } else {
+        if (page < (GUEST_THUNK_BASE >> 12) && limit > (GUEST_THUNK_BASE >> 12)) limit = GUEST_THUNK_BASE >> 12;
+        while (p < limit && page_state[p] == state && page_alloc[p] == base_page && page_protect[p] == protect) ++p;
+        if (state == ST_FREE) {
+            /* A free region extends to the next allocation or the thunk hole. */
+            p = page;
+            while (p < limit && page_state[p] == ST_FREE) ++p;
+        }
     }
+    uint32_t region = (p - page) << 12;
     MEM32(info + 0) = page << 12;                                    /* BaseAddress */
     MEM32(info + 4) = state == ST_FREE ? 0 : base_page << 12;        /* AllocationBase */
-    MEM32(info + 8) = state == ST_FREE ? 0 : alloc_protect[base_page]; /* AllocationProtect */
+    MEM32(info + 8) = state == ST_FREE ? 0 : thunk ? PAGE_NOACCESS_ : alloc_protect[base_page]; /* AllocationProtect */
     MEM32(info + 12) = region;                                       /* RegionSize */
     MEM32(info + 16) = state == ST_FREE ? 0x10000u : state == ST_RESERVE ? MEM_RESERVE_ : MEM_COMMIT_;
     MEM32(info + 20) = state == ST_COMMIT ? protect : 0;             /* Protect */
@@ -374,7 +401,7 @@ uint32_t void_vm_query(uint32_t address, uint32_t info)
 /* MapViewOfFile: a fresh reservation with the file mapped over it. */
 uint32_t void_vm_map_file(int fd, uint64_t offset, uint32_t size, int writable, int shared)
 {
-    if (!size || size > GUEST_USER_TOP || (offset & (GUEST_GRANULARITY - 1))) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
+    if (!size || size > guest_user_top || (offset & (GUEST_GRANULARITY - 1))) { void_set_last_error(ERROR_INVALID_PARAMETER_); return 0; }
     pthread_mutex_lock(&vm_lock);
     uint32_t span = (size + GUEST_PAGE - 1) & ~(GUEST_PAGE - 1);
     uint32_t base = find_free(span, 0);
@@ -394,7 +421,7 @@ uint32_t void_vm_map_file(int fd, uint64_t offset, uint32_t size, int writable, 
         return 0;
     }
     set_pages(base >> 12, span >> 12, ST_COMMIT, (uint16_t)(writable ? PAGE_READWRITE_ : PAGE_READONLY_), base >> 12);
-    for (uint32_t g = base >> 16; g < (base + span + GUEST_GRANULARITY - 1) >> 16; ++g) granule_view[g] = 1;
+    for (uint32_t g = base >> 16; g < (uint32_t)(((uint64_t)base + span + GUEST_GRANULARITY - 1) >> 16); ++g) granule_view[g] = 1;
     pthread_mutex_unlock(&vm_lock);
     return base;
 }

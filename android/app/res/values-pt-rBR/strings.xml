@@ -508,4 +508,11 @@
   <string name="text_462adbaa" formatted="false">"Outros"</string>
   <string name="text_ec7e9b17" formatted="false">"Categoria de patches"</string>
   <string name="text_a418107d" formatted="false">"Autores: %s"</string>
+    <string name="text_8e886125" formatted="false">"Diagnóstico"</string>
+    <string name="text_10832fa5" formatted="false">"Copiar relatório de diagnóstico"</string>
+    <string name="text_f7348f16" formatted="false">"Preparando relatório…"</string>
+    <string name="text_7e9fd602" formatted="false">"Relatório de diagnóstico copiado"</string>
+    <string name="text_6d2c4c1d" formatted="false">"Não foi possível copiar o relatório"</string>
+    <string name="text_c2e44cfd" formatted="false">"Espaço insuficiente: necessários %1$s, livres %2$s."</string>
+    <string name="text_4186bcd5">Limite de memória do jogo de até 4 GB</string>
 </resources>

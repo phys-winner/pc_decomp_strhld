@@ -40,10 +40,11 @@ def main():
         c.attrib[ANDROID + "name"] == "android.intent.category.LAUNCHER"
         for intent in item.findall("intent-filter") for c in intent.findall("category"))]
     assert launcher_entries == [activities[".LauncherActivity"]]
-    # Each edition loads its own library: three processes and tasks.
+    # Each edition loads its own library in a separate process, in the app's common task.
     assert len({item.attrib[ANDROID + "process"] for item in games}) == 3
-    assert len({item.attrib[ANDROID + "taskAffinity"] for item in games}) == 3
-    assert all(item.attrib[ANDROID + "launchMode"] == "singleTask" for item in games)
+    assert all(item.get(ANDROID + "taskAffinity") is None for item in activities.values())
+    assert all(item.attrib[ANDROID + "launchMode"] == "singleTop" for item in games)
+    assert activities[".LauncherActivity"].get(ANDROID + "launchMode") == "singleTop"
     assert len({item.attrib[ANDROID + "configChanges"] for item in games}) == 1
     assert ".GameActivity" not in activities, "Base JNI class must not be launchable without an edition"
     for edition in ("Classic", "Extreme", "Stronghold"):
@@ -52,7 +53,6 @@ def main():
         assert settings.attrib[ANDROID + "exported"] == "false"
         assert settings.attrib[ANDROID + "screenOrientation"] == "fullSensor"
         assert settings.attrib[ANDROID + "process"] == game_activity.attrib[ANDROID + "process"]
-        assert settings.attrib[ANDROID + "taskAffinity"] == game_activity.attrib[ANDROID + "taskAffinity"]
         subclass = (JAVA / f"{edition}GameActivity.java").read_text()
         assert "extends GameActivity" in subclass and f'return "{edition.lower()}"' in subclass
         assert "native " not in subclass, "JNI remains declared on the common base class"

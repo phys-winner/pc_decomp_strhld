@@ -14,6 +14,7 @@ import sys
 import zipfile
 
 import android_native_payload
+import common_code
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK = Path(os.environ.get("ANDROID_SDK") or os.environ.get("ANDROID_HOME") or
@@ -57,10 +58,16 @@ def main():
                             "--edition", edition, *(flag for flag, _ in modes)], check=True)
     base = os.environ.get("STRONGHOLD_BUILD_DIR", "build/arm64")
     native = ROOT / (base + "-" + "-".join(name for _, name in modes) if modes else base)
-    libraries = [native / name for name in ("libstronghold.so", "libstronghold_classic.so", "libstronghold_sh.so")]
+    libraries = [native / name for name in android_native_payload.GAMES]
     for library in libraries:
         if not library.is_file():
             raise SystemExit(f"{library}: build all three editions before packaging")
+    shared = native / common_code.LIBRARY
+    try:
+        linked = common_code.verify_link_records(shared, [item for item in libraries if item != shared],
+                                                 android_native_payload.sha)
+    except ValueError as failure:
+        raise SystemExit(str(failure)) from failure
     installer = ROOT / 'build/gog-android/libinnoextract.so'
     if not installer.is_file():
         raise SystemExit('Build the GOG reader first: python tools/build_innoextract.py --fetch')
@@ -79,10 +86,14 @@ def main():
     import build_android
     native_entries, native_report = android_native_payload.prepare(
         [*libraries, installer, unpacker], build_android.TOOLCHAIN / 'bin', OUT / 'native')
+    if any(native_report[name]['source_sha256'] != fingerprint for name, fingerprint in linked.items()):
+        raise SystemExit('Native libraries changed during packaging; retry with a complete build')
     run(TOOLS / "aapt2.exe", "compile", "--dir", ROOT / "android/app/res", "-o", OUT / "resources.zip")
     run(TOOLS / "aapt2.exe", "link", "-I", ANDROID_JAR, "--manifest", ROOT / "android/app/AndroidManifest.xml",
         "-o", OUT / "base.apk", OUT / "resources.zip")
-    sources = sorted((ROOT / "android/app/src").rglob("*.java"))
+    # android/shared holds unchanged classes of the shared launcher base (FPS overlay, game-mode tip, MD5 check);
+    # android/app/src/port/launcher gives them what they need from the base (tests/test_shared_launcher.py).
+    sources = sorted((ROOT / "android/app/src").rglob("*.java")) + sorted((ROOT / "android/shared").rglob("*.java"))
     run(JAVA_HOME / "bin/javac.exe", "--release", "8", "-cp", ANDROID_JAR, "-d", OUT / "classes", *sources)
     classes = sorted((OUT / "classes").rglob("*.class"))
     with zipfile.ZipFile(OUT / "classes.jar", "w") as jar:

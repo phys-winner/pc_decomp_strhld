@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
@@ -30,6 +31,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -46,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import port.launcher.Shared;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -90,21 +93,53 @@ public final class LauncherActivity extends Activity {
     private volatile Process gogProcess;
     private String transferNotice;
     private String modEdition;
+    /* Editions whose files the last scan found: their settings, mods and the launch options stay
+     * hidden until then (the first screen offers the files, access, the language and diagnostics). */
+    private final boolean[] found = new boolean[3];
+    private final View[] gameSettings = new View[3], gameMods = new View[3];
+    private LinearLayout optionsCard, ucpCard, rendererCard;
+    private TextView rendererStatus;
+    private boolean filesPrompted;
+    /* The MD5 check of an archive whose name carries a checksum. */
+    private AlertDialog md5Dialog;
+    private Thread md5Thread;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        keepCurrentTask(this);
         I18n.apply(this);
         Theme.edgeToEdge(this);
         preferences = getSharedPreferences("LauncherActivity", MODE_PRIVATE);
         if (state != null) {
             modEdition = state.getString("modEdition");
             filesExpanded = state.getBoolean("filesExpanded");
+            filesPrompted = state.getBoolean("filesPrompted");
         }
+        for (int i = 0; i < EDITIONS.length; i++) found[i] = preferences.getBoolean("found-" + EDITIONS[i], false);
         handleIntent(getIntent());
+    }
+    @Override protected void onDestroy() {
+        cancelVerification();
+        super.onDestroy();
+    }
+    /** Earlier builds left separate edition tasks in Recents; keep the task being opened. */
+    static void keepCurrentTask(Context context) {
+        if (!(context instanceof Activity)) return;
+        Activity activity = (Activity) context;
+        if (activity.isFinishing() || activity.isDestroyed()) return;
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.AppTask task : manager.getAppTasks()) {
+            try {
+                if (task.getTaskInfo().persistentId != activity.getTaskId()) task.finishAndRemoveTask();
+            } catch (IllegalArgumentException removed) {
+                android.util.Log.w("Stronghold", "recent task already removed", removed);
+            }
+        }
     }
     @Override protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state); state.putString("modEdition", modEdition);
         state.putBoolean("filesExpanded", filesExpanded);
+        state.putBoolean("filesPrompted", filesPrompted);
     }
     @Override public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
@@ -201,12 +236,45 @@ public final class LauncherActivity extends Activity {
         page.addView(columns);
         for (int i = 0; i < EDITIONS.length; i++) games.addView(gameTile(i));
 
+        LinearLayout general = Theme.card(this);
+        Button language = Theme.button(this, I18n.t("Язык интерфейса…"), false);
+        language.setOnClickListener(v -> I18n.choose(this, () -> showLauncher(null)));
+        general.addView(language);
+        if (Shared.tipVendor()) {
+            Switch tip = new Switch(this);
+            tip.setText(I18n.t("Совет об игровом режиме при запуске"));
+            tip.setTextColor(Theme.TEXT); tip.setPadding(0, dp(6), 0, dp(6));
+            tip.setChecked(!Shared.tipNever(this));
+            tip.setOnCheckedChangeListener((button, checked) -> Shared.tipNever(this, !checked));
+            general.addView(tip);
+        }
+        files.addView(general);
+
+        rendererCard = Theme.card(this);
+        heading(rendererCard, I18n.t("Рендерер"));
+        rendererStatus = Theme.text(this, I18n.t("Определение версии OpenGL ES…"), 14, Theme.TEXT, false);
+        rendererStatus.setPadding(0, dp(4), 0, 0);
+        rendererCard.addView(rendererStatus);
+        note(rendererCard, I18n.t("Игра выводит готовый 2D-кадр, порт масштабирует его и слои интерфейса через OpenGL ES 3.0 или новее. Vulkan не используется: в игре нет 3D-сцены и шейдеров, которым он дал бы выигрыш."));
+        heading(rendererCard, I18n.t("Текстуры"));
+        note(rendererCard, I18n.t("Графика игры — 2D-спрайты GM1 и TGX в 16-битном цвете, они используются как есть. Сжатых текстур DXT или BC в игре нет, поэтому конвертация в ETC2 или ASTC не нужна."));
+        files.addView(rendererCard);
+        measureRenderer();
+
         LinearLayout options = Theme.card(this);
+        optionsCard = options;
         heading(options, I18n.t("Запуск"));
         skip = new Switch(this); skip.setText(I18n.t("Пропускать ролики, рекламу и предупреждение об онлайне"));
         skip.setTextColor(Theme.TEXT); skip.setChecked(preferences.getBoolean("skipMovies", false)); skip.setPadding(0, dp(6), 0, dp(6));
         skip.setOnCheckedChangeListener((button, checked) -> preferences.edit().putBoolean("skipMovies", checked).apply());
         options.addView(skip);
+        Switch crashes = new Switch(this);
+        crashes.setText(I18n.t("Мониторинг вылетов"));
+        crashes.setTextColor(Theme.TEXT);
+        crashes.setPadding(0, dp(6), 0, dp(6));
+        crashes.setChecked(preferences.getBoolean(CrashMonitor.OPTION, true));
+        crashes.setOnCheckedChangeListener((button, checked) -> preferences.edit().putBoolean(CrashMonitor.OPTION, checked).apply());
+        options.addView(crashes);
         if (android.os.Process.is64Bit()) {
             Switch memory = new Switch(this);
             memory.setText(I18n.t("Лимит памяти игры до 4 ГБ"));
@@ -215,13 +283,20 @@ public final class LauncherActivity extends Activity {
             memory.setOnCheckedChangeListener((button, checked) -> preferences.edit().putBoolean("large_address_aware", checked).apply());
             options.addView(memory);
         }
+        Switch fps = new Switch(this);
+        fps.setText(I18n.t("Счётчик FPS"));
+        fps.setTextColor(Theme.TEXT); fps.setPadding(0, dp(6), 0, dp(6));
+        fps.setChecked(Shared.hudEnabled(this));
+        fps.setOnCheckedChangeListener((button, checked) -> Shared.hudEnabled(this, checked));
+        options.addView(fps);
+        Button fpsRows = Theme.button(this, I18n.t("Настроить отображение FPS"), false);
+        fpsRows.setOnClickListener(v -> hudSettings());
+        options.addView(fpsRows);
         note(options, I18n.t("Параметры запуска применяются при новом запуске процесса игры. Перед перезапуском сохраните матч."));
         files.addView(options);
-        Button language = Theme.button(this, I18n.t("Язык интерфейса…"), false);
-        language.setOnClickListener(v -> I18n.choose(this, () -> showLauncher(null)));
-        options.addView(language);
 
         LinearLayout ucp = Theme.card(this);
+        ucpCard = ucp;
         heading(ucp, "Unofficial Crusader Patch");
         Button github = Theme.button(this, I18n.t("UCP на GitHub"), false);
         github.setOnClickListener(v -> {
@@ -255,11 +330,62 @@ public final class LauncherActivity extends Activity {
         diagnostics.addView(diagnosticButton);
         diagnosticNote = inlineStatus(diagnostics);
         files.addView(diagnostics);
+        checkCrashReports();
 
         frame.setOnApplyWindowInsetsListener((view, insets) -> Theme.padInsets(page, insets, dp(20), dp(14), dp(20), dp(20)));
         setContentView(frame);
+        applyFound();
         updateStorageAccess();
         detectGames();
+    }
+    /** Settings, mods, the renderer and the launch options belong to games whose files are present. */
+    private void applyFound() {
+        boolean any = false;
+        for (int i = 0; i < EDITIONS.length; i++) {
+            any |= found[i];
+            if (gameSettings[i] != null) gameSettings[i].setVisibility(found[i] ? View.VISIBLE : View.GONE);
+            if (gameMods[i] != null) gameMods[i].setVisibility(found[i] ? View.VISIBLE : View.GONE);
+        }
+        if (optionsCard != null) optionsCard.setVisibility(any ? View.VISIBLE : View.GONE);
+        if (rendererCard != null) rendererCard.setVisibility(any ? View.VISIBLE : View.GONE);
+        if (ucpCard != null) ucpCard.setVisibility(found[0] || found[1] ? View.VISIBLE : View.GONE);
+    }
+    /** The OpenGL ES version of this device's driver, measured in an off-screen context. */
+    private void measureRenderer() {
+        TextView target = rendererStatus;
+        new Thread(() -> {
+            String text;
+            boolean failed = false;
+            try {
+                Gpu gpu = Gpu.get(this);
+                java.util.regex.Matcher version = java.util.regex.Pattern.compile("OpenGL ES \\d+\\.\\d+").matcher(gpu.version);
+                if (version.find()) text = version.group() + " · " + gpu.renderer + "\n" + gpu.version;
+                else if (!gpu.failure.isEmpty()) {
+                    /* The shared base's wording: OpenGL ES, the only renderer, cannot start here. */
+                    failed = true;
+                    text = String.format(I18n.t("Не удалось запустить OpenGL ES: %s"), gpu.failure) + "\n"
+                            + I18n.t("Других доступных рендереров на этом устройстве нет.");
+                } else text = I18n.t("Версию OpenGL ES определить не удалось.");
+            } catch (RuntimeException | LinkageError failure) { text = I18n.t("Версию OpenGL ES определить не удалось."); }
+            final String measured = text;
+            final boolean error = failed;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                target.setText(measured);
+                if (error) target.setTextColor(Theme.BAD);
+            });
+        }, "launcher-gles").start();
+    }
+    /** The rows of the shared FPS overlay; the switch above turns the whole overlay on and off. */
+    private void hudSettings() {
+        String[] names = Shared.hudRows(Shared.column(I18n.language()));
+        boolean[] checked = new boolean[names.length];
+        int[] mask = {Shared.hudMask(this)};
+        for (int i = 0; i < names.length; i++) checked[i] = (mask[0] & 1 << i) != 0;
+        new AlertDialog.Builder(this).setTitle(I18n.t("Настроить отображение FPS"))
+                .setMultiChoiceItems(names, checked, (dialog, item, on) -> { if (on) mask[0] |= 1 << item; else mask[0] &= ~(1 << item); })
+                .setPositiveButton("OK", (dialog, which) -> Shared.hudMask(this, mask[0]))
+                .setNegativeButton(I18n.t("Отмена"), null).show();
     }
     private int resource(String name, String type) { return getResources().getIdentifier(name, type, getPackageName()); }
     private View gameTile(int index) {
@@ -289,6 +415,7 @@ public final class LauncherActivity extends Activity {
         Button settings = Theme.button(this, I18n.t("Настройки"), false);
         settings.setOnClickListener(v -> startActivity(new Intent(this, settingsClass(item))));
         actions.addView(button, Theme.weight(this, 1.3f, 0)); actions.addView(settings, Theme.weight(this, 1, 8));
+        gameSettings[index] = settings; gameMods[index] = null;
         card.addView(actions);
         LinearLayout repair = Theme.row(this);
         Button folder = Theme.button(this, I18n.t("Выбрать папку…"), false);
@@ -304,6 +431,7 @@ public final class LauncherActivity extends Activity {
             Button mods = Theme.button(this, I18n.t("Моды…"), false);
             mods.setOnClickListener(v -> modsMenu(item));
             card.addView(mods, new LinearLayout.LayoutParams(-1, -2));
+            gameMods[index] = mods;
         }
         return card;
     }
@@ -479,16 +607,84 @@ public final class LauncherActivity extends Activity {
         String edition = preferences.getString("edition", "extreme"), error = preferences.getString("last_error", "");
         new Thread(() -> {
             String gpuText;
-            try { Gpu found = Gpu.get(this); gpuText = found.renderer + " (" + found.vendor + ")"; }
+            String api = "not measured";
+            try { Gpu gpu = Gpu.get(this); gpuText = gpu.renderer + " (" + gpu.vendor + ")"; if (!gpu.version.isEmpty()) api = gpu.version; }
             catch (RuntimeException | LinkageError failure) { gpuText = "unavailable: " + failure; }
-            String report = Diagnostics.report(this, GameFiles.title(edition), gpuText, "native 2D", "original 2D assets", error);
+            StringBuilder report = new StringBuilder(Diagnostics.report(this, GameFiles.title(edition), gpuText,
+                    "native 2D over OpenGL ES (needs 3.0; device: " + api + "); no Vulkan mode",
+                    "original 2D sprites (GM1/TGX, RGB565); no DXT/BC, no ETC2/ASTC conversion", error));
+            report.append("\nFPS counter: ").append(Shared.hudEnabled(this) ? "on, rows " + Shared.hudMask(this) : "off");
+            File crash = CrashMonitor.latest(this);
+            if (crash != null) try {
+                report.append("\n\n").append(CrashMonitor.tail(crash, 144 * 1024));
+            } catch (IOException failure) { report.append("\nCrash report: ").append(failure.getMessage()); }
             runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 copyingDiagnostics = false; Theme.enable(diagnosticButton, true);
-                boolean copied = Diagnostics.copy(this, report);
+                boolean copied = Diagnostics.copy(this, report.toString());
                 setStatus(diagnosticNote, I18n.t(copied ? "Отчёт диагностики скопирован" : "Не удалось скопировать отчёт"), !copied);
             });
         }, "launcher-diagnostics").start();
+    }
+
+    private void checkCrashReports() {
+        TextView target = diagnosticNote;
+        new Thread(() -> {
+            File latest = CrashMonitor.latest(this);
+            if (latest == null) return;
+            CrashMonitor.Summary summary = CrashMonitor.summary(latest);
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed() || !showingLauncher) return;
+                if (diagnosticNote == target && !copyingDiagnostics)
+                    setStatus(target, I18n.t("Отчёт о завершении игры сохранён") + "\n" + latest.getAbsolutePath(), false);
+                /* Each report is announced once; it stays in the diagnostics card and in the copied report. */
+                if (preferences.getLong("crashShown", 0) == latest.lastModified()) return;
+                preferences.edit().putLong("crashShown", latest.lastModified()).apply();
+                /* An end without any evidence (a stop from Recents on Android 8-10) stays a note in Diagnostics. */
+                if (!summary.described || CrashMonitor.UNKNOWN.equals(summary.cause)) return;
+                if (rendererFailure(summary, latest)) return;
+                new AlertDialog.Builder(this).setTitle(I18n.t("Прошлый запуск завершился сбоем"))
+                        .setMessage((summary.game.isEmpty() ? "" : summary.game + "\n\n") + crashCause(summary)
+                                + "\n\n" + I18n.t("Отчёт: ") + latest.getAbsolutePath())
+                        .setPositiveButton(I18n.t("Скопировать отчёт диагностики"), (dialog, which) -> copyDiagnostics())
+                        .setNegativeButton(I18n.t("Закрыть"), null).show();
+            });
+        }, "launcher-crash-reports").start();
+    }
+    /** The shared launcher's renderer failure dialog (Texts RF_*): OpenGL ES, the only renderer, did not start or lost
+     *  its context within the base's rules, so the game stopped; there is no other renderer to offer. */
+    private boolean rendererFailure(CrashMonitor.Summary summary, File report) {
+        boolean lost = CrashMonitor.RENDERER_LOST.equals(summary.cause);
+        if (!lost && !CrashMonitor.RENDERER_START.equals(summary.cause)) return false;
+        String message = (summary.game.isEmpty() ? "" : summary.game + "\n\n")
+                + String.format(I18n.t(lost ? "С %s видеодрайвер перестал отвечать (потеряно устройство GPU), поэтому игра остановлена. Другой рендерер вместо него не запускался."
+                        : "Не удалось запустить %s на этом устройстве, поэтому игра остановлена. Другой рендерер вместо него не запускался."), "OpenGL ES")
+                + (summary.detail.isEmpty() ? "" : "\n\n" + String.format(I18n.t("Подробности: %s"), summary.detail))
+                + "\n\n" + I18n.t("Других доступных рендереров на этом устройстве нет.")
+                + "\n\n" + I18n.t("Отчёт: ") + report.getAbsolutePath();
+        new AlertDialog.Builder(this).setTitle(I18n.t("Сбой рендерера")).setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(I18n.t("Скопировать отчёт диагностики"), (dialog, which) -> copyDiagnostics()).show();
+        return true;
+    }
+    /** The cause CrashMonitor wrote into the report, in the player's language. */
+    private static String crashCause(CrashMonitor.Summary summary) {
+        String detail = summary.detail.isEmpty() ? "?" : summary.detail, text;
+        /* A renderer failure outside the base's rules (a lost context long after the first frame): an ordinary crash. */
+        if (CrashMonitor.RENDERER_LATE.equals(summary.cause))
+            return String.format(I18n.t("Прошлый запуск остановлен из-за сбоя %1$s: %2$s"), "OpenGL ES", detail);
+        if (CrashMonitor.NATIVE_SIGNAL.equals(summary.cause))
+            return String.format(I18n.t(summary.presented ? "Нативный сбой в коде игры (сигнал %s)."
+                    : "Нативный сбой до первого кадра (сигнал %s). Возможна ошибка запуска рендера или графического драйвера."), detail);
+        if (CrashMonitor.JAVA_FAILURE.equals(summary.cause)) text = I18n.t("Ошибка в Java-коде порта.");
+        else if (CrashMonitor.ANR.equals(summary.cause)) text = I18n.t("Игра перестала отвечать, и система закрыла её (ANR).");
+        else if (CrashMonitor.LOW_MEMORY.equals(summary.cause)) text = I18n.t("Система закрыла игру из-за нехватки памяти.");
+        else if (CrashMonitor.LOW_MEMORY_SUSPECTED.equals(summary.cause))
+            text = I18n.t("Вероятно, система закрыла игру из-за нехватки памяти: перед завершением она сообщила о критически малом объёме свободной памяти.");
+        else if (CrashMonitor.EXIT_CODE.equals(summary.cause)) text = String.format(I18n.t("Игра завершилась с кодом %s."), detail);
+        else if (CrashMonitor.SYSTEM_KILL.equals(summary.cause)) text = String.format(I18n.t("Система завершила процесс игры (%s)."), detail);
+        else text = I18n.t("Причина завершения не определена: на этой версии Android остановка пользователем, закрытие системой и сбой неразличимы.");
+        return summary.presented ? text : text + " " + I18n.t("Игра не успела показать первый кадр.");
     }
     private int editionIndex(String edition) {
         for (int i = 0; i < EDITIONS.length; ++i) if (EDITIONS[i].equals(edition)) return i;
@@ -535,8 +731,12 @@ public final class LauncherActivity extends Activity {
                     gameStatus[i].setTextColor(valid ? warning == null ? Theme.GOOD : Theme.ACCENT : Theme.BAD);
                     Theme.enable(play[i], valid);
                     gameRecovery[i].setVisibility(valid ? View.GONE : View.VISIBLE);
+                    found[i] = valid; settings.putBoolean("found-" + edition, valid);
                 }
                 settings.apply();
+                applyFound();
+                /* Nothing found yet: open the files section once; folding it by hand is respected afterwards. */
+                if (!found[0] && !found[1] && !found[2] && !filesPrompted) { filesPrompted = true; filesExpanded = true; foldFiles(); }
                 boolean complete = result.complete();
                 setupActions.setVisibility(complete ? View.GONE : View.VISIBLE);
                 changeFiles.setVisibility(complete ? View.VISIBLE : View.GONE);
@@ -689,27 +889,141 @@ public final class LauncherActivity extends Activity {
         for (int n = 2; folder.exists(); n++) folder = new File(base, name + " (" + n + ")");
         return folder;
     }
+    /* Decimal units, as the MD5 and transfer progress (WorkProgress) and the shared launcher count them. */
     private static String megabytes(long bytes) {
-        return bytes < 1048576 ? String.format(Locale.ROOT, I18n.t("%.0f КБ"), Math.ceil(bytes / 1024.0))
-                : String.format(Locale.ROOT, I18n.t("%.0f МБ"), bytes / 1048576.0);
+        return bytes < 1_000_000 ? String.format(Locale.ROOT, I18n.t("%.0f КБ"), Math.ceil(bytes / 1000.0))
+                : String.format(Locale.ROOT, I18n.t("%.0f МБ"), bytes / 1_000_000.0);
+    }
+    /* The folder of an unpacked archive leaves out the checksum its file name carries ("… md5_<32 hex>"). */
+    static String withoutChecksum(String name) {
+        String expected = Shared.md5Expected(name);
+        if (expected == null) return name;
+        String cleaned = name.replaceAll("(?i)[\\s._-]*(?:md5[ ._=-]*)?" + expected + "(?![a-z0-9])", "")
+                .replaceAll("^[\\s._-]+|[\\s._-]+$", "");
+        return cleaned.isEmpty() ? name : cleaned;
     }
     private void confirmArchive(Uri archive) {
-        String name = displayName(archive, "archive.zip");
+        String name = displayName(archive, "archive.zip"), expected = Shared.md5Expected(name);
+        if (expected == null) offerArchive(archive, name, null);
+        else verifyArchive(archive, name, expected);
+    }
+    private void cancelVerification() {
+        Thread worker = md5Thread;
+        md5Thread = null;
+        if (worker != null) worker.interrupt();
+        if (md5Dialog != null) { md5Dialog.dismiss(); md5Dialog = null; }
+    }
+    private static void closeQuietly(ParcelFileDescriptor descriptor) {
+        if (descriptor != null) try { descriptor.close(); } catch (IOException ignored) { /* Already closed. */ }
+    }
+    /* The file name carries a checksum: read the whole archive first, with progress and cancellation.
+     * A seekable document keeps its descriptor for the unpacking; a stream-only one is opened again. */
+    private void verifyArchive(Uri archive, String name, String expected) {
+        cancelVerification();
+        LinearLayout box = new LinearLayout(this); box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(24), dp(12), dp(24), 0);
+        box.addView(Theme.text(this, name, 14, Theme.TEXT, false));
+        ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal); bar.setMax(1000); bar.setIndeterminate(true);
+        LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(-1, -2); layout.topMargin = layout.bottomMargin = dp(12);
+        box.addView(bar, layout);
+        TextView amount = Theme.text(this, "", 13, Theme.MUTED, false);
+        box.addView(amount);
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(I18n.t("Проверка MD5 архива…")).setView(box)
+                .setNegativeButton(I18n.t("Отмена"), (d, which) -> cancelVerification())
+                .setOnCancelListener(d -> cancelVerification()).create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        md5Dialog = dialog;
+        long[] latest = {0, -1};
+        WorkProgress meter = new WorkProgress();
+        amount.post(new Runnable() {
+            @Override public void run() {
+                if (md5Dialog != dialog || isFinishing() || isDestroyed()) return;
+                long done, total;
+                synchronized (latest) { done = latest[0]; total = latest[1]; }
+                amount.setText(meter.describe(I18n.language(), false, done, total, 0, 0));
+                bar.setIndeterminate(total <= 0);
+                if (total > 0) bar.setProgress((int) Math.min(1000, done * 1000.0 / total));
+                amount.postDelayed(this, 150);
+            }
+        });
+        Shared.Md5Progress progress = (done, total) -> { synchronized (latest) { latest[0] = done; latest[1] = total; } };
+        Thread worker = new Thread(() -> {
+            ParcelFileDescriptor descriptor = null;
+            boolean matched = false; String problem = null;
+            try {
+                descriptor = getContentResolver().openFileDescriptor(archive, "r");
+                if (descriptor == null) throw new IOException(I18n.t("Архив недоступен"));
+                java.nio.channels.FileChannel channel = new FileInputStream(descriptor.getFileDescriptor()).getChannel();
+                boolean seekable;
+                try { seekable = channel.size() > 0 && channel.position() >= 0; } catch (IOException pipe) { seekable = false; }
+                if (seekable) matched = Shared.md5Matches(channel, expected, progress);
+                else {
+                    closeQuietly(descriptor); descriptor = null;
+                    matched = streamMd5(archive, expected, documentSize(archive), progress);
+                }
+            } catch (IOException | RuntimeException failure) { problem = String.valueOf(failure.getMessage()); }
+            final ParcelFileDescriptor verified = descriptor; final boolean match = matched; final String error = problem;
+            final Thread self = Thread.currentThread();
+            runOnUiThread(() -> {
+                if (md5Thread != self) { closeQuietly(verified); return; }   /* cancelled, or another archive was picked */
+                md5Thread = null; md5Dialog = null; dialog.dismiss();
+                if (isFinishing() || isDestroyed() || !showingLauncher) { closeQuietly(verified); return; }
+                if (error != null) { closeQuietly(verified); setStatus(I18n.t("Не удалось проверить архив: ") + error, true); return; }
+                if (!match) {
+                    closeQuietly(verified);
+                    setStatus(String.format(I18n.t("Контрольная сумма MD5 архива не совпадает с указанной в имени файла (%s)."), expected), true);
+                    return;
+                }
+                offerArchive(archive, name, verified);
+            });
+        }, "archive-md5");
+        md5Thread = worker;
+        worker.start();
+    }
+    /* A provider that only streams: the same digest over one sequential read, the length as the provider reports it. */
+    private boolean streamMd5(Uri archive, String expected, long total, Shared.Md5Progress progress) throws IOException {
+        java.security.MessageDigest digest;
+        try { digest = java.security.MessageDigest.getInstance("MD5"); }
+        catch (java.security.NoSuchAlgorithmException missing) { throw new IOException(missing); }
+        long done = 0;
+        byte[] buffer = new byte[1 << 18];
+        try (InputStream input = getContentResolver().openInputStream(archive)) {
+            if (input == null) throw new IOException(I18n.t("Архив недоступен"));
+            progress.update(0, total);
+            for (int n; (n = input.read(buffer)) > 0; ) {
+                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
+                digest.update(buffer, 0, n);
+                progress.update(done += n, total);
+            }
+        }
+        StringBuilder actual = new StringBuilder();
+        for (byte value : digest.digest()) actual.append(String.format(Locale.ROOT, "%02x", value & 255));
+        return actual.toString().equalsIgnoreCase(expected);
+    }
+    /* verified: the descriptor the MD5 check read by position, still at the start of the archive. */
+    private void offerArchive(Uri archive, String name, ParcelFileDescriptor verified) {
         long size = documentSize(archive);
         String base = name.toLowerCase(Locale.ROOT).endsWith(".zip") ? name.substring(0, name.length() - 4) : name;
-        File target = freshFolder(safeName(base));
+        File target = freshFolder(safeName(withoutChecksum(base)));
         long free = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath()).getAvailableBytes();
-        String message = I18n.t("Архив «") + name + "»" + (size > 0 ? " (" + megabytes(size) + ")" : "") + I18n.t(" будет распакован в\n") + target
-                + I18n.t("\n\nСвободно: ") + megabytes(free) + I18n.t(". Распакованная игра занимает около 1 ГБ.");
+        String message = String.format(I18n.t("Архив «%1$s»%2$s будет распакован в\n%3$s\n\nСвободно: %4$s. Распакованная игра занимает около 1 ГБ."),
+                name, size > 0 ? " (" + megabytes(size) + ")" : "", target.getPath(), megabytes(free));
+        boolean[] taken = {false};
         new AlertDialog.Builder(this).setTitle(I18n.t("Распаковать игру?")).setMessage(message)
-                .setPositiveButton(I18n.t("Распаковать"), (dialog, which) -> transfer(I18n.t("Распаковка архива"), target, progress -> unzip(archive, target, size, progress)))
-                .setNegativeButton(I18n.t("Отмена"), null).show();
+                .setPositiveButton(I18n.t("Распаковать"), (dialog, which) -> {
+                    if (checking) return;
+                    taken[0] = true;
+                    transfer(I18n.t("Распаковка архива"), target, progress -> unzip(archive, verified, target, size, progress));
+                })
+                .setNegativeButton(I18n.t("Отмена"), null)
+                .setOnDismissListener(dialog -> { if (!taken[0]) closeQuietly(verified); }).show();
     }
     private void confirmFolderCopy(Uri tree) {
         String name = displayName(DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree)), "game");
         File target = freshFolder(safeName(name));
         new AlertDialog.Builder(this).setTitle(I18n.t("Скопировать игру?"))
-                .setMessage(I18n.t("К папке «") + name + I18n.t("» нет прямого доступа по пути. Скопировать её в\n") + target + "?")
+                .setMessage(String.format(I18n.t("К папке «%1$s» нет прямого доступа по пути. Скопировать её в\n%2$s?"), name, target.getPath()))
                 .setPositiveButton(I18n.t("Скопировать"), (dialog, which) -> transfer(I18n.t("Копирование папки"), target,
                         progress -> copyTree(tree, DocumentsContract.getTreeDocumentId(tree), target, progress)))
                 .setNegativeButton(I18n.t("Отмена"), null).show();
@@ -797,10 +1111,11 @@ public final class LauncherActivity extends Activity {
             }
         }
     }
-    private void unzip(Uri archive, File target, long size, Progress progress) throws IOException {
+    private void unzip(Uri archive, ParcelFileDescriptor verified, File target, long size, Progress progress) throws IOException {
         String canonical = target.getCanonicalPath() + File.separator;
         int files = 0, unnamed = 0;
-        try (InputStream raw = getContentResolver().openInputStream(archive)) {
+        try (InputStream raw = verified != null ? new ParcelFileDescriptor.AutoCloseInputStream(verified)
+                : getContentResolver().openInputStream(archive)) {
             if (raw == null) throw new IOException(I18n.t("архив недоступен"));
             Counting counted = new Counting(new BufferedInputStream(raw, 1 << 16));
             try (ZipInputStream zip = new ZipInputStream(counted)) {
@@ -887,6 +1202,7 @@ public final class LauncherActivity extends Activity {
         checking = true;
         setStatus(gameNotes[editionIndex(item)], I18n.t("Проверка файлов…"), false);
         new Thread(() -> {
+            CrashMonitor.latest(this);
             GameFiles.Check check = GameFiles.check(new File(directory), item, true);
             String images = null, preparationError = null;
             if (check.error == null) try {
@@ -920,12 +1236,11 @@ public final class LauncherActivity extends Activity {
             }
             showingLauncher = false; selectingFiles = false; ++scanVersion;
             startActivity(new Intent(this, gameClass(item)).putExtra("game", directory).putExtra("images", images).putExtra("skipMovies", skipMovies)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION),
+                    .putExtra(CrashMonitor.OPTION, preferences.getBoolean(CrashMonitor.OPTION, true))
+                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION),
                     android.app.ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle());
             overridePendingTransition(0, 0);
-            for (ActivityManager.AppTask task : ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).getAppTasks())
-                if (task.getTaskInfo().baseActivity == null) task.finishAndRemoveTask();
-            finishAndRemoveTask();
+            finish();
         } catch (IOException | RuntimeException failure) { showLaunchError(item, I18n.t("Не удалось запустить игру: ") + failure.getMessage()); }
     }
     private void handleIntent(Intent intent) {
@@ -941,16 +1256,70 @@ public final class LauncherActivity extends Activity {
                     + GameFiles.userdata(edition) + "/stronghold.log";
             GameFiles.pending(getFilesDir(), edition).delete();
         }
-        if (error != null || intent.getBooleanExtra("showLauncher", false)
-                || (!intent.getBooleanExtra("launchGame", false) && successful == null)) {
-            showLauncher(error); return;
+        boolean show = error != null || intent.getBooleanExtra("showLauncher", false)
+                || (!intent.getBooleanExtra("launchGame", false) && successful == null);
+        final String item = edition;
+        final String directory = requested == null && successful != null ? successful[1] : gamePath(edition);
+        /* From the icon only, as in the shared launcher base: once per process, before the automatic start. */
+        boolean fromIcon = requested == null && error == null && !intent.hasExtra("showLauncher") && !intent.hasExtra("launchGame");
+        if (fromIcon && storageAllowed() && Shared.tipDue(this)) {
+            Shared.tipShown();
+            showLauncher(null);
+            gameModeTip(item, show ? null : () -> startGame(item, directory));
+            return;
         }
-        /* The successful-start record is shared across the isolated game processes. */
+        if (show) { showLauncher(error); return; }
+        startGame(item, directory);
+    }
+    /* The successful-start record is shared across the isolated game processes. */
+    private void startGame(String edition, String directory) {
         showingLauncher = false; ++scanVersion;
         TextView starting = Theme.text(this, I18n.t("Запуск ") + GameFiles.title(edition) + "…", 16, Theme.MUTED, false);
         starting.setGravity(Gravity.CENTER); setContentView(starting);
-        String directory = requested == null && successful != null ? successful[1] : gamePath(edition);
         attempt(edition, directory, preferences.getBoolean("skipMovies", false));
+    }
+    /** The shared base's tip for systems that hold a game outside their game tool at power-saving
+     *  speeds (HyperOs.java): the vendor table and the wording come from there. "Open …" leaves the
+     *  launcher on screen; the other answers go on with the start. */
+    private void gameModeTip(String edition, Runnable proceed) {
+        int column = Shared.column(I18n.language());
+        String system = Shared.tipSystem(), tool = Shared.tipTool(column);
+        String log = new File(new File(Environment.getExternalStorageDirectory(), "Stronghold"), GameFiles.userdata(edition) + "/stronghold.log").getPath();
+        String text = String.format(I18n.t("%1$s держит процессор и видеочип приложения, которого нет в её списке игр, на частотах энергосбережения, поэтому даже флагманский чип работает вполсилы. Из-за этого возможны подтормаживания и долгие кадры при любых настройках графики.\n\nДля полной производительности %2$s"),
+                system, I18n.shared(Shared.tipAdvice(1), Shared.tipAdvice(column)))
+                + "\n\n" + String.format(I18n.t("Журнал игры: %s\nЖурналы прошлых запусков лежат в той же папке; приложите их к сообщению об ошибке."), log);
+        TextView body = Theme.text(this, text, 15, Theme.TEXT, false);
+        body.setPadding(dp(24), dp(8), dp(24), dp(8)); body.setTextIsSelectable(true);
+        ScrollView scroll = new ScrollView(this); scroll.addView(body);
+        /* "Don't show again" is a check box under the text, as in the shared base: a third button
+           stacked the button bar, which a short landscape screen had to scroll to reach. The text
+           takes the space that is left and scrolls. Every answer (Open, Close, back) honours it. */
+        android.widget.CheckBox never = new android.widget.CheckBox(this);
+        never.setText(I18n.t("Больше не показывать"));
+        never.setTextColor(Theme.TEXT);
+        never.setButtonTintList(android.content.res.ColorStateList.valueOf(Theme.ACCENT));
+        never.setMinHeight(dp(48));
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        LinearLayout.LayoutParams below = new LinearLayout.LayoutParams(-2, -2);
+        below.setMargins(dp(20), dp(4), dp(24), 0);
+        content.addView(never, below);
+        boolean[] opened = {false};
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle(String.format(I18n.t("Плавная игра на %s"), system)).setView(content)
+                .setNegativeButton(I18n.t("Закрыть"), null)
+                .setOnDismissListener(d -> {
+                    if (never.isChecked()) Shared.tipNever(this, true);
+                    if (opened[0] || isFinishing() || isDestroyed()) return;
+                    if (proceed != null) proceed.run(); else if (showingLauncher) showLauncher(null);
+                });
+        if (tool != null) dialog.setPositiveButton(String.format(I18n.t("Открыть %s"), tool), (d, which) -> {
+            opened[0] = true;
+            if (!Shared.tipOpen(this)) new AlertDialog.Builder(this).setTitle(String.format(I18n.t("Плавная игра на %s"), system))
+                    .setMessage(String.format(I18n.t("Не удалось открыть %s. Найдите его среди приложений или в настройках системы."), tool))
+                    .setPositiveButton("OK", null).show();
+        });
+        dialog.show();
     }
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handleIntent(intent); }
     @Override protected void onResume() {

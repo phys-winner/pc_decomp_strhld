@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"Не вдалося скопіювати звіт"</string>
     <string name="text_c2e44cfd" formatted="false">"Бракує місця: потрібно %1$s, вільно %2$s."</string>
     <string name="text_4186bcd5">Ліміт пам’яті гри до 4 ГБ</string>
+    <string name="text_e097d8ca">Моніторинг збоїв</string>
+    <string name="text_2ee78c65">Звіт про завершення гри збережено</string>
+  <string name="text_8184621e" formatted="false">"Порада про ігровий режим під час запуску"</string>
+  <string name="text_861f5302" formatted="false">"Рендерер"</string>
+  <string name="text_db3b7c4c" formatted="false">"Визначення версії OpenGL ES…"</string>
+  <string name="text_ccc3385e" formatted="false">"Гра виводить готовий 2D-кадр, порт масштабує його та шари інтерфейсу через OpenGL ES 3.0 або новіший. Vulkan не використовується: у грі немає 3D-сцени та шейдерів, яким він дав би виграш."</string>
+  <string name="text_518049e6" formatted="false">"Текстури"</string>
+  <string name="text_75337a21" formatted="false">"Графіка гри — 2D-спрайти GM1 і TGX у 16-бітному кольорі, вони використовуються як є. Стиснених текстур DXT або BC у грі немає, тому конвертація в ETC2 або ASTC не потрібна."</string>
+  <string name="text_a5e560fb" formatted="false">"Лічильник FPS"</string>
+  <string name="text_a8e5364d" formatted="false">"Налаштувати відображення FPS"</string>
+  <string name="text_346bb78e" formatted="false">"Версію OpenGL ES визначити не вдалося."</string>
+  <string name="text_1b01c092" formatted="false">"Попередній запуск завершився збоєм"</string>
+  <string name="text_4e37245a" formatted="false">"Звіт: "</string>
+  <string name="text_6d7cabc3" formatted="false">"Нативний збій у коді гри (сигнал %s)."</string>
+  <string name="text_c4d6a5d" formatted="false">"Нативний збій до першого кадру (сигнал %s). Можлива помилка запуску рендера або графічного драйвера."</string>
+  <string name="text_abfff564" formatted="false">"Помилка в Java-коді порту."</string>
+  <string name="text_f30ce3e6" formatted="false">"Гра перестала відповідати, і система закрила її (ANR)."</string>
+  <string name="text_8820b256" formatted="false">"Система закрила гру через брак пам\'яті."</string>
+  <string name="text_e16625a3" formatted="false">"Імовірно, система закрила гру через брак пам\'яті: перед завершенням вона повідомила про критично малий обсяг вільної пам\'яті."</string>
+  <string name="text_f8cd0c0e" formatted="false">"Гра завершилася з кодом %s."</string>
+  <string name="text_c27abf3b" formatted="false">"Система завершила процес гри (%s)."</string>
+  <string name="text_f7813102" formatted="false">"Причину завершення не визначено: на цій версії Android зупинку користувачем, закриття системою та збій неможливо розрізнити."</string>
+  <string name="text_ef27e466" formatted="false">"Гра не встигла показати перший кадр."</string>
+  <string name="text_8e7b6e79" formatted="false">"Перевірка MD5 архіву…"</string>
+  <string name="text_c0bf627c" formatted="false">"Не вдалося перевірити архів: "</string>
+  <string name="text_595127df" formatted="false">"Контрольна сума MD5 архіву не збігається із зазначеною в імені файлу (%s)."</string>
+  <string name="text_813d89d4" formatted="false">"%1$s тримає процесор і відеочип застосунку, якого немає в її списку ігор, на частотах енергозбереження, тому навіть флагманський чип працює впівсили. Через це можливі підгальмовування та довгі кадри за будь-яких налаштувань графіки.\n\nДля повної продуктивності %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"Журнал гри: %s\nЖурнали попередніх запусків лежать у тій самій папці; додайте їх до повідомлення про помилку."</string>
+  <string name="text_58553268" formatted="false">"Плавна гра на %s"</string>
+  <string name="text_a92e0da4" formatted="false">"Більше не показувати"</string>
+  <string name="text_834665c3" formatted="false">"Відкрити %s"</string>
+  <string name="text_16ec763f" formatted="false">"Не вдалося відкрити %s. Знайдіть його серед застосунків або в налаштуваннях системи."</string>
+  <string name="text_8c538888" formatted="false">"додайте її до Game Turbo (застосунок «Безпека» → Game Turbo → додати гру) і перезапустіть гру."</string>
+  <string name="text_f34577ac" formatted="false">"додайте її до Gaming Hub (Gaming Hub → ⋮ → додати ігри), виберіть у Game Booster профіль продуктивності та перезапустіть гру."</string>
+  <string name="text_33e055ee" formatted="false">"додайте її до «Майстра ігор» («Майстер ігор» → «Додати ігри»), увімкніть там режим GT або режим Pro Gamer і перезапустіть гру."</string>
+  <string name="text_d35987c5" formatted="false">"додайте її до Ultra Game Mode (Налаштування → Ultra Game Mode → додати гру) і перезапустіть гру."</string>
+  <string name="text_bbc3a61a" formatted="false">"додайте її до Game Manager (Налаштування → Застосунки → Game Manager → додати ігри) і перезапустіть гру."</string>
+  <string name="text_f4c52b99" formatted="false">"Збій рендерера"</string>
+  <string name="text_fe2fd2de" formatted="false">"Не вдалося запустити %s на цьому пристрої, тому гру зупинено. Інший рендерер замість нього не запускався."</string>
+  <string name="text_59845252" formatted="false">"З %s відеодрайвер перестав відповідати (втрачено пристрій GPU), тому гру зупинено. Інший рендерер замість нього не запускався."</string>
+  <string name="text_d009068c" formatted="false">"Подробиці: %s"</string>
+  <string name="text_5efaac46" formatted="false">"Інших доступних рендерерів на цьому пристрої немає."</string>
+  <string name="text_2c831f2e" formatted="false">"Минулий запуск зупинено через збій %1$s: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"Не вдалося запустити OpenGL ES: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"Архів «%1$s»%2$s буде розпаковано в\n%3$s\n\nВільно: %4$s. Розпакована гра займає близько 1 ГБ."</string>
+  <string name="text_f375a690" formatted="false">"До папки «%1$s» немає прямого доступу за шляхом. Скопіювати її в\n%2$s?"</string>
+    <string name="text_4a88b5ae">"Сумісне виведення звуку"</string>
+    <string name="text_b04108f4">"Для BOOX і пристроїв із перериванням звуку. Може збільшити затримку. Застосовується після перезапуску гри."</string>
 </resources>

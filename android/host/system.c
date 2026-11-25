@@ -6,6 +6,7 @@
 #include "dplay.h"
 #include "input.h"
 #include "display.h"
+#include "renderer.h"
 #include <ctype.h>
 #include <errno.h>
 #include <strings.h>
@@ -571,7 +572,7 @@ WINAPI_EXPORT(GDI, GetDeviceCaps, 2)
     case 6: return (uint32_t)(h * 254 / 960);
     case 8: case 118: return (uint32_t)w;
     case 10: case 117: return (uint32_t)h;
-    case 12: return 16; /* BITSPIXEL: DirectDraw RGB565 */
+    case 12: return 16; /* BITSPIXEL: RGB565 */
     case 14: return 1;
     case 24: return 0xFFFFFFFFu; /* NUMCOLORS: true color */
     case 88: case 90: return 96;
@@ -599,7 +600,6 @@ typedef struct { uint32_t handle, font, color, background; int mode; } gdi_dc;
 static gdi_font gdi_fonts[128];
 static gdi_dc gdi_dcs[64];
 static uint32_t next_font = 0x60000u;
-extern int void_ddraw_dc_pixels(uint32_t dc, uint32_t *dst, int *w, int *h, int *pitch, int *bpp);
 extern int void_android_text(uint32_t dst, int w, int h, int pitch, int bpp, const uint16_t *text,
     int count, int size, int weight, int italic, int x, int y, uint32_t color, uint32_t bg, int opaque,
     int *extent_w, int *extent_h);
@@ -738,7 +738,7 @@ static uint32_t gdi_text_out(int wide)
     uint32_t dst = 0, options = ARG(3), rect = ARG(4), n = ARG(6), dx = ARG(7);
     int w, h, pitch, bpp, width, height, x = (int32_t)ARG(1), y = (int32_t)ARG(2);
     uint16_t *text = gdi_text(ARG(5), n, wide);
-    if (!font || !text || (options & ~6u) || !void_ddraw_dc_pixels(ARG(0), &dst, &w, &h, &pitch, &bpp) ||
+    if (!font || !text || (options & ~6u) || !stronghold_renderer_dc_pixels(ARG(0), &dst, &w, &h, &pitch, &bpp) ||
         bpp != 16 || (dx && !void_vm_readable(dx, n * 4))) {
         free(text); void_set_last_error(ERROR_NOT_SUPPORTED_); return 0;
     }

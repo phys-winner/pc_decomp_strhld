@@ -390,16 +390,29 @@ void void_lift_trap(uint32_t address, const char *instruction)
         instruction, g_cur_func);
 }
 
+static const int fault_signals[] = { SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGABRT };
+static struct sigaction android_fault_actions[sizeof fault_signals / sizeof *fault_signals];
+
 static void on_signal(int signo, siginfo_t *info, void *context)
 {
     uintptr_t fault = (uintptr_t)info->si_addr;
+#if defined(__aarch64__)
+    const ucontext_t *uc = context;
+    if (void_crash_signal(signo, info->si_code, fault, uc->uc_mcontext.pc, uc->uc_mcontext.regs[30],
+                          uc->uc_mcontext.sp, g_cur_func, g_esp)) {
+        for (size_t i = 0; i < sizeof fault_signals / sizeof *fault_signals; ++i)
+            if (fault_signals[i] == signo) sigaction(signo, &android_fault_actions[i], NULL);
+        /* A synchronous fault recurs at its original PC for debuggerd. */
+        if (info->si_code <= 0 || signo == SIGABRT) raise(signo);
+        return;
+    }
+#endif
     char where[96] = "";
     if (fault >= VOID_GUEST_BASE && fault < VOID_GUEST_BASE + VOID_GUEST_SPAN)
         snprintf(where, sizeof where, " (guest VA %08X)", (uint32_t)(fault - VOID_GUEST_BASE));
     void_log("[void] host signal %d code %d at %p%s", signo, info->si_code, info->si_addr, where);
 #if defined(__aarch64__)
     /* Local lifted registers need the faulting native PC, not entry snapshots. */
-    const ucontext_t *uc = context;
     uintptr_t entry = (uintptr_t)void_dispatch_find(g_cur_func);
     void_log("[void] native pc=%016llX sp=%016llX entry=%016llX offset=%lld",
         (unsigned long long)uc->uc_mcontext.pc, (unsigned long long)uc->uc_mcontext.sp,
@@ -438,8 +451,8 @@ void void_install_fault_handlers(void)
     sa.sa_sigaction = on_signal;
     sa.sa_flags = SA_SIGINFO | SA_ONSTACK;
     sigemptyset(&sa.sa_mask);
-    int signals[] = { SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGABRT };
-    for (size_t i = 0; i < sizeof signals / sizeof signals[0]; ++i) sigaction(signals[i], &sa, NULL);
+    for (size_t i = 0; i < sizeof fault_signals / sizeof *fault_signals; ++i)
+        sigaction(fault_signals[i], &sa, &android_fault_actions[i]);
 }
 
 /* ---------------------------------------------------------------- CPUID */

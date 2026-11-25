@@ -3,6 +3,7 @@
 #include "input.h"
 #include "edition.h"
 #include "display.h"
+#include "renderer.h"
 #include "view_controls.h"
 #include "feedback.h"
 #include <math.h>
@@ -113,7 +114,6 @@ void stronghold_display_smooth_camera(int enabled)
 static int32_t camera_coordinate(double value,int step)
 { return (int32_t)(llround(value/(smooth_camera?1:step))*(smooth_camera?1:step)); }
 static uint16_t color_key,published_key;
-uint32_t void_ddraw_redirect_pixels(uint32_t surface,uint32_t pixels);
 
 static void layer_anchor(int group,int width,int height,double *ax,double *ay)
 {
@@ -338,7 +338,7 @@ void stronghold_display_highlight(int left,int top,int width,int height)
 }
 
 /* Per-layer filters and the placement loupe: recorded here, drawn by the
- * presenter (ddraw_present.c). FSR won side-by-side comparisons on game
+ * presenter. FSR won side-by-side comparisons on game
  * frames for both: crisp edges without the halos of bicubic+CAS or the
  * stair-steps sharp pixels leave at non-integer scales (HUD, icons, digits). */
 #define DEFAULT_WORLD_FILTER SH_FILTER_FSR
@@ -481,7 +481,7 @@ void stronghold_display_frame_begin(void)
     /* An aborted UI pass must never leave a borrowed framebuffer installed. */
     if(ui_open){
         MEM32(GAME_SCREEN+0xd8)=original_pixels;
-        void_ddraw_redirect_pixels(original_surface,original_pixels);
+        stronghold_renderer_redirect(original_surface,original_pixels);
     }
     stronghold_display_capture_active=0;
     raster_clear_depth=0;
@@ -602,7 +602,7 @@ static int select_group(int group)
         l->left=width;l->top=height;l->right=l->bottom=0;
         ui[group].used=1;
     }
-    if(!void_ddraw_redirect_pixels(original_surface,ui[group].guest))return 0;
+    if(!stronghold_renderer_redirect(original_surface,ui[group].guest))return 0;
     MEM32(GAME_SCREEN+0xd8)=ui[group].guest;
     current_group=group;return 1;
 }
@@ -646,7 +646,8 @@ void stronghold_display_ui_begin(uint32_t map)
 void stronghold_display_blended(uint32_t address,unsigned bytes,unsigned background)
 {
     if(!ui_open||!bytes||(bytes&1u)||bytes>MAP_PITCH)return;
-    uint32_t target=ui[current_group].guest;
+    ui_layer *layer=&ui[current_group];
+    uint32_t target=layer->guest;
     uint32_t hud=hud_pixels,hp=hud_pitch;
     int x,y,d4=0;uint32_t row_byte,pitch;
     if(address>=target&&(uint64_t)address+bytes<=(uint64_t)target+MAP_BYTES){
@@ -666,18 +667,24 @@ void stronghold_display_blended(uint32_t address,unsigned bytes,unsigned backgro
     int left=x<0?0:x,right=x+(int)(bytes/2);
     if(right>requested_width)right=requested_width;
     if(left>=right)return;
-    address+=2u*(uint32_t)(left-x);bytes=2u*(uint32_t)(right-left);x=left;
+    unsigned count=(unsigned)(right-left);
+    address+=2u*(uint32_t)(left-x);
     if(d4){
-        void *destination=GPTR(target+MAP_PITCH*(uint32_t)(origin_y+y)+2u*(uint32_t)(origin_x+x));
+        void *destination=GPTR(target+MAP_PITCH*(uint32_t)(origin_y+y)+2u*(uint32_t)(origin_x+left));
         const void *source=GPTR(address);
-        if(bytes==2)__builtin_memcpy(destination,source,2);
-        else if(bytes==4)__builtin_memcpy(destination,source,4);
-        else memcpy(destination,source,bytes);
+        if(count==1)__builtin_memcpy(destination,source,2);
+        else if(count==2)__builtin_memcpy(destination,source,4);
+        else memcpy(destination,source,count*2);
     }
-    uint8_t *a=ui[current_group].capture+(size_t)y*requested_width+x;
+    uint8_t *a=layer->capture+(size_t)y*requested_width+left;
     /* These writes belong to explicit original HUD-clear call sites. This
      * is operation provenance, not a test of the RGB value being painted. */
-    if(raster_clear_depth){memset(a,0,bytes/2);return;}
+    if(raster_clear_depth){
+        if(count==1)*a=0;
+        else if(count==2)__builtin_memset(a,0,2);
+        else memset(a,0,count);
+        return;
+    }
     if(background>255)background=255;
     if(resource_capture&&current_group==0){
         top_overlay_used=1;
@@ -688,15 +695,140 @@ void stronghold_display_blended(uint32_t address,unsigned bytes,unsigned backgro
             if(y+4>resource_fit_rows)resource_fit_rows=y+4<requested_height?y+4:requested_height;
         }
     }else if(!overlay_active&&current_group==0&&y>=128&&y<hud_top)hud_top=y;
-    if(!background)memset(a,255,bytes/2);
-    else for(unsigned i=0;i<bytes/2;i++)a[i]=(uint8_t)(255-((255-a[i])*background+127)/255);
-    if(x<ui[current_group].left)ui[current_group].left=x;
-    if(x+(int)(bytes/2)>ui[current_group].right)ui[current_group].right=x+(int)(bytes/2);
-    if(y<ui[current_group].top)ui[current_group].top=y;
-    if(y>=ui[current_group].bottom)ui[current_group].bottom=y+1;
+    if(!background){
+        if(count==1)*a=255;
+        else if(count==2)__builtin_memset(a,255,2);
+        else memset(a,255,count);
+    }else for(unsigned i=0;i<count;i++)a[i]=(uint8_t)(255-((255-a[i])*background+127)/255);
+    if(left<layer->left)layer->left=left;
+    if(right>layer->right)layer->right=right;
+    if(y<layer->top)layer->top=y;
+    if(y>=layer->bottom)layer->bottom=y+1;
 }
 void stronghold_display_written(uint32_t address,unsigned bytes)
 {stronghold_display_blended(address,bytes,0);}
+
+/* The pinned TGX path has no guest call or yield inside the 16 stores. */
+int stronghold_display_hud_literal64(uint32_t dst,uint32_t src)
+{
+    const unsigned bytes=64;
+    if(!ui_open||current_group||raster_clear_depth||resource_capture||overlay_active||
+       !hud_pitch||dst<hud_pixels)return 0;
+
+    const uint32_t offset=dst-hud_pixels;
+    const unsigned y=offset/hud_pitch, row=offset-y*hud_pitch;
+    if(y>=(unsigned)requested_height||(row&1)||row>hud_pitch||bytes>hud_pitch-row||
+       row+bytes>(unsigned)requested_width*2)return 0;
+
+    const uint32_t target=ui[0].guest;
+    const uint64_t dst_end=(uint64_t)dst+bytes, src_end=(uint64_t)src+bytes;
+    if((dst_end>target&&(uint64_t)target+MAP_BYTES>dst)||(src_end>dst&&dst_end>src)||
+       src_end>UINT32_MAX||dst_end>UINT32_MAX)return 0;
+    const uint64_t mirror=(uint64_t)target+MAP_PITCH*(origin_y+y)+2u*origin_x+row;
+    if(mirror+bytes>UINT32_MAX||(src_end>mirror&&mirror+bytes>src)||
+       !void_vm_readable(src,bytes)||!void_vm_writable(dst,bytes)||!void_vm_writable((uint32_t)mirror,bytes))return 0;
+
+    memcpy(GPTR(dst),GPTR(src),bytes);
+    stronghold_display_written(dst,bytes);
+    return 1;
+}
+
+/* Preserve both the destination color and the capture mask under the color key. */
+int stronghold_display_hud_keyed(uint32_t dst,uint32_t src,unsigned count,uint16_t key)
+{
+    if(!ui_open||current_group||raster_clear_depth||resource_capture||overlay_active||count<8||count>4056)
+        return 0;
+    ui_layer *layer=&ui[0];
+    const uint32_t start=layer->guest;
+    const unsigned bytes=count*2;
+    const uint64_t dst_end=(uint64_t)dst+bytes,src_end=(uint64_t)src+bytes;
+    if(((src|dst)&1)||dst<start||dst_end>(uint64_t)start+MAP_BYTES||dst_end>UINT32_MAX||src_end>UINT32_MAX||
+       (dst_end>src&&src_end>dst)||!void_vm_readable(src,bytes)||!void_vm_writable(dst,bytes))return 0;
+    const unsigned offset=dst-start,row=offset%MAP_PITCH;
+    const int x=(int)(row/2)-origin_x,y=(int)(offset/MAP_PITCH)-origin_y;
+    if((row&1)||bytes>MAP_PITCH-row||x<0||x+(int)count>requested_width||y<0||y>=requested_height)
+        return 0;
+
+    const uint16_t *source=GPTR(src);
+    uint16_t *target=GPTR(dst);
+    uint8_t *coverage=layer->capture+(size_t)y*requested_width+x;
+    unsigned i=0,first=count,last=0;
+#if defined(__aarch64__)
+    const uint16x8_t key_vector=vdupq_n_u16(key);
+    for(;i+8<=count;i+=8){
+        const uint16x8_t colors=vld1q_u16(source+i);
+        const uint16x8_t opaque=vmvnq_u16(vceqq_u16(colors,key_vector));
+        const uint8x8_t mask=vmovn_u16(opaque);
+        const uint64_t bits=vget_lane_u64(vreinterpret_u64_u8(mask),0);
+        if(!bits)continue;
+        vst1q_u16(target+i,bits==UINT64_MAX?colors:vbslq_u16(opaque,colors,vld1q_u16(target+i)));
+        vst1_u8(coverage+i,vorr_u8(mask,vld1_u8(coverage+i)));
+        if(first==count)first=i+(unsigned)__builtin_ctzll(bits)/8;
+        last=i+8-(unsigned)__builtin_clzll(bits)/8;
+    }
+#endif
+    for(;i<count;i++){
+        uint16_t color;
+        memcpy(&color,source+i,2);
+        if(color==key)continue;
+        memcpy(target+i,&color,2);
+        coverage[i]=255;
+        if(first==count)first=i;
+        last=i+1;
+    }
+    if(last){
+        int left=x+(int)first,right=x+(int)last;
+        if(y>=128&&y<hud_top)hud_top=y;
+        if(left<layer->left)layer->left=left;
+        if(right>layer->right)layer->right=right;
+        if(y<layer->top)layer->top=y;
+        if(y>=layer->bottom)layer->bottom=y+1;
+    }
+    return 1;
+}
+
+/* Only a whole visible span can replace the individually mirrored stores. */
+static uint32_t hud_span_mirror(uint32_t dst,unsigned bytes)
+{
+    if(!ui_open||current_group||raster_clear_depth||resource_capture||overlay_active||
+       !hud_pitch||dst<hud_pixels)return 0;
+    const uint32_t offset=dst-hud_pixels;
+    const unsigned y=offset/hud_pitch,row=offset-y*hud_pitch;
+    if(y>=(unsigned)requested_height||(row&1)||bytes>hud_pitch-row||
+       row+bytes>(unsigned)requested_width*2)return 0;
+
+    const uint32_t target=ui[0].guest;
+    const uint64_t dst_end=(uint64_t)dst+bytes;
+    if(dst_end>UINT32_MAX||(dst_end>target&&(uint64_t)target+MAP_BYTES>dst))return 0;
+    const uint64_t mirror=(uint64_t)target+MAP_PITCH*(origin_y+y)+2u*origin_x+row;
+    if(mirror+bytes>UINT32_MAX||!void_vm_writable(dst,bytes)||
+       !void_vm_writable((uint32_t)mirror,bytes))return 0;
+    return (uint32_t)mirror;
+}
+
+int stronghold_display_hud_literal_span(uint32_t dst,uint32_t src,unsigned bytes)
+{
+    const uint32_t mirror=hud_span_mirror(dst,bytes);
+    const uint64_t src_end=(uint64_t)src+bytes;
+    if(!mirror||src_end>UINT32_MAX||
+       (src_end>dst&&(uint64_t)dst+bytes>src)||
+       (src_end>mirror&&(uint64_t)mirror+bytes>src)||!void_vm_readable(src,bytes))return 0;
+    memcpy(GPTR(dst),GPTR(src),bytes);
+    stronghold_display_written(dst,bytes);
+    return 1;
+}
+
+int stronghold_display_hud_solid_span(uint32_t dst,uint32_t color,unsigned bytes)
+{
+    if(!hud_span_mirror(dst,bytes))return 0;
+    uint8_t *target=GPTR(dst);
+    const unsigned words=bytes/4;
+    for(unsigned i=0;i<words;i++)memcpy(target+i*4,&color,4);
+    if(bytes&2)memcpy(target+words*4,&color,2);
+    stronghold_display_written(dst,bytes);
+    return 1;
+}
+
 /* Preserve the original overlay anchors (4AFE80/4B0010 flags +1C).
  * Resource rows can extend below128; left+bottom messages must not inherit
  * the centered construction panel's anchor and lose their first words. */
@@ -972,7 +1104,7 @@ void stronghold_display_ui_end(void)
     published_hud_opaque=hud_opaque&&ui[0].used;
     gpu_taken=0;
     MEM32(GAME_SCREEN+0xd8)=original_pixels;
-    void_ddraw_redirect_pixels(original_surface,original_pixels);ui_open=0;stronghold_display_capture_active=0;
+    stronghold_renderer_redirect(original_surface,original_pixels);ui_open=0;stronghold_display_capture_active=0;
     published_width=requested_width;published_height=requested_height;
     published_source_width=source_width;published_source_height=source_height;
     published_raster_width=raster_width;published_raster_height=raster_height;
@@ -1243,7 +1375,7 @@ void stronghold_perf_frame_begin(void) {}
 uint64_t void_monotonic_ns(void) { return 0; }
 uint32_t void_vm_alloc(uint32_t p,uint32_t n,uint32_t t,uint32_t prot)
 {(void)p;(void)n;(void)t;(void)prot;return 0;}
-uint32_t void_ddraw_redirect_pixels(uint32_t s,uint32_t p){(void)s;return p;}
+uint32_t stronghold_renderer_redirect(uint32_t s,uint32_t p){(void)s;return p;}
 void void_input_set_screen_size(int w, int h) { (void)w; (void)h; }
 int void_vm_writable(uint32_t va, uint32_t count)
 {

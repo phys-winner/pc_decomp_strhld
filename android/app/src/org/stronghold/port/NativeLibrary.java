@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-/** The launcher unpacks only the selected edition, on its existing preflight worker. */
+/** The launcher unpacks the selected edition and its shared dependency on its preflight worker. */
 final class NativeLibrary {
     private static native long nativeUnpack(AssetManager assets, String name, String path,
                                             long total, int chunk, int[] sizes);
@@ -17,9 +17,13 @@ final class NativeLibrary {
     private NativeLibrary() { }
 
     static synchronized File prepare(Context context, String library) throws IOException {
-        String name = "lib" + library + ".so";
         if (!library.equals("stronghold") && !library.equals("stronghold_classic") && !library.equals("stronghold_sh"))
             throw new IOException("Unknown native library");
+        prepareFile(context, "libstronghold_common.so");
+        return prepareFile(context, "lib" + library + ".so");
+    }
+
+    private static File prepareFile(Context context, String name) throws IOException {
         String[] fields = null;
         try (InputStream in = context.getAssets().open("native/index.txt")) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();

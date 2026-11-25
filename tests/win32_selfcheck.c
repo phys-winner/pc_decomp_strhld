@@ -23,7 +23,7 @@ uint32_t void_wait_extra_cond(int n, const uint32_t *handles, uint32_t timeout, 
 }
 int void_vm_readable(uint32_t p, uint32_t n) { return p >= 0x1000 && p < 0x10000 && n <= 0x10000u - p; }
 int void_vm_writable(uint32_t p, uint32_t n) { return void_vm_readable(p, n); }
-int void_ddraw_dc_pixels(uint32_t dc, uint32_t *dst, int *w, int *h, int *pitch, int *bpp)
+int stronghold_renderer_dc_pixels(uint32_t dc, uint32_t *dst, int *w, int *h, int *pitch, int *bpp)
 {
     if (dc != 0x70000) return 0;
     *dst = 0x8000; *w = 8; *h = 6; *pitch = 16; *bpp = 16;

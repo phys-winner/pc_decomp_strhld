@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"Impossibile copiare il rapporto"</string>
     <string name="text_c2e44cfd" formatted="false">"Spazio insufficiente: necessari %1$s, disponibili %2$s."</string>
     <string name="text_4186bcd5">Limite di memoria del gioco fino a 4 GB</string>
+    <string name="text_e097d8ca">Monitoraggio degli arresti anomali</string>
+    <string name="text_2ee78c65">Rapporto di chiusura del gioco salvato</string>
+  <string name="text_8184621e" formatted="false">"Suggerimento sulla modalità gioco all\'avvio"</string>
+  <string name="text_861f5302" formatted="false">"Renderer"</string>
+  <string name="text_db3b7c4c" formatted="false">"Rilevamento della versione di OpenGL ES…"</string>
+  <string name="text_ccc3385e" formatted="false">"Il gioco produce un fotogramma 2D finito; il port lo ridimensiona insieme ai livelli dell\'interfaccia con OpenGL ES 3.0 o successivo. Vulkan non viene usato: il gioco non ha una scena 3D né shader che ne trarrebbero vantaggio."</string>
+  <string name="text_518049e6" formatted="false">"Texture"</string>
+  <string name="text_75337a21" formatted="false">"La grafica del gioco è composta da sprite 2D (GM1 e TGX) a colori a 16 bit, usati così come sono. Il gioco non ha texture compresse DXT o BC, quindi non serve alcuna conversione in ETC2 o ASTC."</string>
+  <string name="text_a5e560fb" formatted="false">"Contatore FPS"</string>
+  <string name="text_a8e5364d" formatted="false">"Impostazioni di visualizzazione FPS"</string>
+  <string name="text_346bb78e" formatted="false">"Impossibile rilevare la versione di OpenGL ES."</string>
+  <string name="text_1b01c092" formatted="false">"L\'ultima sessione è terminata con un errore"</string>
+  <string name="text_4e37245a" formatted="false">"Rapporto: "</string>
+  <string name="text_6d7cabc3" formatted="false">"Arresto anomalo nativo nel codice del gioco (segnale %s)."</string>
+  <string name="text_c4d6a5d" formatted="false">"Arresto anomalo nativo prima del primo fotogramma (segnale %s). È possibile che il renderer o il driver grafico non siano riusciti ad avviarsi."</string>
+  <string name="text_abfff564" formatted="false">"Errore nel codice Java del port."</string>
+  <string name="text_f30ce3e6" formatted="false">"Il gioco ha smesso di rispondere e il sistema lo ha chiuso (ANR)."</string>
+  <string name="text_8820b256" formatted="false">"Il sistema ha chiuso il gioco per mancanza di memoria."</string>
+  <string name="text_e16625a3" formatted="false">"Probabilmente il sistema ha chiuso il gioco per mancanza di memoria: poco prima della fine ha segnalato una memoria libera criticamente bassa."</string>
+  <string name="text_f8cd0c0e" formatted="false">"Il gioco è terminato con il codice %s."</string>
+  <string name="text_c27abf3b" formatted="false">"Il sistema ha terminato il processo del gioco (%s)."</string>
+  <string name="text_f7813102" formatted="false">"La causa della chiusura è sconosciuta: su questa versione di Android non è possibile distinguere un arresto da parte dell\'utente, una chiusura da parte del sistema e un arresto anomalo."</string>
+  <string name="text_ef27e466" formatted="false">"Il gioco non aveva ancora mostrato il primo fotogramma."</string>
+  <string name="text_8e7b6e79" formatted="false">"Verifica dell\'MD5 dell\'archivio…"</string>
+  <string name="text_c0bf627c" formatted="false">"Impossibile verificare l\'archivio: "</string>
+  <string name="text_595127df" formatted="false">"Il checksum MD5 dell\'archivio non corrisponde a quello indicato nel nome del file (%s)."</string>
+  <string name="text_813d89d4" formatted="false">"%1$s mantiene il processore e il chip grafico di un\'app che non è nel suo elenco di giochi a frequenze di risparmio energetico, quindi anche un chip di punta lavora a metà della sua forza. Questo causa scatti e fotogrammi lunghi con qualsiasi impostazione grafica.\n\nPer le prestazioni complete: %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"Registro del gioco: %s\nI registri delle sessioni precedenti si trovano nella stessa cartella; allegali a una segnalazione di errore."</string>
+  <string name="text_58553268" formatted="false">"Gioco più fluido su %s"</string>
+  <string name="text_a92e0da4" formatted="false">"Non mostrare più"</string>
+  <string name="text_834665c3" formatted="false">"Apri %s"</string>
+  <string name="text_16ec763f" formatted="false">"Impossibile aprire %s. Cercalo tra le app o nelle impostazioni di sistema."</string>
+  <string name="text_8c538888" formatted="false">"aggiungilo a Game Turbo (app «Sicurezza» → Game Turbo → aggiungi gioco) e riavvia il gioco."</string>
+  <string name="text_f34577ac" formatted="false">"aggiungilo a Gaming Hub (Gaming Hub → ⋮ → aggiungi giochi), scegli il profilo prestazioni in Game Booster e riavvia il gioco."</string>
+  <string name="text_33e055ee" formatted="false">"aggiungilo all\'Assistente di gioco (Assistente di gioco → «Aggiungi giochi»), attiva lì la modalità GT o la modalità Pro Gamer e riavvia il gioco."</string>
+  <string name="text_d35987c5" formatted="false">"aggiungilo a Ultra Game Mode (Impostazioni → Ultra Game Mode → aggiungi gioco) e riavvia il gioco."</string>
+  <string name="text_bbc3a61a" formatted="false">"aggiungilo a Game Manager (Impostazioni → App → Game Manager → aggiungi giochi) e riavvia il gioco."</string>
+  <string name="text_f4c52b99" formatted="false">"Errore del renderer"</string>
+  <string name="text_fe2fd2de" formatted="false">"%s non è riuscito ad avviarsi su questo dispositivo, quindi il gioco è stato interrotto. Nessun altro renderer è stato avviato al suo posto."</string>
+  <string name="text_59845252" formatted="false">"Con %s il driver grafico ha smesso di rispondere (il dispositivo GPU è stato perso), quindi il gioco è stato interrotto. Nessun altro renderer è stato avviato al suo posto."</string>
+  <string name="text_d009068c" formatted="false">"Dettagli: %s"</string>
+  <string name="text_5efaac46" formatted="false">"Nessun altro renderer è disponibile su questo dispositivo."</string>
+  <string name="text_2c831f2e" formatted="false">"L\'ultimo avvio si è interrotto perché %1$s non ha funzionato: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"OpenGL ES non è riuscito ad avviarsi: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"L’archivio «%1$s»%2$s verrà estratto in\n%3$s\n\nLibero: %4$s. Il gioco estratto occupa circa 1 GB."</string>
+  <string name="text_f375a690" formatted="false">"La cartella «%1$s» non è accessibile tramite un percorso diretto. Copiarla in\n%2$s?"</string>
+    <string name="text_4a88b5ae">"Uscita audio compatibile"</string>
+    <string name="text_b04108f4">"Per BOOX e dispositivi con interruzioni audio. Può aumentare la latenza. Riavvia il gioco per applicare la modifica."</string>
 </resources>

@@ -1,4 +1,4 @@
-/* Android's font rasterizer supplies Unicode glyph masks for DirectDraw GDI. */
+/* Android's font rasterizer supplies Unicode glyph masks for the native renderer. */
 #include "host.h"
 #include "display.h"
 #include "text_overlay.h"

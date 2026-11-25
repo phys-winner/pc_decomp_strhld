@@ -3,10 +3,8 @@
 #define STRONGHOLD_EDITION_H
 
 #ifdef STRONGHOLD_ORIGINAL
-/* The original Stronghold HD: its own installation and profile. Its screen
- * object (00B182C8) is not Crusader's, so the Crusader mode-3 override in
- * ddraw.c/core.c stays off (page 0 is never committed); the engine's own
- * mode table is used instead (stronghold_original.c). */
+/* Stronghold HD uses its own screen object (00B182C8) and mode table.
+ * GAME_SCREEN and GAME_MODE_CALC select the Crusader mode-3 override. */
 #define GAME_INSTALL "C:\\Games\\Stronghold HD"
 #define GAME_EXE "Stronghold.exe"
 #define GAME_TITLE "Stronghold HD"

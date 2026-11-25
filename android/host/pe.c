@@ -122,11 +122,29 @@ static uint32_t export_lookup(uint32_t base, uint32_t name_or_ordinal)
 }
 
 /* ---------------------------------------------------------------- shims */
-extern const void_shim __start_void_shims[], __stop_void_shims[];
+extern const void_shim __start_void_shims[], __stop_void_shims[] __attribute__((visibility("hidden")));
+
+typedef struct {
+    const void_shim *first;
+    size_t count;
+} shim_table;
+
+static void shim_tables(shim_table tables[2])
+{
+    tables[0] = (shim_table){__start_void_shims, (size_t)(__stop_void_shims - __start_void_shims)};
+    tables[1] = (shim_table){0};
+#ifdef VOID_ANDROID_APP
+    tables[1].count = stronghold_common_shims(&tables[1].first);
+#endif
+}
 
 const void_shim *void_shim_find(const char *dll, const char *name, uint32_t ordinal)
 {
-    for (const void_shim *s = __start_void_shims; s < __stop_void_shims; ++s) {
+    shim_table tables[2];
+    shim_tables(tables);
+    for (unsigned table = 0; table < 2; ++table)
+    for (size_t i = 0; i < tables[table].count; ++i) {
+        const void_shim *s = tables[table].first + i;
         if (strcasecmp(s->dll, dll)) continue;
         if (name && s->name && !strcmp(s->name, name)) return s;
         if (!name && ordinal && s->ordinal == ordinal) return s;
@@ -147,7 +165,6 @@ static thunk_entry *thunk_map;
 static int thunk_map_count, thunk_map_cap;
 
 static int missing_count;
-extern uint32_t void_ddraw_import(const char *name);
 
 /* Every import call is an indirect call, and RECOMP_ICALL/ITAIL record the
  * target VA before transferring; the last record names the missing import. */
@@ -170,8 +187,9 @@ static uint32_t thunk_for(const char *dll, const char *name, uint32_t ordinal, i
     uint32_t va = 0;
     if (shim) {
         va = void_thunk(shim->fn, shim->name ? shim->name : key);
-    } else if (name && !strcasecmp(dll, "ddraw.dll") && (va = void_ddraw_import(name))) {
-        /* DirectDraw owns its COM thunks and entry points. */
+    } else if (create_missing && name && !strcasecmp(dll, "ddraw.dll") && !strcmp(name, "DirectDrawCreate")) {
+        /* The three pinned screen constructors enter the native renderer before this IAT slot. */
+        va = void_thunk(missing_import, strdup(key));
     } else if (create_missing) {
         va = void_thunk(missing_import, strdup(key));
         ++missing_count;
@@ -333,11 +351,15 @@ static void add_pseudo(const char *name)
     MEM32(m->base + 0x98 + 0x3C) = 0x1000;
     MEM32(m->base + 0x98 + 0x5C) = 16;
 
-    size_t capacity = (size_t)(__stop_void_shims - __start_void_shims);
+    shim_table tables[2];
+    shim_tables(tables);
+    size_t capacity = tables[0].count + tables[1].count;
     const void_shim **exports = (const void_shim **)malloc(capacity * sizeof *exports);
     if (!exports) void_fatal("pseudo export allocation failed");
     uint32_t count = 0, highest_ordinal = 0, unnamed_ordinals = 0, name_bytes = (uint32_t)strlen(name) + 1;
-    for (const void_shim *s = __start_void_shims; s < __stop_void_shims; ++s) {
+    for (unsigned table = 0; table < 2; ++table)
+    for (size_t i = 0; i < tables[table].count; ++i) {
+        const void_shim *s = tables[table].first + i;
         if (!s->name || void_shim_find(name, s->name, 0) != s) continue;
         exports[count++] = s;
         name_bytes += (uint32_t)strlen(s->name) + 1;

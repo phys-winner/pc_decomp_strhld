@@ -6,13 +6,13 @@
 #include "input.h"
 #include "edition.h"
 #include "touch.h"
+#include "renderer.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 void void_files_std_init(void);
 int void_files_selftest(void);
-int void_ddraw_selftest(void);
 int void_modules_selftest(void);
 static int exiting;
 
@@ -23,10 +23,11 @@ void void_process_exit(uint32_t code, int run_detach)
         exiting = 1;
         void_modules_detach_all(1);
     }
-    void void_dsound_shutdown(void);
-    void_dsound_shutdown();
+    void void_audio_shutdown(void);
+    void_audio_shutdown();
     void_log("[void] process exit %u", code);
     void_log_flush();
+    void_crash_exit(code);
 #ifdef VOID_ANDROID_APP
     void void_android_process_exit(uint32_t code);
     void_android_process_exit(code);
@@ -56,7 +57,7 @@ static int attach_dlls(void)
 
 static int self_test(void)
 {
-    int failures = void_files_selftest() + void_ddraw_selftest() + void_modules_selftest() +
+    int failures = void_files_selftest() + stronghold_renderer_selftest() + void_modules_selftest() +
                    stronghold_touch_selftest();
     for (int cycle = 0; cycle < 2; ++cycle) {
         for (size_t i = 0; i < sizeof lifted_dlls / sizeof lifted_dlls[0]; ++i) {
@@ -76,8 +77,10 @@ static int self_test(void)
 
 int void_game_main(const char *game, const char *data, const char *images, int selftest)
 {
-    void_install_fault_handlers();
     if (mkdir(data, 0775) && errno != EEXIST) return 66;
+    const char *monitor = getenv("STRONGHOLD_CRASH_MONITOR");
+    if (monitor && !strcmp(monitor, "1")) void_crash_open(data);
+    void_install_fault_handlers();
     char log_path[1024];
     snprintf(log_path, sizeof log_path, "%s/stronghold.log", data);
     void_log_open(log_path);

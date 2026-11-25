@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"Não foi possível copiar o relatório"</string>
     <string name="text_c2e44cfd" formatted="false">"Espaço insuficiente: necessários %1$s, livres %2$s."</string>
     <string name="text_4186bcd5">Limite de memória do jogo de até 4 GB</string>
+    <string name="text_e097d8ca">Monitoramento de falhas</string>
+    <string name="text_2ee78c65">Relatório de encerramento do jogo salvo</string>
+  <string name="text_8184621e" formatted="false">"Dica sobre o modo de jogo ao iniciar"</string>
+  <string name="text_861f5302" formatted="false">"Renderizador"</string>
+  <string name="text_db3b7c4c" formatted="false">"Detectando a versão do OpenGL ES…"</string>
+  <string name="text_ccc3385e" formatted="false">"O jogo produz um quadro 2D pronto; o port o redimensiona, junto com as camadas da interface, por meio do OpenGL ES 3.0 ou mais recente. O Vulkan não é usado: o jogo não tem cena 3D nem shaders que se beneficiariam dele."</string>
+  <string name="text_518049e6" formatted="false">"Texturas"</string>
+  <string name="text_75337a21" formatted="false">"Os gráficos do jogo são sprites 2D (GM1 e TGX) em cores de 16 bits, usados como estão. O jogo não tem texturas comprimidas DXT ou BC, portanto não é preciso converter para ETC2 ou ASTC."</string>
+  <string name="text_a5e560fb" formatted="false">"Contador de FPS"</string>
+  <string name="text_a8e5364d" formatted="false">"Configurar a exibição de FPS"</string>
+  <string name="text_346bb78e" formatted="false">"Não foi possível detectar a versão do OpenGL ES."</string>
+  <string name="text_1b01c092" formatted="false">"A última sessão terminou com uma falha"</string>
+  <string name="text_4e37245a" formatted="false">"Relatório: "</string>
+  <string name="text_6d7cabc3" formatted="false">"Falha nativa no código do jogo (sinal %s)."</string>
+  <string name="text_c4d6a5d" formatted="false">"Falha nativa antes do primeiro quadro (sinal %s). O renderizador ou o driver gráfico pode não ter conseguido iniciar."</string>
+  <string name="text_abfff564" formatted="false">"Erro no código Java do port."</string>
+  <string name="text_f30ce3e6" formatted="false">"O jogo parou de responder e o sistema o fechou (ANR)."</string>
+  <string name="text_8820b256" formatted="false">"O sistema fechou o jogo por falta de memória."</string>
+  <string name="text_e16625a3" formatted="false">"Provavelmente o sistema fechou o jogo por falta de memória: pouco antes do fim ele avisou que a memória livre estava criticamente baixa."</string>
+  <string name="text_f8cd0c0e" formatted="false">"O jogo terminou com o código %s."</string>
+  <string name="text_c27abf3b" formatted="false">"O sistema encerrou o processo do jogo (%s)."</string>
+  <string name="text_f7813102" formatted="false">"A causa do encerramento é desconhecida: nesta versão do Android não é possível distinguir uma parada pelo usuário, um encerramento pelo sistema e uma falha."</string>
+  <string name="text_ef27e466" formatted="false">"O jogo ainda não tinha mostrado o primeiro quadro."</string>
+  <string name="text_8e7b6e79" formatted="false">"Verificando o MD5 do arquivo…"</string>
+  <string name="text_c0bf627c" formatted="false">"Não foi possível verificar o arquivo: "</string>
+  <string name="text_595127df" formatted="false">"A soma de verificação MD5 do arquivo não corresponde à indicada no nome do arquivo (%s)."</string>
+  <string name="text_813d89d4" formatted="false">"%1$s mantém o processador e o chip gráfico de um app que não está na sua lista de jogos em frequências de economia de energia; assim, até um chip topo de linha trabalha com metade da força. Isso causa travadas e quadros longos com qualquer configuração gráfica.\n\nPara o desempenho completo: %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"Registro do jogo: %s\nOs registros de sessões anteriores ficam na mesma pasta; anexe-os a um relatório de erro."</string>
+  <string name="text_58553268" formatted="false">"Jogo mais fluido no %s"</string>
+  <string name="text_a92e0da4" formatted="false">"Não mostrar novamente"</string>
+  <string name="text_834665c3" formatted="false">"Abrir %s"</string>
+  <string name="text_16ec763f" formatted="false">"Não foi possível abrir %s. Procure-o entre os apps ou nas configurações do sistema."</string>
+  <string name="text_8c538888" formatted="false">"adicione-o ao Game Turbo (app «Segurança» → Game Turbo → adicionar jogo) e reinicie o jogo."</string>
+  <string name="text_f34577ac" formatted="false">"adicione-o ao Gaming Hub (Gaming Hub → ⋮ → adicionar jogos), escolha o perfil de desempenho no Game Booster e reinicie o jogo."</string>
+  <string name="text_33e055ee" formatted="false">"adicione-o ao Assistente de jogos (Assistente de jogos → «Adicionar jogos»), ative ali o modo GT ou o modo Pro Gamer e reinicie o jogo."</string>
+  <string name="text_d35987c5" formatted="false">"adicione-o ao Ultra Game Mode (Configurações → Ultra Game Mode → adicionar jogo) e reinicie o jogo."</string>
+  <string name="text_bbc3a61a" formatted="false">"adicione-o ao Game Manager (Configurações → Apps → Game Manager → adicionar jogos) e reinicie o jogo."</string>
+  <string name="text_f4c52b99" formatted="false">"O renderizador falhou"</string>
+  <string name="text_fe2fd2de" formatted="false">"%s não pôde iniciar neste dispositivo, por isso o jogo foi interrompido. Nenhum outro renderizador foi iniciado no lugar dele."</string>
+  <string name="text_59845252" formatted="false">"Com %s, o driver gráfico parou de responder (o dispositivo GPU foi perdido), por isso o jogo foi interrompido. Nenhum outro renderizador foi iniciado no lugar dele."</string>
+  <string name="text_d009068c" formatted="false">"Detalhes: %s"</string>
+  <string name="text_5efaac46" formatted="false">"Nenhum outro renderizador está disponível neste dispositivo."</string>
+  <string name="text_2c831f2e" formatted="false">"O último início foi interrompido porque %1$s falhou: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"O OpenGL ES não pôde iniciar: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"O arquivo “%1$s”%2$s será descompactado em\n%3$s\n\nLivre: %4$s. O jogo descompactado ocupa cerca de 1 GB."</string>
+  <string name="text_f375a690" formatted="false">"A pasta “%1$s” não pode ser acessada por um caminho direto. Copiá-la para\n%2$s?"</string>
+    <string name="text_4a88b5ae">"Saída de áudio compatível"</string>
+    <string name="text_b04108f4">"Para BOOX e dispositivos com falhas no áudio. Pode aumentar a latência. Reinicie o jogo para aplicar."</string>
 </resources>

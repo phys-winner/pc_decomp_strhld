@@ -18,8 +18,12 @@ public final class NativeLibrarySelfcheck {
         File stamp = new File(target.getParentFile(), target.getName() + ".sha256");
         Files.write(stamp.toPath(), (hash + "\n").getBytes(StandardCharsets.US_ASCII));
         String valid = "libstronghold.so " + data.length + " " + hash + " 1048576 16\n";
+        File shared = new File(target.getParentFile(), "libstronghold_common.so");
+        Files.write(shared.toPath(), data);
+        write(new File(shared.getParentFile(), shared.getName() + ".sha256"), hash + "\n");
+        String common = valid.replace(target.getName(), shared.getName());
         Context context = new Context(assets, files);
-        write(index, valid);
+        write(index, common + valid);
         assert NativeLibrary.prepare(context, "stronghold").equals(target) : "Verified cache must be reused";
         File part = new File(target.getParentFile(), target.getName() + ".part");
         write(part, "interrupted unpack");
@@ -42,12 +46,15 @@ public final class NativeLibrarySelfcheck {
                 valid.replace(" " + data.length + " ", " 1073741825 "),
                 valid.replace(" " + data.length + " ", " -1 "),
                 valid.replace(" 16\n", " 2147483648\n"), new String(new char[4097]).replace('\0', 'x')}) {
-            write(index, bad);
+            write(index, common + bad);
             try {
                 NativeLibrary.prepare(context, "stronghold");
                 throw new AssertionError("Malformed native index accepted");
             } catch (IOException expected) { }
         }
+        write(index, valid);
+        try { NativeLibrary.prepare(context, "stronghold"); throw new AssertionError("Missing shared dependency accepted"); }
+        catch (IOException expected) { }
         try { NativeLibrary.prepare(context, "../other"); throw new AssertionError("Library path accepted"); }
         catch (IOException expected) { }
         System.out.println("NativeLibrary: cache/hash/build stamp, interrupted retry, malformed indices and path checks PASS");

@@ -12,6 +12,7 @@ import json
 import os
 import re
 from pathlib import Path
+from shutil import copyfile
 import subprocess
 import sys
 import time
@@ -21,9 +22,17 @@ import display_hooks
 import audio_hooks
 import fix_hooks
 import original_hooks
+import renderer_hooks
+import map_hooks
+import route_hooks
+import common_code
 import ucp
 
 ROOT = Path(__file__).resolve().parents[1]
+MAP_CODEC_SOURCES = [ROOT / name for name in (
+    "reference/pkware-blast/blast.c", "reference/pkware-blast/blast.h",
+    "reference/stormlib-pklib/implode.c", "reference/stormlib-pklib/pklib.h", "reference/stormlib-pklib/tables.c",
+)]
 MODULES = ("game", "mss", "bink")
 EDITION = "extreme"
 SDK = Path(os.environ.get("ANDROID_SDK") or os.environ.get("ANDROID_HOME") or
@@ -31,7 +40,7 @@ SDK = Path(os.environ.get("ANDROID_SDK") or os.environ.get("ANDROID_HOME") or
 NDK = Path(os.environ.get("ANDROID_NDK", SDK / "ndk/27.2.12479018"))
 TOOLCHAIN = NDK / "toolchains/llvm/prebuilt/windows-x86_64"
 CLANG = TOOLCHAIN / "bin/clang.exe"
-API = 28
+API = 26   # Android 8.0: AAudio and every other NDK symbol the port links (tools/verify_min_api.py)
 TARGET = f"aarch64-linux-android{API}"
 OUT = ROOT / "build/arm64"
 COMMON = ["--target=" + TARGET, "-fno-strict-aliasing", "-fwrapv", "-fvisibility=hidden", "-fPIC",
@@ -301,10 +310,7 @@ def direct_jump_tables(text, image):
     return b"".join(parts + [text[pos:]]) if parts else text
 
 
-def override_source(source, local_xmm):
-    """The file to compile for a generated source and its extra flags: a
-    patched copy under build/ when it defines one of NATIVE_OVERRIDES or (with
-    local_xmm) a body that uses the SSE file, and with direct jump tables."""
+def transform_source(source, local_xmm):
     original = text = source.read_bytes()
     if source.parent.name in ('classic-x86', 'game-x86'):
         text = ucp.apply(text, source.parent.name[:-len('-x86')])
@@ -320,13 +326,23 @@ def override_source(source, local_xmm):
         text, _ = audio_hooks.apply(text, module)
         text, _ = fix_hooks.apply(text, module)
         text, _ = original_hooks.apply(text, module)
+        text = renderer_hooks.apply(text, module)
+        text = map_hooks.apply(text, module)
+        text = route_hooks.apply(text, module)
         if b"goto _ljump; }" in text:
             text = direct_jump_tables(text, module_image(module))
         if local_xmm:
             text = localize_sse(text)
+    return original, text
+
+
+def override_source(source, local_xmm, leaves=None):
+    original, text = transform_source(source, local_xmm)
+    if leaves is not None:
+        text = common_code.replace_leaves(text, leaves)
     if text == original:
         return source, []
-    patched = OUT / "patched" / source.parent.name / source.name
+    patched = OUT / ("patched-app" if leaves is not None else "patched") / source.parent.name / source.name
     patched.parent.mkdir(parents=True, exist_ok=True)
     if not patched.is_file() or patched.read_bytes() != text:
         patched.write_bytes(text)
@@ -349,22 +365,46 @@ def available_modules():
     return MODULES
 
 
+def module_sources(name):
+    folder = ROOT / f"generated/{name}-x86"
+    report = json.loads((folder / "report.json").read_text())
+    files = report.get("sources")
+    if not isinstance(files, list) or not files:
+        raise SystemExit(f"{name}: report.json has no source list")
+    return [folder / f for f in files]
+
+
 def generated_sources():
-    sources = []
-    modules = available_modules()
-    for name in modules:
-        report = json.loads((ROOT / f"generated/{name}-x86/report.json").read_text())
-        files = report.get("sources")
-        if not isinstance(files, list) or not files:
-            raise SystemExit(f"{name}: report.json has no source list")
-        sources += [ROOT / f"generated/{name}-x86" / f for f in files]
+    sources = [source for name in available_modules() for source in module_sources(name)]
     dispatch = ROOT / f"generated/dispatch-{EDITION}/recomp_dispatch.c"
     if not dispatch.exists():
         raise SystemExit(f"{dispatch}: run tools/lift.py for the selected edition")
     sources.append(dispatch)
-    if EDITION != 'stronghold':
-        sources.append(ROOT / f'generated/{"classic" if EDITION == "classic" else "game"}-x86/ucp_extra.c')
+    if EDITION != "stronghold":
+        sources.append(ROOT / f"generated/{EXE_MODULE[EDITION]}-x86/ucp_extra.c")
     return sources
+
+
+def shared_engine_leaves(local_xmm):
+    sources = {name: module_sources(name) for name in common_code.ENGINES}
+    for name in ("game", "classic"):
+        sources[name].append(ROOT / f"generated/{name}-x86/ucp_extra.c")
+    transforms = [Path(__file__), Path(common_code.__file__), Path(ucp.__file__),
+                  *Path(__file__).parent.glob("*_hooks.py")]
+    inputs = [ROOT / MODULE_IMAGES[name] for name in sources]
+    inputs += [ROOT / f"generated/{name}-x86/report.json" for name in sources]
+    inputs += [ROOT / f"generated/ucp/{name}-functions.json" for name in ("game", "classic")]
+    fingerprint = header_digest(transforms + inputs + [path for files in sources.values() for path in files])
+    cache = OUT / "common/engine-plan.json"
+    if cache.is_file():
+        record = json.loads(cache.read_text(encoding="utf-8"))
+        if (record["fingerprint"], record["local_xmm"]) == (fingerprint, local_xmm):
+            return {body.encode("latin1"): mask for body, mask in record["bodies"]}
+    leaves = common_code.find_leaves(sources, lambda path: transform_source(path, local_xmm)[1])
+    record = {"fingerprint": fingerprint, "local_xmm": local_xmm,
+              "bodies": [(body.decode("latin1"), mask) for body, mask in leaves.items()]}
+    common_code.materialize(cache.with_suffix(".tmp"), json.dumps(record).encode()).replace(cache)
+    return leaves
 
 
 def host_sources():
@@ -374,19 +414,41 @@ def host_sources():
                   if p.name not in excluded and not p.name.startswith(("d3d9_", "d3dx9")))
 
 
-def ordered_link_objects(jobs, host_only):
+def host_edition_flags(edition):
+    if edition == "stronghold":
+        return ["-DSTRONGHOLD_ORIGINAL"]
+    flags = ["-Igenerated/" + EXE_MODULE[edition] + "-x86"]
+    if edition == "classic":
+        flags.append("-DSTRONGHOLD_CLASSIC")
+    return flags
+
+
+def ordered_link_objects(jobs, host_only, shared):
     """Keep the full build's compiled-source order for host-only links too."""
     inputs = [(source, obj) for source, obj, _, _ in jobs]
     if host_only:
         generated = []
         for source in generated_sources():
-            obj = OUT / "obj" / source.parent.name / (source.stem + ".o")
+            obj = generated_object(source, shared)
             if not obj.is_file():
                 raise SystemExit(f"{EDITION}: --host-only requires a complete prior native build; missing {obj}")
-            patched = OUT / "patched" / source.parent.name / source.name
+            kind = "patched-app" if shared and source.parent.name == EXE_MODULE[EDITION] + "-x86" else "patched"
+            patched = OUT / kind / source.parent.name / source.name
             generated.append((patched if patched.is_file() else source, obj))
+        if shared:
+            source = OUT / "common" / "engine_leaves.c"
+            generated.append((source, OUT / "obj/common/engine_leaves.o"))
         inputs = generated + inputs
     return [str(obj) for source, obj in sorted(inputs, key=lambda item: -item[0].stat().st_size)]
+
+
+def generated_object(source, shared):
+    module = source.parent.name
+    if shared:
+        directory = "obj/common/" + module if module in common_code.MODULES else "obj/app/" + module
+    else:
+        directory = "obj/" + module
+    return OUT / directory / (source.stem + ".o")
 
 
 def header_digest(paths):
@@ -399,12 +461,22 @@ def header_digest(paths):
 
 def compile_one(source, obj, flags, fingerprint, cache):
     rel = source.relative_to(ROOT).as_posix()
-    # Host objects differ by edition and APK/shell mode; DLL code is shared.
-    cache_key = rel + "#" + obj.parent.name if source.parent.name == "host" else rel
+    directory = obj.parent.relative_to(OUT).as_posix()
+    if directory.startswith(("obj/common", "obj/app")):
+        cache_key = rel + "#" + directory
+    else:
+        cache_key = rel + "#" + obj.parent.name if source.parent.name == "host" else rel
     entry = cache.get(cache_key)
     if entry and entry.get("fingerprint") == fingerprint and obj.is_file() and sha_file(obj) == entry.get("object_sha256"):
         return cache_key, "reused", 0.0, entry
     obj.parent.mkdir(parents=True, exist_ok=True)
+    if directory.startswith("obj/app/"):
+        prior = OUT / "obj" / obj.parent.name / obj.name
+        prior_key = rel.replace("/patched-app/", "/patched/")
+        entry = cache.get(prior_key)
+        if entry and entry.get("fingerprint") == fingerprint and prior.is_file() and sha_file(prior) == entry.get("object_sha256"):
+            copyfile(prior, obj)
+            return cache_key, "reused", 0.0, entry
     start = time.time()
     command = [str(CLANG)] + flags + ["-c", str(source), "-o", str(obj)]
     result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, errors="replace")
@@ -447,7 +519,7 @@ def main():
     # memory plainly (first location on the Redmi Note 8 Pro: 37-43 fps against
     # 33-39 with both off). The upstream modes build in their own directories
     # (build/arm64-globalregs, build/arm64-volatilemem, ...) for A/B runs.
-    global OUT, GENERATED_FLAGS, MODULES, EDITION
+    global OUT, GENERATED_FLAGS, MODULES, EDITION, _display_hook_count
     EDITION = args.edition
     MODULES = (EXE_MODULE[EDITION], "mss", "bink")
     GENERATED_FLAGS = (GENERATED_FLAGS + ([] if args.global_regs else ["-DRECOMP_LOCAL_REGS"]) +
@@ -475,28 +547,58 @@ def main():
     # A module's sources see the runtime and their own headers; the merged
     # dispatch table (last module) sees every module's headers.
     engine_headers = [ROOT / "android/host" / name for name in ("touch.h", "touch_api.h", "display.h")]
+    renderer_header = ROOT / "android/host/renderer.h"
     module_digest = {name: header_digest(runtime_headers + sorted((ROOT / f"generated/{name}-x86").glob("*.h")) +
-                                       (engine_headers if name in ("game", "classic") else []))
+                                       (engine_headers if name in ("game", "classic") else []) +
+                                       ([renderer_header] if name in renderer_hooks.CALLS else []))
                      for name in available_modules()}
     gen_digest = header_digest(runtime_headers + sorted(p for name in available_modules()
                                                         for p in (ROOT / f"generated/{name}-x86").glob("*.h")))
-    host_digest = header_digest(runtime_headers + sorted((ROOT / "android/host").glob("*.h")) +
-                                [ROOT / "reference/dlmalloc/malloc.c"] +
+    host_headers = sorted((ROOT / "android/host").glob("*.h")) + [ROOT / "reference/dlmalloc/malloc.c"] + MAP_CODEC_SOURCES
+    host_digest = header_digest(runtime_headers + host_headers +
                                 ([ROOT / f'generated/{"classic" if EDITION == "classic" else "game"}-x86/ucp_data.h'] if EDITION != 'stronghold' else []))
     jobs = []
+    common_flags = []
+    shared_host_sources = set()
+    if args.shared:
+        header = runtime_headers[0].read_bytes()
+        hidden = b'#define VOID_HIDDEN __attribute__((visibility("hidden")))'
+        if header.count(hidden) != 1:
+            raise SystemExit("Cannot prepare the common-library runtime declarations")
+        common_header = common_code.materialize(OUT / "common/recomp_types.h",
+                                                  header.replace(hidden, b"#define VOID_HIDDEN"))
+        common_flags = ["-I" + common_header.parent.as_posix()]
+        common_runtime_digest = header_digest([common_header])
+        common_host_digest = header_digest([common_header, *host_headers])
+        shared_host_sources = common_code.shared_host_sources(
+            CLANG, ROOT / "android/host", HOST_FLAGS + ["-DVOID_ANDROID_APP"],
+            [host_edition_flags(edition) for edition in EXE_MODULE])
+        print("[common] shared host units: " + ", ".join(sorted(shared_host_sources)), flush=True)
     if not args.host_only:
+        leaves = shared_engine_leaves(not args.global_regs) if args.shared else {}
+        if args.shared and not leaves:
+            raise SystemExit("No equivalent lifted engine functions found between editions")
+        _display_hook_count = 0
         _display_hooks_seen.clear()
         touch_hooks.seen.clear()
         display_hooks.seen.clear()
         audio_hooks.seen.clear()
         fix_hooks.seen.clear()
         original_hooks.seen.clear()
+        renderer_hooks.seen.clear()
+        map_hooks.seen.clear()
+        route_hooks.seen.clear()
         for source in generated_sources():
             module = source.parent.name
-            obj = OUT / "obj" / module / (source.stem + ".o")
+            obj = generated_object(source, args.shared)
+            shared_middleware = args.shared and module in common_code.MODULES
             digest = gen_digest if source.name == "recomp_dispatch.c" else module_digest[module[:-len("-x86")]]
-            source, extra = override_source(source, local_xmm=not args.global_regs)
+            source, extra = override_source(source, local_xmm=not args.global_regs,
+                                            leaves=leaves if args.shared and module == EXE_MODULE[EDITION] + "-x86" else None)
             flags = GENERATED_FLAGS + extra
+            if shared_middleware:
+                flags = common_flags + flags + ["-fvisibility=default"]
+                digest += common_runtime_digest
             fp = hashlib.sha256(json.dumps([sha_file(source), digest, compiler_sha, flags]).encode()).hexdigest()
             jobs.append((source, obj, flags, fp))
         module = EXE_MODULE[EDITION]
@@ -511,18 +613,37 @@ def main():
             missing = hooks.required(module) - hooks.seen
             if missing:
                 raise SystemExit(f"{EDITION}: missing {hooks.__name__}: {sorted(missing)}")
-    host_flags = HOST_FLAGS + (["-DVOID_ANDROID_APP"] if args.shared else [])
-    if EDITION != 'stronghold':
-        host_flags += ['-Igenerated/' + ('classic' if EDITION == 'classic' else 'game') + '-x86']
-    if EDITION == "classic":
-        host_flags += ["-DSTRONGHOLD_CLASSIC"]
-    elif EDITION == "stronghold":
-        host_flags += ["-DSTRONGHOLD_ORIGINAL"]
+        missing_audio = (audio_hooks.required("mss") | audio_hooks.required("bink")) - audio_hooks.seen
+        if missing_audio:
+            raise SystemExit(f"{EDITION}: missing native Miles output: {sorted(missing_audio)}")
+        missing_renderer = set().union(*(renderer_hooks.required(module) for module in MODULES)) - renderer_hooks.seen
+        if missing_renderer:
+            raise SystemExit(f"{EDITION}: missing native screen calls: {sorted(missing_renderer)}")
+        missing_map = map_hooks.required(module) - map_hooks.seen
+        if missing_map:
+            raise SystemExit(f"{EDITION}: missing native DCL codec: {sorted(missing_map)}")
+        if route_hooks.required(module) - route_hooks.seen:
+            raise SystemExit(f"{EDITION}: missing native reachability queue")
+        if args.shared:
+            source = common_code.leaves_source(OUT / "common/engine_leaves.c", leaves)
+            flags = common_flags + GENERATED_FLAGS + ["-fvisibility=default"]
+            fp = hashlib.sha256(json.dumps([sha_file(source), common_host_digest, compiler_sha, flags]).encode()).hexdigest()
+            jobs.append((source, OUT / "obj/common/engine_leaves.o", flags, fp))
+            counts = {mask: sum(membership == mask for membership in leaves.values())
+                      for mask in sorted(set(leaves.values()))}
+            print(f"[common] {len(leaves)} lifted bodies: " + ", ".join(
+                f"{'+'.join(name for bit, name in enumerate(common_code.ENGINES) if mask & (1 << bit))}={count}"
+                for mask, count in counts.items()), flush=True)
+    host_flags = HOST_FLAGS + (["-DVOID_ANDROID_APP"] if args.shared else []) + host_edition_flags(EDITION)
     host_dir = ("obj/host-app" if args.shared else "obj/host") + {"classic": "-classic", "stronghold": "-stronghold"}.get(EDITION, "")
     for source in host_sources():
-        obj = OUT / host_dir / (source.stem + ".o")
-        fp = hashlib.sha256(json.dumps([sha_file(source), host_digest, compiler_sha, host_flags]).encode()).hexdigest()
-        jobs.append((source, obj, host_flags, fp))
+        shared_host = source.name in shared_host_sources
+        directory = "obj/common/host" if shared_host else host_dir
+        obj = OUT / directory / (source.stem + ".o")
+        flags = common_flags + HOST_FLAGS + ["-DVOID_ANDROID_APP", "-fvisibility=default"] if shared_host else host_flags
+        digest = common_host_digest if shared_host else host_digest
+        fp = hashlib.sha256(json.dumps([sha_file(source), digest, compiler_sha, flags]).encode()).hexdigest()
+        jobs.append((source, obj, flags, fp))
     # Largest first keeps the pool busy at the end.
     jobs.sort(key=lambda j: -j[0].stat().st_size)
     start = time.time()
@@ -551,15 +672,23 @@ def main():
     print(f"compiled {compiled}, reused {reused}, failed {len(failures)} in {time.time() - start:.0f}s", flush=True)
     if failures:
         sys.exit(1)
-    objects = ordered_link_objects(jobs, args.host_only)
+    objects = ordered_link_objects(jobs, args.host_only, args.shared)
+    dependency = []
+    if args.shared:
+        common_dir = OUT / "obj/common"
+        common = sorted(Path(obj) for obj in objects if Path(obj).is_relative_to(common_dir))
+        objects = [obj for obj in objects if not Path(obj).is_relative_to(common_dir)]
+        dependency = common_code.link_common(TOOLCHAIN / "bin", CLANG, TARGET, OUT,
+                                            common, objects, sha_file, args.pgo_generate)
     response = OUT / "link.rsp"
     response.write_text("\n".join(o.replace("\\", "/") for o in objects))
     output = OUT / ({"classic": "libstronghold_classic.so", "stronghold": "libstronghold_sh.so"}.get(EDITION, "libstronghold.so")
                     if args.shared else
                     {"classic": "stronghold-classic-arm64", "stronghold": "stronghold-sh-arm64"}.get(EDITION, "stronghold-arm64"))
     link = [str(CLANG), "--target=" + TARGET, "-fuse-ld=lld", "-Wl,--gc-sections", "-Wl,-z,nostart-stop-gc", "-Wl,-z,max-page-size=16384", "-Wl,-z,common-page-size=16384",
-            "-Wl,--build-id=sha1", "@" + str(response), "-o", str(output), "-lm", "-llog", "-ldl", "-lEGL", "-lGLESv3"]
+            "-Wl,--build-id=sha1", "@" + str(response), "-o", str(output), "-lm", "-llog", "-ldl", "-lEGL", "-lGLESv3", "-lz"]
     link += ["-shared", "-landroid", "-lOpenSLES", "-laaudio", "-ljnigraphics"] if args.shared else ["-pie", "-laaudio", "-landroid"]
+    link += dependency
     if args.pgo_generate:
         link.append("-fprofile-instr-generate")
     start = time.time()
@@ -567,6 +696,10 @@ def main():
     if result.returncode:
         print(result.stderr[-6000:])
         sys.exit(1)
+    if args.shared:
+        shared = OUT / common_code.LIBRARY
+        common_code.verify_group(TOOLCHAIN / "bin", shared, [output])
+        common_code.record_link(output, shared, sha_file)
     print(f"linked {output} ({output.stat().st_size / 1e6:.1f} MB) in {time.time() - start:.0f}s")
 
 

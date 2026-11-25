@@ -11,6 +11,7 @@
 #include "edition.h"
 #include "input.h"
 #include "display.h"
+#include "renderer.h"
 #include "view_controls.h"
 #include "touch.h"
 #include "game_ui.h"
@@ -42,7 +43,7 @@
 #define PRESENT_MODE 0x00B18398u /* +D0 in a match: 1 with the bottom panel, 2 without (45EC40) */
 #define UI_PIXELS 0x00B1839Cu    /* +D4: the UI surface, menus and the bottom panel */
 #define WORLD_PIXELS 0x00B183A0u /* +D8: the 4056x2076 world raster */
-#define WORLD_SURFACE 0x00B183C8u /* +100: its DirectDraw surface (GDI text, Bink) */
+#define WORLD_SURFACE 0x00B183C8u /* screen +100: target token for text and video */
 #define RASTER_ORIGIN 0x016E93D4u /* camera +7C/+80: the view's offset inside the world raster */
 #define UI_KEY 0x00A3A538u       /* the engine's transparent colour */
 #define BOX_ORIGIN 0x00ABB980u   /* the centered 800x600 HUD box: x, then y */
@@ -51,7 +52,6 @@
 #define SPEED_NOTICE 0x00A3BBFCu /* overlay 24 (552830), at 770,9 in the original 800x600 box */
 #define HUD_BAND 128             /* panel rows the present copies from the UI surface */
 
-uint32_t void_ddraw_redirect_pixels(uint32_t surface, uint32_t pixels);
 static int notice_margin(void);
 static int in_game(void);
 static int original_hud_kind(int, int);
@@ -117,7 +117,7 @@ uint32_t stronghold_original_mode(uint32_t saved)
     return (uint32_t)chosen_mode;
 }
 
-/* DirectDraw also enumerates the chosen mode's table size: the engine's
+/* Enumerate the chosen mode's original table size. The engine's
  * availability check (45E670 -> 458CC0) knows only those, and an unknown one
  * falls back to the largest listed mode. A wide frame replaces the width only
  * afterwards (stronghold_original_dimensions); SetDisplayMode takes any size. */
@@ -219,7 +219,7 @@ int stronghold_original_edge(uint32_t stack)
  * resource list's lower rows keep the same anchor as its upper rows. Overlay items, the UI
  * tree passes and the
  * panel overhang draw into raster-shaped layer buffers pre-filled with the
- * transparent colour; their opaque raster stores, GDI text and DirectDraw
+ * transparent colour; their opaque raster stores, GDI text and native
  * blits report coverage (stronghold_display_written / _blended). Dialogs are
  * composited by the engine and lifted from the world raster afterwards. */
 typedef struct {
@@ -306,7 +306,7 @@ static int frame_geometry(void)
 static uint16_t *raster_row(uint32_t base, int y) { return GPTR(base + RASTER_PITCH * (uint32_t)(origin_y + y) + 2u * (uint32_t)origin_x); }
 
 /* Overlay items and the overhang draw into a layer: the world raster pointer
- * and its DirectDraw surface (GDI text) point at the layer buffer meanwhile. */
+ * and the text target point at the layer buffer meanwhile. */
 static void open_layer(int group)
 {
     ui_layer *l = &layers[group];
@@ -332,7 +332,7 @@ static void open_layer(int group)
         l->used = 1;
     }
     saved_pixels = MEM32(WORLD_PIXELS);
-    if (!void_ddraw_redirect_pixels(MEM32(WORLD_SURFACE), l->guest)) {
+    if (!stronghold_renderer_redirect(MEM32(WORLD_SURFACE), l->guest)) {
         static int warned;
         if (!warned++) void_log("[stronghold] world surface busy: interface stays in the world");
         return;
@@ -346,7 +346,7 @@ static void close_layer(void)
 {
     if (current < 0) return;
     MEM32(WORLD_PIXELS) = saved_pixels;
-    void_ddraw_redirect_pixels(MEM32(WORLD_SURFACE), saved_pixels);
+    stronghold_renderer_redirect(MEM32(WORLD_SURFACE), saved_pixels);
     current = -1;
     stronghold_display_capture_active = 0;
 }
@@ -366,9 +366,16 @@ void stronghold_display_blended(uint32_t address, unsigned bytes, unsigned backg
     if (right > frame_width) right = frame_width;
     if (x >= right) return;
     if (current == 1 && !resource_animation) rect_union(&top_fit, x, y, right, y + 1);
-    uint8_t *a = l->capture + (size_t)y * frame_width;
-    if (background > 255) background = 255;
-    for (int i = x; i < right; ++i) a[i] = (uint8_t)(255 - ((255 - a[i]) * background + 127) / 255);
+    uint8_t *a = l->capture + (size_t)y * frame_width + x;
+    unsigned count = (unsigned)(right - x);
+    if (!background) {
+        if (count == 1) *a = 255;
+        else if (count == 2) __builtin_memset(a, 255, 2);
+        else memset(a, 255, count);
+    } else if (background < 255) {
+        for (unsigned i = 0; i < count; ++i)
+            a[i] = (uint8_t)(255 - ((255 - a[i]) * background + 127) / 255);
+    }
     if (x < l->left) l->left = x;
     if (right > l->right) l->right = right;
     if (y < l->top) l->top = y;

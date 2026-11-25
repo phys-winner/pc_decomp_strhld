@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"Bericht konnte nicht kopiert werden"</string>
     <string name="text_c2e44cfd" formatted="false">"Nicht genug Platz: %1$s nötig, %2$s frei."</string>
     <string name="text_4186bcd5">Speicherlimit des Spiels bis 4 GB</string>
+    <string name="text_e097d8ca">Absturzüberwachung</string>
+    <string name="text_2ee78c65">Bericht zum Beenden des Spiels gespeichert</string>
+  <string name="text_8184621e" formatted="false">"Spielmodus-Hinweis beim Start"</string>
+  <string name="text_861f5302" formatted="false">"Renderer"</string>
+  <string name="text_db3b7c4c" formatted="false">"OpenGL-ES-Version wird ermittelt…"</string>
+  <string name="text_ccc3385e" formatted="false">"Das Spiel liefert ein fertiges 2D-Bild; der Port skaliert es und die Ebenen der Oberfläche mit OpenGL ES 3.0 oder neuer. Vulkan wird nicht verwendet: Das Spiel hat keine 3D-Szene und keine Shader, die davon profitieren würden."</string>
+  <string name="text_518049e6" formatted="false">"Texturen"</string>
+  <string name="text_75337a21" formatted="false">"Die Grafik des Spiels besteht aus 2D-Sprites (GM1 und TGX) in 16-Bit-Farbe, die unverändert verwendet werden. Das Spiel hat keine komprimierten DXT- oder BC-Texturen, daher ist keine Konvertierung in ETC2 oder ASTC nötig."</string>
+  <string name="text_a5e560fb" formatted="false">"FPS-Zähler"</string>
+  <string name="text_a8e5364d" formatted="false">"FPS-Anzeige anpassen"</string>
+  <string name="text_346bb78e" formatted="false">"Die OpenGL-ES-Version konnte nicht ermittelt werden."</string>
+  <string name="text_1b01c092" formatted="false">"Die letzte Sitzung endete mit einem Fehler"</string>
+  <string name="text_4e37245a" formatted="false">"Bericht: "</string>
+  <string name="text_6d7cabc3" formatted="false">"Nativer Absturz im Spielcode (Signal %s)."</string>
+  <string name="text_c4d6a5d" formatted="false">"Nativer Absturz vor dem ersten Bild (Signal %s). Möglicherweise ist der Start des Renderers oder des Grafiktreibers fehlgeschlagen."</string>
+  <string name="text_abfff564" formatted="false">"Ein Fehler im Java-Code des Ports."</string>
+  <string name="text_f30ce3e6" formatted="false">"Das Spiel reagierte nicht mehr und wurde vom System geschlossen (ANR)."</string>
+  <string name="text_8820b256" formatted="false">"Das System hat das Spiel wegen Speichermangels geschlossen."</string>
+  <string name="text_e16625a3" formatted="false">"Vermutlich hat das System das Spiel wegen Speichermangels geschlossen: Kurz vor dem Ende meldete es kritisch wenig freien Speicher."</string>
+  <string name="text_f8cd0c0e" formatted="false">"Das Spiel wurde mit Code %s beendet."</string>
+  <string name="text_c27abf3b" formatted="false">"Das System hat den Spielprozess beendet (%s)."</string>
+  <string name="text_f7813102" formatted="false">"Der Grund für das Ende ist unbekannt: Unter dieser Android-Version lassen sich ein Beenden durch den Nutzer, ein Schließen durch das System und ein Absturz nicht unterscheiden."</string>
+  <string name="text_ef27e466" formatted="false">"Das Spiel hatte noch kein erstes Bild angezeigt."</string>
+  <string name="text_8e7b6e79" formatted="false">"MD5-Prüfsumme des Archivs wird geprüft…"</string>
+  <string name="text_c0bf627c" formatted="false">"Das Archiv konnte nicht geprüft werden: "</string>
+  <string name="text_595127df" formatted="false">"Die MD5-Prüfsumme des Archivs stimmt nicht mit der Prüfsumme im Dateinamen überein (%s)."</string>
+  <string name="text_813d89d4" formatted="false">"%1$s hält Prozessor und Grafikchip einer App, die nicht in der Spieleliste steht, auf Stromspartakt, sodass selbst ein Flaggschiff-Chip nur mit halber Kraft arbeitet. Das führt bei jeder Grafikeinstellung zu Rucklern und langen Frames.\n\nFür die volle Leistung %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"Spielprotokoll: %s\nProtokolle früherer Sitzungen liegen im selben Ordner; hängen Sie sie an einen Fehlerbericht an."</string>
+  <string name="text_58553268" formatted="false">"Flüssiger spielen unter %s"</string>
+  <string name="text_a92e0da4" formatted="false">"Nicht mehr anzeigen"</string>
+  <string name="text_834665c3" formatted="false">"%s öffnen"</string>
+  <string name="text_16ec763f" formatted="false">"%s ließ sich nicht öffnen. Suchen Sie es unter den Apps oder in den Systemeinstellungen."</string>
+  <string name="text_8c538888" formatted="false">"fügen Sie es zu Game Turbo hinzu (App „Sicherheit“ → Game Turbo → Spiel hinzufügen) und starten Sie das Spiel neu."</string>
+  <string name="text_f34577ac" formatted="false">"fügen Sie es zu Gaming Hub hinzu (Gaming Hub → ⋮ → Spiele hinzufügen), wählen Sie in Game Booster das Leistungsprofil und starten Sie das Spiel neu."</string>
+  <string name="text_33e055ee" formatted="false">"fügen Sie es zum Spielassistenten hinzu (Spielassistent → „Spiele hinzufügen“), schalten Sie dort den GT-Modus oder den Pro Gamer-Modus ein und starten Sie das Spiel neu."</string>
+  <string name="text_d35987c5" formatted="false">"fügen Sie es zum Ultra Game Mode hinzu (Einstellungen → Ultra Game Mode → Spiel hinzufügen) und starten Sie das Spiel neu."</string>
+  <string name="text_bbc3a61a" formatted="false">"fügen Sie es zum Game Manager hinzu (Einstellungen → Apps → Game Manager → Spiele hinzufügen) und starten Sie das Spiel neu."</string>
+  <string name="text_f4c52b99" formatted="false">"Der Renderer ist ausgefallen"</string>
+  <string name="text_fe2fd2de" formatted="false">"%s konnte auf diesem Gerät nicht starten, daher wurde das Spiel beendet. An seiner Stelle wurde kein anderer Renderer gestartet."</string>
+  <string name="text_59845252" formatted="false">"Mit %s reagierte der Grafiktreiber nicht mehr (das GPU-Gerät ging verloren), daher wurde das Spiel beendet. An seiner Stelle wurde kein anderer Renderer gestartet."</string>
+  <string name="text_d009068c" formatted="false">"Details: %s"</string>
+  <string name="text_5efaac46" formatted="false">"Auf diesem Gerät ist kein anderer Renderer verfügbar."</string>
+  <string name="text_2c831f2e" formatted="false">"Der letzte Start wurde beendet, weil %1$s ausfiel: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"OpenGL ES konnte nicht starten: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"Das Archiv „%1$s“%2$s wird entpackt nach\n%3$s\n\nFrei: %4$s. Das entpackte Spiel belegt etwa 1 GB."</string>
+  <string name="text_f375a690" formatted="false">"Auf den Ordner „%1$s“ gibt es keinen direkten Zugriff über einen Pfad. Nach\n%2$s kopieren?"</string>
+    <string name="text_4a88b5ae">"Kompatible Audioausgabe"</string>
+    <string name="text_b04108f4">"Für BOOX und Geräte mit Tonaussetzern. Kann die Latenz erhöhen. Wird nach einem Neustart des Spiels angewendet."</string>
 </resources>

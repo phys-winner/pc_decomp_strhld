@@ -1,5 +1,5 @@
 /* AMD FidelityFX Super Resolution 1.0 (EASU upscaling + RCAS sharpening) as
- * GLSL ES 3.00 sources for the presenter (ddraw_present.c). A port of the
+ * GLSL ES 3.00 sources for the presenter. A port of the
  * packed 16-bit paths FsrEasuH() and FsrRcasH() of ffx_fsr1.h
  * v1.20210629 (https://github.com/GPUOpen-Effects/FidelityFX-FSR), keeping
  * AMD's structure, constants and names. Differences, all forced by GLSL ES:

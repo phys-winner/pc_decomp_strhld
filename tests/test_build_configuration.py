@@ -12,6 +12,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
+import common_code
+
 
 def load_builder(name, environment):
     with patch.dict(os.environ, environment, clear=True), patch.object(Path, "home", return_value=Path("test-home")):
@@ -22,6 +24,78 @@ def load_builder(name, environment):
 
 
 class BuildConfigurationTests(unittest.TestCase):
+    def test_common_engine_keeps_pair_only_bodies_and_edition_entry_points(self):
+        def body(address, label, operand, callee):
+            return b"""void sub_%s(void) {
+    RECOMP_ENTER(0x%su);
+    goto L_%s;
+L_%s:
+    eax = MEM32(%s);
+    RECOMP_CALL(sub_%s);
+}
+""" % (address, address, label, label, operand, callee)
+
+        game = body(b"00401000", b"00401004", b"0x501234", b"00408000")
+        classic = body(b"00411000", b"00411008", b"0x501234", b"00408000")
+        stronghold = body(b"00421000", b"0042100C", b"0x501238", b"00408000")
+        sources = {name: [name] for name in common_code.ENGINES}
+        patched = dict(zip(sources, (game, classic, stronghold)))
+        leaves = common_code.find_leaves(sources, patched.__getitem__)
+        self.assertEqual(list(leaves.values()), [0b011])
+        shared, = leaves
+        name = common_code.leaf_name(shared)
+        self.assertIn(b"goto L_0;", shared)
+        self.assertIn(name + b"(0x00401000u, sub_00408000);", common_code.replace_leaves(game, leaves))
+        self.assertIn(name + b"(0x00411000u, sub_00408000);", common_code.replace_leaves(classic, leaves))
+        self.assertEqual(common_code.replace_leaves(stronghold, leaves), stronghold)
+        with tempfile.TemporaryDirectory() as directory:
+            generated = common_code.leaves_source(Path(directory) / "shared.c", leaves).read_bytes()
+        self.assertIn(b"RECOMP_CALL(callee_0);", generated)
+        self.assertIn(b"MEM32(0x501234);", generated)
+        self.assertNotIn(b"sub_00408000", generated)
+        with patch.object(common_code, "LOCAL_ENGINE_BODIES", {name}):
+            self.assertEqual(common_code.find_leaves(sources, patched.__getitem__), {})
+
+    def test_common_host_checks_each_edition(self):
+        def preprocess(command):
+            name = Path(command[-1]).name
+            if name == "different.c" and "-DSTRONGHOLD_ORIGINAL" in command:
+                return b"edition-specific code"
+            return name.encode()
+
+        with patch.object(common_code, "HOST_CANDIDATES", ("same.c", "different.c")), \
+             patch.object(common_code.subprocess, "check_output", side_effect=preprocess):
+            selected = common_code.shared_host_sources("clang", ROOT, ["-O2"],
+                                                       [[], ["-DSTRONGHOLD_CLASSIC"], ["-DSTRONGHOLD_ORIGINAL"]])
+        self.assertEqual(selected, common_code.HOST | {"same.c"})
+
+    def test_common_link_records_reject_mixed_packages(self):
+        import hashlib
+
+        def sha(path):
+            return hashlib.sha256(path.read_bytes()).hexdigest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shared = root / common_code.LIBRARY
+            editions = [root / name for name in ("libstronghold.so", "libstronghold_classic.so", "libstronghold_sh.so")]
+            for library in [shared, *editions]:
+                library.write_bytes(library.name.encode())
+            stamp = root / "common/linked.sha256"
+            stamp.parent.mkdir()
+            stamp.write_text("0" * 64 + " " + sha(shared))
+            for edition in editions:
+                common_code.record_link(edition, shared, sha)
+            self.assertEqual(common_code.verify_link_records(shared, editions, sha),
+                             {library.name: sha(library) for library in [shared, *editions]})
+            stamp.write_text("1" * 64 + " " + sha(shared))
+            common_code.record_link(editions[0], shared, sha)
+            with self.assertRaisesRegex(ValueError, "does not match the common link records"):
+                common_code.verify_link_records(shared, editions, sha)
+            shared.write_bytes(b"another common build")
+            with self.assertRaisesRegex(ValueError, "does not match the common link records"):
+                common_code.verify_link_records(shared, editions, sha)
+
     def test_sdk_settings_match_between_builders(self):
         for environment, expected in (
             ({}, Path("test-home/AppData/Local/Android/Sdk")),
@@ -83,11 +157,11 @@ class BuildConfigurationTests(unittest.TestCase):
             expected=[str(native.OUT/"obj/game-x86"/(name+".o")) for name in ("a","b","c")]
             expected += [str(job[1]) for job in host_jobs]+[str(native.OUT/"obj/game-x86/d.o")]
             with patch.object(native,"generated_sources",return_value=generated):
-                self.assertEqual(native.ordered_link_objects(full_jobs,False),expected)
-                self.assertEqual(native.ordered_link_objects(host_jobs,True),expected)
+                self.assertEqual(native.ordered_link_objects(full_jobs,False,False),expected)
+                self.assertEqual(native.ordered_link_objects(host_jobs,True,False),expected)
                 (native.OUT/"obj/game-x86/d.o").unlink()
                 with self.assertRaisesRegex(SystemExit,"requires a complete prior native build; missing"):
-                    native.ordered_link_objects(host_jobs,True)
+                    native.ordered_link_objects(host_jobs,True,False)
 
     def test_ignore_rules_keep_private_files_out(self):
         private = ["port.json", "STATE.md", ".env", "originals/game.dat", "generated/game-x86/game.c",

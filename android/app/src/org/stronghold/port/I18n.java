@@ -36,6 +36,14 @@ final class I18n {
         int id=current.getIdentifier(key(source),"string","org.stronghold.port");
         return id==0?source:current.getString(id);
     }
+    /** A text of the shared launcher base (its Russian column is the key) in one of this port's
+     *  eleven languages; the base's own column when this build has no resource for it. */
+    static String shared(String russian,String fallback) {
+        Resources current=resources;
+        if(current==null)return fallback;
+        int id=current.getIdentifier(key(russian),"string","org.stronghold.port");
+        return id==0?fallback:current.getString(id);
+    }
     static void choose(Activity activity,Runnable changed) {
         String[] labels=new String[LANGUAGES.length];labels[0]=t("Язык устройства");
         for(int i=1;i<labels.length;i++) {

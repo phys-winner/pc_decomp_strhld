@@ -13,7 +13,7 @@
 #define SH_PBUFFER_WIDTH 2340
 #define SH_PBUFFER_HEIGHT 1080
 #ifndef PRESENTER_SOURCE
-#define PRESENTER_SOURCE "../android/host/ddraw_present.c"
+#define PRESENTER_SOURCE "../android/host/renderer_present.c"
 #endif
 #include PRESENTER_SOURCE
 #include <assert.h>
@@ -29,6 +29,9 @@ const char *void_data_dir(void){return "/data/local/tmp/gfx-harness";}
 uint64_t void_monotonic_ns(void){struct timespec ts;clock_gettime(CLOCK_MONOTONIC,&ts);return (uint64_t)ts.tv_sec*1000000000ull+ts.tv_nsec;}
 void void_thunk_stats(uint32_t frame){(void)frame;}
 void stronghold_perf_frame_end(void){}
+static int driver_waiting,driver_waits;
+void void_blocking_begin(void){assert(!driver_waiting);driver_waiting=1;++driver_waits;}
+void void_blocking_end(void){assert(driver_waiting);driver_waiting=0;}
 
 /* display.c, as the presenter sees it */
 static stronghold_frame test_frame;
@@ -97,7 +100,7 @@ static uint8_t *window_rgba;
 static uint16_t *world_px,*layer_px[SH_UI_LAYERS];
 static uint8_t *layer_cov[SH_UI_LAYERS];
 
-static void present_test(void){static uint16_t dummy[4];void_ddraw_present_pixels((uint8_t *)dummy,FW,FH,FW*2,16);}
+static void present_test(void){static uint16_t dummy[4];stronghold_renderer_present_pixels((uint8_t *)dummy,FW,FH,FW*2,16);}
 static void read_window(void)
 {
     static uint8_t *raw;if(!raw)raw=malloc((size_t)W*H*4);
@@ -141,14 +144,14 @@ static void raw_frame_check(void)
     static uint16_t pixels[64*48];
     for(int y=0;y<48;y++)for(int x=0;x<64;x++)pixels[y*64+x]=y<24?(x<32?0xF800:0x07E0):(x<32?0x001F:0xFFFF);
     test_layered=0;t_ui=SH_FILTER_BILINEAR;overlay_count=0;
-    void_ddraw_present_pixels((uint8_t *)pixels,64,48,128,16);read_window();
+    stronghold_renderer_present_pixels((uint8_t *)pixels,64,48,128,16);read_window();
     assert(overlay_count==1&&overlay_groups[0]==-1);
     /* fit 22.5: 1440x1080 at x 450 */
     const int xy[5][2]={{810,270},{1530,270},{810,810},{1530,810},{100,540}};
     const int expected[5][3]={{255,0,0},{0,255,0},{0,0,255},{255,255,255},{0,0,0}};
     for(int i=0;i<5;i++)for(int c=0;c<3;c++)assert(abs(at(xy[i][0],xy[i][1])[c]-expected[i][c])<=3);
     for(int mode=SH_FILTER_PIXELS;mode<=SH_FILTER_FSR;mode++){
-        t_ui=mode;void_ddraw_present_pixels((uint8_t *)pixels,64,48,128,16);read_window();
+        t_ui=mode;stronghold_renderer_present_pixels((uint8_t *)pixels,64,48,128,16);read_window();
         for(int i=0;i<5;i++)for(int c=0;c<3;c++)assert(abs(at(xy[i][0],xy[i][1])[c]-expected[i][c])<=3);
     }
     puts("frames without composition: orientation, letterbox, all four UI filters, overlay group -1 PASS");
@@ -607,6 +610,7 @@ int main(int argc,char **argv)
     glow_check();
 
     timing_check();
+    assert(driver_waits>0&&!driver_waiting);
     puts("GPU presenter harness: PASS");
     return 0;
 }

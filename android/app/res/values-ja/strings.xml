@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"レポートをコピーできませんでした"</string>
     <string name="text_c2e44cfd" formatted="false">"空き容量が不足しています。必要：%1$s、空き：%2$s。"</string>
     <string name="text_4186bcd5">ゲームのメモリ上限を4 GBに拡張</string>
+    <string name="text_e097d8ca">クラッシュ監視</string>
+    <string name="text_2ee78c65">ゲーム終了レポートを保存しました</string>
+  <string name="text_8184621e" formatted="false">"起動時にゲームモードのヒントを表示"</string>
+  <string name="text_861f5302" formatted="false">"レンダラー"</string>
+  <string name="text_db3b7c4c" formatted="false">"OpenGL ES のバージョンを確認中…"</string>
+  <string name="text_ccc3385e" formatted="false">"ゲームは完成した 2D フレームを出力し、ポートがそれとインターフェースのレイヤーを OpenGL ES 3.0 以降で拡大表示します。Vulkan は使用しません。このゲームには Vulkan で速くなる 3D シーンやシェーダーがないためです。"</string>
+  <string name="text_518049e6" formatted="false">"テクスチャ"</string>
+  <string name="text_75337a21" formatted="false">"ゲームのグラフィックは 16 ビットカラーの 2D スプライト（GM1 と TGX）で、そのまま使用されます。圧縮された DXT や BC のテクスチャはないため、ETC2 や ASTC への変換は不要です。"</string>
+  <string name="text_a5e560fb" formatted="false">"FPS カウンター"</string>
+  <string name="text_a8e5364d" formatted="false">"FPS 表示の設定"</string>
+  <string name="text_346bb78e" formatted="false">"OpenGL ES のバージョンを確認できませんでした。"</string>
+  <string name="text_1b01c092" formatted="false">"前回のセッションは異常終了しました"</string>
+  <string name="text_4e37245a" formatted="false">"レポート: "</string>
+  <string name="text_6d7cabc3" formatted="false">"ゲームコードでネイティブクラッシュが発生しました（シグナル %s）。"</string>
+  <string name="text_c4d6a5d" formatted="false">"最初のフレームの前にネイティブクラッシュが発生しました（シグナル %s）。レンダラーまたはグラフィックドライバーの起動に失敗した可能性があります。"</string>
+  <string name="text_abfff564" formatted="false">"ポートの Java コードでエラーが発生しました。"</string>
+  <string name="text_f30ce3e6" formatted="false">"ゲームが応答しなくなり、システムによって終了されました（ANR）。"</string>
+  <string name="text_8820b256" formatted="false">"メモリ不足のため、システムがゲームを終了しました。"</string>
+  <string name="text_e16625a3" formatted="false">"メモリ不足のため、システムがゲームを終了した可能性があります。終了の直前に、空きメモリが極端に少ないという通知がありました。"</string>
+  <string name="text_f8cd0c0e" formatted="false">"ゲームはコード %s で終了しました。"</string>
+  <string name="text_c27abf3b" formatted="false">"システムがゲームのプロセスを終了しました（%s）。"</string>
+  <string name="text_f7813102" formatted="false">"終了の原因は不明です。この Android バージョンでは、ユーザーによる停止、システムによる終了、クラッシュを区別できません。"</string>
+  <string name="text_ef27e466" formatted="false">"ゲームは最初のフレームを表示する前に終了しました。"</string>
+  <string name="text_8e7b6e79" formatted="false">"アーカイブの MD5 を確認中…"</string>
+  <string name="text_c0bf627c" formatted="false">"アーカイブを確認できませんでした: "</string>
+  <string name="text_595127df" formatted="false">"アーカイブの MD5 チェックサムが、ファイル名に含まれるチェックサム（%s）と一致しません。"</string>
+  <string name="text_813d89d4" formatted="false">"%1$s は、ゲームの一覧にないアプリのプロセッサとグラフィックチップを省電力の周波数に抑えるため、フラッグシップのチップでも半分の力しか出せません。その結果、どのグラフィック設定でもカクつきや長いフレームが発生します。\n\n本来の性能を引き出すには: %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"ゲームのログ: %s\n以前のセッションのログも同じフォルダーにあります。不具合の報告に添付してください。"</string>
+  <string name="text_58553268" formatted="false">"%s で快適にプレイ"</string>
+  <string name="text_a92e0da4" formatted="false">"今後表示しない"</string>
+  <string name="text_834665c3" formatted="false">"%s を開く"</string>
+  <string name="text_16ec763f" formatted="false">"%s を開けませんでした。アプリの一覧またはシステム設定から探してください。"</string>
+  <string name="text_8c538888" formatted="false">"このゲームを Game Turbo に追加し（「セキュリティ」アプリ → Game Turbo → ゲームを追加）、ゲームを再起動してください。"</string>
+  <string name="text_f34577ac" formatted="false">"このゲームを Gaming Hub に追加し（Gaming Hub → ⋮ → ゲームを追加）、Game Booster でパフォーマンス優先のプロファイルを選んでから、ゲームを再起動してください。"</string>
+  <string name="text_33e055ee" formatted="false">"このゲームをゲームアシスタントに追加し（ゲームアシスタント →「ゲームを追加」）、そこで GT モードまたは Pro Gamer モードをオンにしてから、ゲームを再起動してください。"</string>
+  <string name="text_d35987c5" formatted="false">"このゲームを Ultra Game Mode に追加し（設定 → Ultra Game Mode → ゲームを追加）、ゲームを再起動してください。"</string>
+  <string name="text_bbc3a61a" formatted="false">"このゲームを Game Manager に追加し（設定 → アプリ → Game Manager → ゲームを追加）、ゲームを再起動してください。"</string>
+  <string name="text_f4c52b99" formatted="false">"レンダラーが失敗しました"</string>
+  <string name="text_fe2fd2de" formatted="false">"%sはこのデバイスで起動できなかったため、ゲームを停止しました。代わりに別のレンダラーは起動していません。"</string>
+  <string name="text_59845252" formatted="false">"%sでグラフィックドライバーが応答しなくなった（GPUデバイスが失われた）ため、ゲームを停止しました。代わりに別のレンダラーは起動していません。"</string>
+  <string name="text_d009068c" formatted="false">"詳細: %s"</string>
+  <string name="text_5efaac46" formatted="false">"このデバイスで使える他のレンダラーはありません。"</string>
+  <string name="text_2c831f2e" formatted="false">"前回の起動は%1$sの失敗により停止しました: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"OpenGL ESを起動できませんでした: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"アーカイブ「%1$s」%2$sを次の場所に展開します:\n%3$s\n\n空き容量: %4$s。展開後のゲームは約 1 GB です。"</string>
+  <string name="text_f375a690" formatted="false">"フォルダ「%1$s」にはパスで直接アクセスできません。次の場所にコピーしますか?\n%2$s"</string>
+    <string name="text_4a88b5ae">"互換音声出力"</string>
+    <string name="text_b04108f4">"BOOXや音が途切れる端末向けです。遅延が増える場合があります。ゲームを再起動すると適用されます。"</string>
 </resources>

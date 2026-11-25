@@ -18,7 +18,7 @@ int void_vm_readable(uint32_t address, uint32_t size)
 uint32_t void_vm_alloc(uint32_t address, uint32_t size, uint32_t type, uint32_t protect)
 { (void)address; (void)size; (void)type; (void)protect; abort(); }
 static int redirects;
-uint32_t void_ddraw_redirect_pixels(uint32_t surface, uint32_t pixels)
+uint32_t stronghold_renderer_redirect(uint32_t surface, uint32_t pixels)
 { (void)surface; (void)pixels; ++redirects; return 1; }
 
 static void before_image_commit(void)

@@ -28,6 +28,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
     }
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        LauncherActivity.keepCurrentTask(this);
         I18n.apply(this);
         /* Like the launcher: the backdrop also fills the camera cutout and bars,
          * while the action bar and list keep clear of them. */
@@ -74,7 +75,7 @@ public abstract class SettingsActivity extends PreferenceActivity {
         Preference launcher = new Preference(this); launcher.setTitle(I18n.t("Лаунчер и папки игры")); home.addPreference(launcher);
         launcher.setOnPreferenceClickListener(item -> {
             startActivity(new Intent(this,LauncherActivity.class).putExtra("showLauncher",true).putExtra("edition",edition())
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)); return true;
+                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP)); return true;
         });
     }
     private void crusaderGraphics(PreferenceGroup graphics) {
@@ -113,6 +114,8 @@ public abstract class SettingsActivity extends PreferenceActivity {
         item.setSummary(item instanceof ListPreference ? "%s\n" + description.replace("%", "%%") : description);
     }
     private void gameSettings() {
+        toggle(audio,"compatAudio",I18n.t("Совместимый вывод звука"),false);
+        describe("compatAudio",I18n.t("Для BOOX и устройств с прерыванием звука. Может увеличить задержку. Применяется после перезапуска игры."));
         int minimum = GameFiles.original(edition()) ? 10 : 20;
         int[] speeds = new int[(90-minimum)/5+1];
         for(int i=0;i<speeds.length;i++) speeds[i]=minimum+i*5;

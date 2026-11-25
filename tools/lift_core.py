@@ -233,9 +233,19 @@ def complete_eh_owner(decoder, function, imports):
         reachable = {i.address: i for b in catch.blocks.values() for i in b.instructions}
         ends = {i.end_address: i for i in reachable.values()}
         for instruction in reachable.values():
-            previous = ends.get(instruction.address)
-            if instruction.is_ret and previous is not None and previous.mnemonic == "mov" and previous.op_str.startswith("eax, 0x"):
-                returns.add(int(previous.op_str[5:], 16))
+            if not instruction.is_ret:
+                continue
+            cursor = instruction
+            for _ in range(4):
+                previous = ends.get(cursor.address)
+                if previous is None:
+                    break
+                if previous.mnemonic == "mov" and previous.op_str.startswith("eax, 0x"):
+                    returns.add(int(previous.op_str[5:], 16))
+                    break
+                if previous.is_call or previous.is_jump or previous.mnemonic in ("int3", "hlt"):
+                    break
+                cursor = previous
     # The vendor scanner can walk linearly past a RET. Require a reachable RET
     # predecessor in the actual named catch CFG before trusting its return VA.
     verified = candidates & returns

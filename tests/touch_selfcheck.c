@@ -7,7 +7,7 @@
 
 ptrdiff_t g_mem_base=(ptrdiff_t)VOID_GUEST_BASE;
 static int guest_calls, picks, clears, groups, context_calls, orders, selections;
-static int operation, serial, context_serial, pick_serial, input_events;
+static int operation, order_context, serial, context_serial, pick_serial, input_events;
 static int button_down,button_up;
 static int pause_closes,advantage_value,advantage_calls;
 static int scroll_min,scroll_max,scroll_current,scroll_refresh,scroll_commit,scroll_wheel;
@@ -52,6 +52,7 @@ uint32_t void_call_guest_this(uint32_t fn,uint32_t self,int n,const uint32_t *ar
     if(fn==KEEP_STATE){assert(self==KEEP_OWNER&&n==0);return (uint32_t)keep_state;}
     if(fn==A(0x4E8DD0,0x4E9180)){MEM32(MAP)=1;return 0;}
     if(fn==PICK){++picks;pick_serial=serial;return 1;}
+    if(fn==SELECTED_UNIT){assert(self==UNITS&&n==1&&args[0]==1);return 1;}
     if(fn==CLEAR){++clears;return 0;}
     if(fn==CLEAR_GROUP){++groups;return 0;}
     if(fn==INSPECT&&stronghold_touch_cancel()) {++cancels;MEM32(BUILD)=0;return 0;}
@@ -60,7 +61,7 @@ uint32_t void_call_guest_this(uint32_t fn,uint32_t self,int n,const uint32_t *ar
         if(!context_serial)context_serial=serial;
         MEM32(A(0x2125870,0x2BB8D50))=operation;
         if(stronghold_touch_selection())++selections;
-        else if(stronghold_touch_order(2))++orders;
+        else if(stronghold_touch_order(order_context))++orders;
     }
     return 0;
 }
@@ -111,6 +112,7 @@ static void fixture(int target_operation)
     MEM16(UNITS+1168+1706)=1;
     guest_calls=picks=clears=groups=context_calls=orders=selections=serial=context_serial=pick_serial=0;
     operation=target_operation;
+    order_context=2;
 }
 
 static void box_receiver_checks(void)
@@ -439,10 +441,31 @@ int main(void)
     assert(stronghold_touch_ui_x(123)==123&&stronghold_touch_ui_y(456)==456);
     /* The ordinary same-owner target is not selected before the engine has
      * evaluated a specific context action (original operation3/queue36). */
-    fixture(3);stronghold_touch_after_world();
-    assert(context_calls==2&&orders==1&&picks==0&&clears==0&&selections==0);
-    fixture(4);stronghold_touch_after_world();
-    assert(context_calls==2&&orders==1&&picks==0&&clears==0&&selections==0);
+    const int interactions[]={3,4,6};
+    for (unsigned i=0;i<sizeof interactions/sizeof *interactions;i++) {
+        fixture(interactions[i]);stronghold_touch_after_world();
+        assert(context_calls==2&&orders==1&&picks==0&&clears==0&&selections==0);
+    }
+    for (uint32_t flag=0x38;flag<=0x40;flag+=8) {
+        fixture(-1);order_context=1;MEM32(MAP+flag)=1;
+        stronghold_touch_after_world();
+        assert(context_calls==2&&orders==1&&picks==0&&clears==0&&selections==0);
+        MEM32(MAP+flag)=0;
+    }
+    fixture(-1);order_context=1;stronghold_touch_after_world();
+    assert(orders==0&&picks==1&&selections==1);
+    const uint32_t wall = 39168;
+    MEM32(MAP + 0x70) = wall;
+    for (int test = 0; test < 5; ++test) {
+        fixture(-1);order_context=4;
+        MEM32(MAP + 0x60) = test == 4 ? wall + 1 : wall;
+        MEM32(TILE_FLAGS + wall * 4) = test == 3 ? 0 : 0x100;
+        MEM8(TILE_OWNER + wall) = test == 2 ? 0 : 3;
+        MEM16(UNITS + 1168 + 1698) = test == 1 ? 58 : 73;
+        stronghold_touch_after_world();
+        assert(orders == (test == 0) && picks == (test != 0) && selections == (test != 0));
+    }
+    MEM32(MAP + 0x60) = MEM32(MAP + 0x70) = 0;
     fixture(0);stronghold_touch_after_world();
     assert(context_calls==2&&orders==0&&picks==1&&clears==1&&groups==1&&selections==1);
     assert(context_serial<pick_serial);

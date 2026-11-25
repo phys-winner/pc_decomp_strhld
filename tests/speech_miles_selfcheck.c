@@ -1,4 +1,4 @@
-/* Real lifted Miles -> Win32 HLE mixer -> memory capture; no Android sink/UI.
+/* Real lifted Miles -> native PCM driver -> memory capture.
  * Usage: speech-miles-selfcheck PREF42 BURST_MS OUTPUT_DIR [MODE]
  * MODE: 0 normal, 1 close stream at EOS, 2 finish helper then driver close
  * after 20 ms, 3 immediate driver close (negative control),
@@ -87,10 +87,11 @@ int main(int argc, char **argv)
     if (!void_guest_reserve()) return 66;
     void_threads_init();
     void_dispatch_init();
-    if (!void_files_init("/sdcard/Stronghold/game", argv[3])) return 67;
+    const char *game = getenv("STRONGHOLD_AUDIO_TEST_GAME");
+    if (!void_files_init(game ? game : "/sdcard/Stronghold/game", argv[3])) return 67;
     void void_files_std_init(void);
     void_files_std_init();
-    if (!void_modules_init("/sdcard/Stronghold/lifted")) return 68;
+    if (!void_modules_init(game ? game : "/sdcard/Stronghold/lifted")) return 68;
     void_machine_enter();
     uint32_t module = void_module_load("Mss32.dll");
     if (module != 0x21100000u) return 69;
@@ -111,11 +112,11 @@ int main(int argc, char **argv)
     MEM16(format) = 1; MEM16(format + 2) = 2;
     MEM32(format + 4) = 44100; MEM32(format + 8) = 176400;
     MEM16(format + 12) = 4; MEM16(format + 14) = 16;
+    uint32_t preference[] = {42, pref};
+    uint32_t previous = void_call_guest(set_pref, 2, preference, 1);
     uint32_t args[4] = { driver_out, 0, 0xFFFFFFFFu, format };
     if (void_call_guest(open, 4, args, 1) || !MEM32(driver_out)) void_fatal("Miles driver failed");
     uint32_t driver = MEM32(driver_out);
-    args[0] = 42; args[1] = pref;
-    uint32_t previous = void_call_guest(set_pref, 2, args, 1);
     void_log("[speech] pref42 %u -> %u, fake sink %u ms, driver %08X, mode %d", previous, pref, burst_ms, driver, mode);
     uint32_t policy_manager = 0;
     if (mode >= 4) {
@@ -138,7 +139,7 @@ int main(int argc, char **argv)
             args[0]=training;void_call_guest(close_stream,1,args,1);
             args[0]=driver;void_call_guest(close_driver,1,args,1);
             void_call_guest(shutdown,0,NULL,1);void_machine_leave();
-            void void_dsound_shutdown(void);void_dsound_shutdown();
+            void void_audio_shutdown(void);void_audio_shutdown();
             return 0;
         }
         stronghold_audio_quit_request(policy_manager);
@@ -147,9 +148,9 @@ int main(int argc, char **argv)
             void_fatal("Quit failed to replace protected training %.1f ms",delay);
         void_log("[speech-policy] explicit Quit replaced training %.3f ms PASS",delay);
         void_gfree(training_path);
-        /* Fixture isolation: let already mixed training PCM leave the ring.
+        /* Fixture isolation: let already mixed training PCM leave the FIFO.
          * This is not a production wait or the menu transition under test. */
-        wait_unlocked(150);
+        wait_unlocked(pref * 9 + 75);
     }
     const char *names[] = { "game_paused.wav", "game_running.wav", "general_quitgame.wav" };
     for (unsigned i = 0; i < 3; ++i) {
@@ -158,7 +159,6 @@ int main(int argc, char **argv)
             args[0] = driver_out; args[1] = 0; args[2] = 0xFFFFFFFFu; args[3] = format;
             if (void_call_guest(open, 4, args, 1) || !MEM32(driver_out)) void_fatal("Miles reopen failed");
             driver = MEM32(driver_out);
-            args[0] = 42; args[1] = pref; void_call_guest(set_pref, 2, args, 1);
         }
         char filename[256];
         snprintf(filename, sizeof filename, "fx\\speech\\%s", names[i]);
@@ -229,6 +229,8 @@ int main(int argc, char **argv)
         if (!f || fwrite(capture, 4, frames, f) != frames || fclose(f)) void_fatal("PCM write failed");
         void_log("[speech] %s state %u eos_frame %u captured %u overflow %d output %s", names[i], state, eos_frame, frames, lost, output);
         if (lost) return 70;
+        if (mode != 3 && mode != 6 && (state == 4 || !frames))
+            void_fatal("speech did not reach EOS with PCM: %s", names[i]);
         if (!close_at_eos && !final_cleanup) void_call_guest(close_stream, 1, args, 1);
         void_gfree(path);
         wait_unlocked(100);
@@ -236,8 +238,8 @@ int main(int argc, char **argv)
     if (!final_cleanup) { args[0] = driver; void_call_guest(close_driver, 1, args, 1); }
     void_call_guest(shutdown, 0, NULL, 1);
     void_machine_leave();
-    void void_dsound_shutdown(void);
-    void_dsound_shutdown();
+    void void_audio_shutdown(void);
+    void_audio_shutdown();
     void_log("[speech] PASS capture completed, no AAudio backend");
     return 0;
 }

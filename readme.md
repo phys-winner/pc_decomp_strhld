@@ -14,13 +14,25 @@ respective owners.
 
 ## Status and features
 
-Current application version: **1.1-release**. All three editions are packaged into
+Current application version: **1.2-release**. All three editions are packaged into
 one APK, with separate Android processes, settings and save directories.
 
 - The original game logic is translated ahead of time with
   [pcrecomp](https://github.com/sp00nznet/pcrecomp), then compiled by the Android NDK.
-- Win32, DirectDraw, DirectSound, input, filesystem and DirectPlay compatibility
-  are provided by the native host. Presentation uses OpenGL ES 3.0.
+- The editions load one shared ARM64 library for Miles, Bink, native map
+  decompression, equivalent lifted engine functions and matching native host
+  modules. The build compares each candidate's preprocessed source across all
+  three editions. The PE loader looks up Win32 exports in both libraries.
+  Each edition owns its guest state and preserves its original function
+  addresses for diagnostics.
+- The native host provides Win32, input, filesystem and DirectPlay.
+  The screen backend connects the games' RGB565 buffers directly to OpenGL ES.
+  The original terrain and sprite rasterizers run as statically recompiled ARM64 code.
+- The native Miles output driver sends mixed PCM to a low-latency Android AAudio
+  callback. An optional per-edition Compatible audio output setting uses OpenSL ES
+  for BOOX and devices with interrupted audio; it takes effect after restarting
+  the game and can increase latency. Music, effects, voices and Bink videos use
+  the original Miles mixer.
 - Touch controls support unit selection, commands, camera movement, construction
   and the original interface. Mouse, keyboard and gamepad input are supported.
 - Each on-screen command can be moved and resized independently in a paused
@@ -41,6 +53,30 @@ one APK, with separate Android processes, settings and save directories.
   four times faster than in 0.22.
 - The launcher supports selecting a game folder or importing a ZIP, choosing an
   edition, graphics and audio settings, and returning to the last played game.
+- Crash monitoring is enabled by default. The launcher Diagnostics view can copy
+  the latest report, also saved as `last-crash.txt` in the edition's userdata
+  directory. The report includes the game log and any available Java or native
+  failure details. Android 11 and later can also supply the exit reason and
+  last memory sample. Reports stay on the device. The report names its cause
+  (Java failure, native signal, ANR, low memory, exit code, kill by the system)
+  and whether the first frame had been shown; the launcher explains it once at
+  its next start. On Android 8–10, which keep no exit reasons, a critical
+  memory warning shortly before the end marks a probable low-memory kill.
+- The FPS counter is the shared launcher base's overlay (`android/shared`): a
+  switch in the launcher's Launch card, off on a fresh install, and a dialog
+  that turns the FPS graph, the frame-time range and each system row on or off
+  separately. The first enable shows the frame rate only. It counts frames the
+  display accepted (`eglSwapBuffers`), and nothing is recorded while it is off.
+- A ZIP whose name carries an MD5 checksum is verified before the offer to
+  unpack it, with a progress bar, the amount read and Cancel; a mismatch stops
+  the import and leaves the archive untouched.
+- Settings, Mods, the renderer information and the launch options appear once
+  the files of an edition have been found; the first screen offers the game
+  files, file access, the interface language and diagnostics.
+- On HyperOS, One UI, realme UI / ColorOS / OxygenOS, vivo and HONOR systems the
+  launcher explains once per start how to add the game to the system's game
+  tool (vendor table and wording of the shared base's `HyperOs.java`); "Don't
+  show again" and a launcher switch control it.
 - Original GOG offline installers can be unpacked directly on Android. Select
   the folder containing `setup_*.exe` and all adjacent BIN parts, choose the
   language, then confirm the size and destination. Progress and cancellation
@@ -80,7 +116,7 @@ not required if the command-line toolchains are already installed.
 | Android NDK | `27.2.12479018` (r27c) |
 | Android CMake | `cmake;3.22.1` |
 | Android Platform Tools | Needed for optional ADB deployment |
-| Target device | Android 9 / API 28 or later, `arm64-v8a`, OpenGL ES 3.0 |
+| Target device | Android 8.0 / API 26 or later, `arm64-v8a`, OpenGL ES 3.0 |
 
 Install the Android components with the SDK Manager or `sdkmanager.bat`:
 
@@ -88,7 +124,11 @@ Install the Android components with the SDK Manager or `sdkmanager.bat`:
 sdkmanager.bat "platforms;android-36" "build-tools;36.1.0" "ndk;27.2.12479018" "cmake;3.22.1" "platform-tools"
 ```
 
-The APK targets API 28 and is distributed for sideloading.
+The APK targets API 28 and is distributed for sideloading. API 26 is the minimum because AAudio starts there;
+`python tools/verify_min_api.py` checks the imported NDK symbols of every native library against the API 26
+stubs and the Android members the Java classes use against the platform's `api-versions.xml`. The games are 2D:
+the only renderer is OpenGL ES (3.0 for the layered presentation), there is no Vulkan mode and no texture
+conversion, and the launcher's Renderer card says so next to the OpenGL ES version measured on the device.
 
 ## Original game inputs
 
@@ -184,7 +224,8 @@ Run the following commands from the root of a clone named `pc_decomp_strhld`.
    only the selected edition on its background worker, checks SHA-256, and
    atomically installs a read-only private copy. Allow about 65 MB of free
    internal storage per edition; the first launch takes longer to unpack.
-   Later launches verify and reuse the copy. Packaging checks unchanged dynamic
+   Later launches verify and reuse the copy. Packaging verifies each engine's
+   link record against the shared library before stripping. It also checks dynamic
    exports and loaded ELF bytes, 16 KiB segment alignment, and full XZ round trips
    from the signed APK. Unstripped libraries remain in `build/arm64` for debugging.
 
@@ -200,7 +241,8 @@ Run the following commands from the root of a clone named `pc_decomp_strhld`.
    in [dependencies.json](dependencies.json). Fetch scripts verify the pins;
    Android adaptations are kept outside the unmodified upstream checkouts.
    Rerun `tools/ucp.py` after changing its Android profile, then rebuild native
-   libraries. `--skip-native` only packages the libraries already built.
+   libraries. `--skip-native` packages a matching set of previously built
+   libraries and their `*.common.json` link records.
 
 Output: **`build/android-game/stronghold-crusader.apk`**.
 
@@ -356,6 +398,7 @@ selected Android device. They are not a single asset-free test suite.
 | Path | Purpose |
 | --- | --- |
 | `android/app/` | Launcher, activities, input and vector resources |
+| `android/shared/` | Unchanged classes of the shared launcher base (FPS overlay, game-mode tip, archive MD5); `android/app/src/port/launcher/` adapts them to this launcher |
 | `android/host/` | Android Win32 HLE, graphics, audio, files and edition integration |
 | `android/runtime/` | Runtime support for generated x86 code |
 | `tools/` | Lifting, hooks, native build, APK packaging and focused checks |

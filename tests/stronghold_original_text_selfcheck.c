@@ -28,7 +28,7 @@ uint32_t void_vm_alloc(uint32_t address, uint32_t size, uint32_t type, uint32_t 
     uint32_t result = next_group; next_group += (size + 65535u) & ~65535u;
     assert(next_group < GROUPS + 0x7800000u); return result;
 }
-uint32_t void_ddraw_redirect_pixels(uint32_t surface, uint32_t pixels) { (void)surface; return pixels; }
+uint32_t stronghold_renderer_redirect(uint32_t surface, uint32_t pixels) { (void)surface; return pixels; }
 int void_vm_readable(uint32_t address, uint32_t size)
 {
     uint64_t end = (uint64_t)address + size;

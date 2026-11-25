@@ -528,6 +528,48 @@ class Original:
         assert records == [expected_args], records
         return dict(context=operation, callee=hex(target), arguments=expected_args)
 
+    def moat_orders(self):
+        extreme = self.edition == "game"
+        offset = 0x210 if extreme else 0
+        group_offset = 0x450 if extreme else 0
+        map_object = self.layout["map"]
+        cases = []
+        self.w(self.d["subtype"], 1)
+        self.w(self.d["group"], 7)
+        self.w(map_object + 0x64, 80); self.w(map_object + 0x68, 95)
+        self.w(self.d["units"] + 0x580, 1)
+        for flag, command in ((0x38, 7), (0x40, 6)):
+            self.w(map_object + flag, 1)
+            self.u.reg_write(UC_X86_REG_EBP, 1)
+            orders = []
+            reached = []
+
+            def hook(pc):
+                sp = self.u.reg_read(UC_X86_REG_ESP)
+                if pc in (0x537050 + group_offset, 0x53E380 + group_offset,
+                          0x468940 if extreme else 0x468740):
+                    self.u.reg_write(UC_X86_REG_EAX, 0)
+                    self.u.reg_write(UC_X86_REG_EIP, self.r(sp))
+                    self.u.reg_write(UC_X86_REG_ESP, sp + (8 if pc == 0x53E380 + group_offset else 4))
+                elif pc == self.layout["order"]:
+                    context = self.u.reg_read(UC_X86_REG_ESI)
+                    operation = self.r(self.d["context"])
+                    reached.append((context, operation))
+                    if (context, operation) == (1, 0xFFFFFFFF):
+                        # The touch hook enters the existing dispatcher at this point.
+                        self.u.reg_write(UC_X86_REG_EBX, 107)
+                        self.u.reg_write(UC_X86_REG_EBP, 1)
+                        self.u.reg_write(UC_X86_REG_EIP, self.layout["dispatch"])
+                elif pc == 0x537B60 + group_offset:
+                    orders.append([self.r(sp + 4 + 4*i) for i in range(5)])
+                    self.u.emu_stop()
+
+            self.run(0x4355FD + offset, hook=hook, frame=True)
+            assert reached == [(1, 0xFFFFFFFF)] and orders == [[7, command, 80, 95, 1000]], (reached, orders)
+            cases.append(dict(pick_flag=flag, context=1, operation=-1, order=orders[0]))
+            self.w(map_object + flag, 0)
+        return cases
+
     def transparent_panel(self):
         root=self.scratch+4096
         fn=0x4AAAA0 if self.edition=="game" else 0x4AA910
@@ -935,11 +977,15 @@ def main():
         fortification=o.owned_fortification()
         fortification_eligibility=o.fortification_eligibility()
         move=o.payload(o.d["move"],(7,80,95,0,1),17,[7,80,95,0,1])
+        blocked_cursor_move=Original(edition).dispatch(-1,o.d["move"],[7,80,95,0,1])
         attack=o.payload(o.d["target"],(7,16,4,1234),36,[7,16,4,1234,1])
         # The real contextual dispatcher keeps the different command routes;
         # the native hook only enters it after the original validity check.
         dispatched=o.dispatch(3,o.d["target"],[7,16,4,1234])
         interaction=o.dispatch(4,0x537FB0 if edition=="game" else 0x537B60,[7,17,4,1234,0])
+        climb_game=Original(edition)
+        climb_game.w(climb_game.layout["map"]+0x70,420)
+        climb=climb_game.dispatch(6,0x537F40 if edition=="game" else 0x537AF0,[7,23,420])
         transparent=o.transparent_panel();wall=o.wall();ability=o.ability();hover=o.ui_hover()
         box=o.box_receiver()
         mask=o.ui_pixel_mask()
@@ -951,8 +997,9 @@ def main():
                              lord_selection=lord,
                              owned_fortification=fortification,
                              fortification_eligibility=fortification_eligibility,
-                             move=move,attack=attack,context_dispatch=dispatched,
+                             move=move,blocked_cursor_move=blocked_cursor_move,attack=attack,context_dispatch=dispatched,
                              specific_interaction_dispatch=interaction,
+                             climb_dispatch=climb,
                              transparent_panel=transparent,wall=wall,ability=ability)
         result[edition]["ui_hover"]=hover
         result[edition]["box_receiver"]=box
@@ -961,6 +1008,7 @@ def main():
         result[edition]["cancel_without_mouse_pick"]=cancel
         result[edition]["granary_ration"]=ration
         result[edition]["inspection_ui_mouse"]=inspection
+        result[edition]["moat_orders"]=Original(edition).moat_orders()
         print(edition, "original touch paths / BOX receiver TGX preservation / UI mask / held description HELP lifetime, full-HUD branch and unchanged config PASS",flush=True)
     (ROOT/"generated/touch-original-proof.json").write_text(json.dumps(result,indent=2)+"\n")
 

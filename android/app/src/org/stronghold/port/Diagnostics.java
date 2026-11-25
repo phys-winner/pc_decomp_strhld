@@ -9,13 +9,15 @@ import android.os.Build;
 
 /** A report the player can copy, without device identifiers or a list of personal folders. */
 final class Diagnostics {
-    static String report(Context context, String edition, String gpu, String renderer, String textures, String error) {
-        String version = "?";
+    static String version(Context context) {
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            version = info.versionName + " (" + (Build.VERSION.SDK_INT >= 28 ? info.getLongVersionCode() : info.versionCode) + ")";
-        } catch (PackageManager.NameNotFoundException ignored) { }
-        return "Package: " + context.getPackageName() + "\nVersion: " + version + "\nGame: " + edition
+            return info.versionName + " (" + (Build.VERSION.SDK_INT >= 28 ? info.getLongVersionCode() : info.versionCode) + ")";
+        } catch (PackageManager.NameNotFoundException ignored) { return "?"; }
+    }
+
+    static String report(Context context, String edition, String gpu, String renderer, String textures, String error) {
+        return "Package: " + context.getPackageName() + "\nVersion: " + version(context) + "\nGame: " + edition
             + "\nAndroid: " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")"
             + "\nABI: " + String.join(", ", Build.SUPPORTED_ABIS) + "\nGPU: " + gpu + "\nRenderer: " + renderer
             + "\nTextures: " + textures + "\nLast error: " + (error == null || error.isEmpty() ? "none" : error);

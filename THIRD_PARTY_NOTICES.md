@@ -63,6 +63,13 @@ Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 The complete original MIT notice and an explanation of the GLSL ES adaptations
 are retained at the beginning of that file.
 
+## Crash reporting patterns — GPL-3.0-or-later
+
+The Android crash monitor follows session log rotation from
+[pc_decomp_homm5](https://github.com/phys-winner/pc_decomp_homm5) and the native
+journal and Android exit report from
+[pc_decomp_ut3](https://github.com/phys-winner/pc_decomp_ut3).
+
 ## Python development dependencies
 
 Installed separately from `requirements.txt`; their source and wheels are not
@@ -120,6 +127,14 @@ system zlib supplies deflate support. Full upstream notices are retained in
 The APK's small native payload decoder also uses the same pinned public-domain
 liblzma. Game libraries are stored as ARM64-filtered XZ chunks and unpacked into
 private app storage before loading; the XZ license above covers this decoder.
+
+`reference/pkware-blast` contains Mark Adler's blast decoder from zlib 1.3.1.
+It is used for the original games' PKWARE DCL map and save blocks. The zlib
+license is in its upstream header and in `android/licenses/blast.txt`.
+
+`reference/stormlib-pklib` contains Ladislav Zezula's PKWARE DCL encoder and
+its tables from [StormLib](https://github.com/ladislav-zezula/StormLib/tree/d60b7e6d3501474f4d92c7b9c752a37e78385f67/src/pklib).
+The MIT license is in `android/licenses/stormlib-pklib.txt`.
 
 ## Original games and middleware
 

@@ -116,6 +116,12 @@ uint32_t void_wait_extra_cond(int count, const uint32_t *handles, uint32_t timeo
 
 /* core.c */
 void void_log_open(const char *path);
+void void_crash_open(const char *data);
+void void_crash_exit(uint32_t code);
+/* The first frame reached the display: later failures are not start failures. */
+void void_crash_presented(void);
+int void_crash_signal(int signal_number, int code, uintptr_t fault, uintptr_t pc, uintptr_t lr,
+                      uintptr_t sp, uint32_t guest_function, uint32_t guest_stack);
 void void_log_flush(void);
 void void_install_fault_handlers(void);
 void void_dispatch_image(uint32_t lo, uint32_t hi);
@@ -164,6 +170,9 @@ typedef struct void_shim {
 } void_shim;
 
 const void_shim *void_shim_find(const char *dll, const char *name, uint32_t ordinal);
+#ifdef VOID_ANDROID_APP
+size_t stronghold_common_shims(const void_shim **first);
+#endif
 
 #define VOID_SHIM_SECTION __attribute__((used, section("void_shims"), aligned(8)))
 

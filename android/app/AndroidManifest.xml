@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.stronghold.port"
-    android:versionCode="33" android:versionName="1.1-release">
-  <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="28" />
+    android:versionCode="34" android:versionName="1.2-release">
+  <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="28" />
   <uses-feature android:glEsVersion="0x00030000" android:required="true" />
   <uses-feature android:name="android.hardware.gamepad" android:required="false" />
   <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
@@ -17,28 +17,28 @@
       android:requestLegacyExternalStorage="true" android:hasCode="true"
       android:theme="@style/Stronghold.Game">
     <activity android:name=".ClassicSettingsActivity" android:exported="false" android:theme="@style/Stronghold.Settings" android:process=":classic"
-        android:taskAffinity="org.stronghold.port.classic" android:screenOrientation="fullSensor" />
+        android:screenOrientation="fullSensor" />
     <activity android:name=".ExtremeSettingsActivity" android:exported="false" android:theme="@style/Stronghold.Settings" android:process=":extreme"
-        android:taskAffinity="org.stronghold.port.extreme" android:screenOrientation="fullSensor" />
+        android:screenOrientation="fullSensor" />
     <activity android:name=".ClassicGameActivity" android:label="Crusader" android:icon="@mipmap/ic_classic" android:exported="false" android:screenOrientation="sensorLandscape"
-        android:process=":classic" android:taskAffinity="org.stronghold.port.classic"
+        android:process=":classic"
         android:configChanges="orientation|screenSize|keyboardHidden|keyboard|navigation|screenLayout|uiMode"
-        android:launchMode="singleTask">
+        android:launchMode="singleTop">
     </activity>
     <activity android:name=".ExtremeGameActivity" android:label="Crusader Extreme" android:icon="@mipmap/ic_extreme" android:exported="false" android:screenOrientation="sensorLandscape"
-        android:process=":extreme" android:taskAffinity="org.stronghold.port.extreme"
+        android:process=":extreme"
         android:configChanges="orientation|screenSize|keyboardHidden|keyboard|navigation|screenLayout|uiMode"
-        android:launchMode="singleTask" />
+        android:launchMode="singleTop" />
     <activity android:name=".StrongholdSettingsActivity" android:exported="false" android:theme="@style/Stronghold.Settings" android:process=":stronghold"
-        android:taskAffinity="org.stronghold.port.stronghold" android:screenOrientation="fullSensor" />
+        android:screenOrientation="fullSensor" />
     <activity android:name=".StrongholdGameActivity" android:label="Stronghold HD" android:icon="@mipmap/ic_stronghold" android:exported="false" android:screenOrientation="sensorLandscape"
-        android:process=":stronghold" android:taskAffinity="org.stronghold.port.stronghold"
+        android:process=":stronghold"
         android:configChanges="orientation|screenSize|keyboardHidden|keyboard|navigation|screenLayout|uiMode"
-        android:launchMode="singleTask" />
+        android:launchMode="singleTop" />
     <activity android:name=".LauncherActivity" android:label="Stronghold Launcher" android:exported="true" android:screenOrientation="fullSensor"
         android:theme="@style/Stronghold.Launcher"
         android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|navigation|uiMode"
-        android:launchMode="singleTask">
+        android:launchMode="singleTop">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

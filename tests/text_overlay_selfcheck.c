@@ -34,7 +34,7 @@ void void_input_set_screen_size(int w, int h) { (void)w; (void)h; }
 static uint32_t next_group = GROUPS;
 uint32_t void_vm_alloc(uint32_t p, uint32_t n, uint32_t t, uint32_t prot)
 { (void)p; (void)t; (void)prot; uint32_t a = next_group; next_group += (n + 0xFFFFu) & ~0xFFFFu; return a; }
-uint32_t void_ddraw_redirect_pixels(uint32_t s, uint32_t p) { (void)s; return p; }
+uint32_t stronghold_renderer_redirect(uint32_t s, uint32_t p) { (void)s; return p; }
 int void_vm_writable(uint32_t va, uint32_t n)
 {
     uint64_t end = (uint64_t)va + n;

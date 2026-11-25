@@ -113,6 +113,9 @@ def build(module):
         assert n==1
     batched,count=display_hooks.batch_opaque_runs(original,module);assert count==4
     batched,count=display_hooks.batch_opaque_backedges(batched,module);assert count==4
+    assert batched.count(b'edi+=_bytes; ebx+=ecx; g_backedges+=ecx;')==4
+    batched=batched.replace(b'edi+=_bytes; ebx+=ecx; g_backedges+=ecx;',
+                            b'pixel+=_bytes/2; edi+=_bytes; ebx+=ecx; g_backedges+=ecx;')
     original=original.replace(b'sub_%08X'%address,b'run_original',1)
     batched=batched.replace(b'sub_%08X'%address,b'run_batched',1)
     declarations=f'\n#define SCREEN 0x{screen:X}u\n#define RENDERER 0x{renderer:X}u\n#define CLIP_OFFSET 0x{clip:X}u\nextern int stronghold_display_capture_active;\nvoid stronghold_display_written(uint32_t,unsigned);\n'

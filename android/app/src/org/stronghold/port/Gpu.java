@@ -20,6 +20,11 @@ import java.util.regex.Pattern;
 final class Gpu {
     boolean probed, s3tc, rgtc, bptc, astc, etc2;
     String renderer = "", vendor = "";
+    /** GL_VERSION of an OpenGL ES 3 context, e.g. "OpenGL ES 3.2 v1.r26p0-01rel0"; empty when none could be made. */
+    String version = "";
+    /** The EGL step that failed when no OpenGL ES 3 context could be made ("eglCreateContext: EGL error 0x3003");
+     *  empty otherwise. The launcher shows it with the shared base's renderer failure wording. */
+    String failure = "";
     int vulkan;              /* VK_MAKE_API_VERSION of the system driver; 0 without Vulkan */
     int adreno;              /* the Adreno model number; 0 on other GPUs */
 
@@ -54,22 +59,34 @@ final class Gpu {
 
     static String version(int v) { return v == 0 ? "—" : (v >>> 22) + "." + ((v >>> 12) & 0x3FF); }
 
+    private static String eglFailure(String step) {
+        return step + ": EGL error 0x" + Integer.toHexString(EGL14.eglGetError()).toUpperCase(java.util.Locale.ROOT);
+    }
+
     private void probeGles() {
         EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         EGLContext context = EGL14.EGL_NO_CONTEXT;
         EGLSurface surface = EGL14.EGL_NO_SURFACE;
         try {
             int[] version = new int[2];
-            if (display == EGL14.EGL_NO_DISPLAY || !EGL14.eglInitialize(display, version, 0, version, 1)) return;
+            if (display == EGL14.EGL_NO_DISPLAY) { failure = "eglGetDisplay: no display"; return; }
+            if (!EGL14.eglInitialize(display, version, 0, version, 1)) { failure = eglFailure("eglInitialize"); return; }
             int[] attributes = {EGL14.EGL_RENDERABLE_TYPE, EGLExt.EGL_OPENGL_ES3_BIT_KHR, EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT, EGL14.EGL_NONE};
             EGLConfig[] configs = new EGLConfig[1];
             int[] count = new int[1];
-            if (!EGL14.eglChooseConfig(display, attributes, 0, configs, 0, 1, count, 0) || count[0] == 0) return;
+            if (!EGL14.eglChooseConfig(display, attributes, 0, configs, 0, 1, count, 0) || count[0] == 0) {
+                failure = eglFailure("eglChooseConfig (OpenGL ES 3)");
+                return;
+            }
             context = EGL14.eglCreateContext(display, configs[0], EGL14.EGL_NO_CONTEXT, new int[] {EGL14.EGL_CONTEXT_CLIENT_VERSION, 3, EGL14.EGL_NONE}, 0);
+            if (context == EGL14.EGL_NO_CONTEXT) { failure = eglFailure("eglCreateContext (OpenGL ES 3)"); return; }
             surface = EGL14.eglCreatePbufferSurface(display, configs[0], new int[] {EGL14.EGL_WIDTH, 1, EGL14.EGL_HEIGHT, 1, EGL14.EGL_NONE}, 0);
-            if (context == EGL14.EGL_NO_CONTEXT || surface == EGL14.EGL_NO_SURFACE || !EGL14.eglMakeCurrent(display, surface, surface, context)) return;
+            if (surface == EGL14.EGL_NO_SURFACE) { failure = eglFailure("eglCreatePbufferSurface"); return; }
+            if (!EGL14.eglMakeCurrent(display, surface, surface, context)) { failure = eglFailure("eglMakeCurrent"); return; }
             String extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
             String name = GLES20.glGetString(GLES20.GL_RENDERER), maker = GLES20.glGetString(GLES20.GL_VENDOR);
+            String api = GLES20.glGetString(GLES20.GL_VERSION);
+            if (api != null) this.version = api;
             if (name != null) renderer = name;
             if (maker != null) vendor = maker;
             if (extensions != null) {
@@ -84,6 +101,7 @@ final class Gpu {
             }
         } catch (Throwable e) {
             android.util.Log.w("Launcher", "GPU probe: " + e);
+            if (version.isEmpty()) failure = e.toString();
         } finally {
             if (display != EGL14.EGL_NO_DISPLAY) {
                 EGL14.eglMakeCurrent(display, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);

@@ -48,7 +48,7 @@ final class Theme {
         if (Build.VERSION.SDK_INT >= 29) window.getDecorView().setForceDarkAllowed(false);
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
-        window.setNavigationBarDividerColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= 28) window.setNavigationBarDividerColor(Color.TRANSPARENT);
         if (Build.VERSION.SDK_INT >= 29) {
             window.setStatusBarContrastEnforced(false);
             window.setNavigationBarContrastEnforced(false);
@@ -62,9 +62,33 @@ final class Theme {
         if (Build.VERSION.SDK_INT >= 30) window.setDecorFitsSystemWindows(false);
         else window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        WindowManager.LayoutParams attributes = window.getAttributes();
-        attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-        window.setAttributes(attributes);
+        if (Build.VERSION.SDK_INT >= 28) Cutout.shortEdges(window);
+    }
+
+    /** The window also draws in the cutout of the short edges (Android 9+). */
+    static void edgeCutout(Window window) { if (Build.VERSION.SDK_INT >= 28) Cutout.shortEdges(window); }
+
+    /** Display cutouts exist since Android 9; Android 8 has none to draw behind or to keep clear of. */
+    static int cutoutLeft(WindowInsets insets) {
+        return Build.VERSION.SDK_INT >= 28 && insets != null ? Cutout.inset(insets, 0) : 0;
+    }
+
+    /** Keeps the Android 9 classes out of the Android 8 code path. */
+    private static final class Cutout {
+        static void shortEdges(Window window) {
+            WindowManager.LayoutParams attributes = window.getAttributes();
+            attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            window.setAttributes(attributes);
+        }
+
+        /** Safe inset of the side: 0 left, 1 top, 2 right, 3 bottom. */
+        static int inset(WindowInsets insets, int side) {
+            android.view.DisplayCutout cutout = insets.getDisplayCutout();
+            return cutout == null ? 0 : side == 0 ? cutout.getSafeInsetLeft() : side == 1 ? cutout.getSafeInsetTop()
+                    : side == 2 ? cutout.getSafeInsetRight() : cutout.getSafeInsetBottom();
+        }
+
+        static WindowInsets consume(WindowInsets insets) { return insets.consumeDisplayCutout(); }
     }
 
     static WindowInsets padInsets(View target, WindowInsets insets, int left, int top, int right, int bottom) {
@@ -73,12 +97,13 @@ final class Theme {
             target.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom);
             return WindowInsets.CONSUMED;
         }
-        android.view.DisplayCutout cutout = insets.getDisplayCutout();
-        target.setPadding(left + Math.max(insets.getSystemWindowInsetLeft(), cutout == null ? 0 : cutout.getSafeInsetLeft()),
-                top + Math.max(insets.getSystemWindowInsetTop(), cutout == null ? 0 : cutout.getSafeInsetTop()),
-                right + Math.max(insets.getSystemWindowInsetRight(), cutout == null ? 0 : cutout.getSafeInsetRight()),
-                bottom + Math.max(insets.getSystemWindowInsetBottom(), cutout == null ? 0 : cutout.getSafeInsetBottom()));
-        return insets.consumeSystemWindowInsets().consumeDisplayCutout();
+        boolean cutouts = Build.VERSION.SDK_INT >= 28;
+        target.setPadding(left + Math.max(insets.getSystemWindowInsetLeft(), cutouts ? Cutout.inset(insets, 0) : 0),
+                top + Math.max(insets.getSystemWindowInsetTop(), cutouts ? Cutout.inset(insets, 1) : 0),
+                right + Math.max(insets.getSystemWindowInsetRight(), cutouts ? Cutout.inset(insets, 2) : 0),
+                bottom + Math.max(insets.getSystemWindowInsetBottom(), cutouts ? Cutout.inset(insets, 3) : 0));
+        WindowInsets consumed = insets.consumeSystemWindowInsets();
+        return cutouts ? Cutout.consume(consumed) : consumed;
     }
 
     static Drawable backdrop() {

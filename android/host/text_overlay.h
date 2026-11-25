@@ -32,7 +32,7 @@ int stronghold_text_overlay_hide_layers(uint16_t *const layers[SH_UI_LAYERS], ui
  * the pixels are guest memory. Call for every presented uncomposed frame. */
 int stronghold_text_overlay_hide_frame(uint16_t *pixels, int stride, int width, int height);
 void stronghold_text_overlay_restore_frame(void);
-/* Old presenter (ddraw_present.c) only: hide_layers on display.c's published
+/* Presenter only: hide_layers on display.c's published
  * layers when a new composed frame is pending, a no-op otherwise. Its single
  * composed texture puts every group's text above all layers, so runs under a
  * higher group's bounding box keep their raster copy there. A presenter that

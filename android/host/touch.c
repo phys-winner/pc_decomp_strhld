@@ -22,6 +22,8 @@
 #define INPUT A(0xF69DF8,0xF6A258)
 #define MAP A(0x23443C0,0x2DD78A0)
 #define UNITS A(0x14BEBC8,0x1593698)
+#define TILE_FLAGS A(0x1D35FF8,0x27C94D8)
+#define TILE_OWNER A(0x1E97CE8,0x292B1C8)
 #define MODE A(0x212587C,0x2BB8D5C)
 #define BUILD A(0x212577C,0x2BB8C5C)
 #define PLAYER A(0x1B6526C,0x25F874C)
@@ -37,6 +39,7 @@
 #define CLEAR A(0x535B10,0x535F60)
 #define CLEAR_GROUP A(0x537630,0x537A80)
 #define SAME_TYPE A(0x535A70,0x535EC0)
+#define SELECTED_UNIT A(0x537420,0x537870)
 #define UI_ROOT A(0xF687DC,0xF68C3C)
 #define CHAT_BODY A(0x5EBD98,0x5EBC58)
 #define CHAT_SCROLL A(0x4427B0,0x442980)
@@ -55,6 +58,7 @@
 
 enum { QUEUE_SIZE = 128, CALLBACK_CONTEXT = 0, CALLBACK_TERRAIN = 1,
        CALLBACK_PLACE = 2, CALLBACK_INSPECT = 3, CALLBACK_WALL=4, CALLBACK_DEMOLISH=5 };
+enum { UNIT_ASSASSIN = 73 };
 typedef struct touch_event {
     int action;
     unsigned sequence;
@@ -1011,12 +1015,32 @@ int stronghold_touch_lord_control(void)
            MEM32(MODE)==1&&!MEM32(BUILD)&&(action==SH_TOUCH_TAP||action==-1);
 }
 
+static int has_context_order(int context, int operation)
+{
+    /* The shovel cursor leaves the operation at -1. The original dispatcher
+     * takes dig/fill from the picked moat flags for this context instead. */
+    if (context != 4)
+        return operation != -1 || (context == 1 && (MEM32(MAP + 0x38) || MEM32(MAP + 0x40)));
+
+    /* Desktop release still dispatches a move to an enemy raised tile with
+     * the blocked cursor. The game's route finder handles the assassin climb. */
+    uint32_t tile = MEM32(MAP + 0x70);
+    if (operation != -1 || MEM32(UNITS + 16) != 1 || MEM32(MAP + 0x28) ||
+        !tile || tile >= 160400 || tile != MEM32(MAP + 0x60) ||
+        !(MEM32(TILE_FLAGS + tile * 4) & 0x10000300u) ||
+        (MEM8(TILE_OWNER + tile) & 7u) + 1u == MEM32(PLAYER)) return 0;
+    const uint32_t first = 1;
+    uint32_t unit = call(SELECTED_UNIT, UNITS, 1, &first);
+    return unit && unit < MEM32(UNITS) && unit <= 20000 &&
+           MEM16(UNITS + unit * 1168u + 1698) == UNIT_ASSASSIN;
+}
+
 int stronghold_touch_order(int context)
 {
     evaluated_context=context;
     evaluated_operation=(int32_t)MEM32(A(0x2125870,0x2BB8D50));
-    if (!resolving || commit_consumed || action != SH_TOUCH_TAP || context == 4 ||
-        (int32_t)MEM32(A(0x2125870,0x2BB8D50)) == -1) return 0;
+    if (!resolving || commit_consumed || action != SH_TOUCH_TAP ||
+        !has_context_order(context, evaluated_operation)) return 0;
     commit_consumed = 1;
     return 1;
 }
@@ -1131,7 +1155,7 @@ void stronghold_touch_after_world(void)
          * target: these must not become a plain selection because it is own. */
         int saved_action=action;action=-1;evaluated_context=4;evaluated_operation=-1;
         resolving=1;call(CONTEXT,0,0,NULL);resolving=0;action=saved_action;
-        int specific=evaluated_context!=4&&evaluated_operation!=-1&&
+        int specific=has_context_order(evaluated_context,evaluated_operation)&&
                      (evaluated_operation!=0||MEM32(UNITS+16)!=1);
         if (!specific) prepare_selection(0);
     } else if (action == SH_TOUCH_TAP || action == SH_TOUCH_DOUBLE_TAP)

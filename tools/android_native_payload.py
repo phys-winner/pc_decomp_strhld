@@ -14,9 +14,11 @@ import subprocess
 import zipfile
 
 from verify_elf_pages import inspect
+from common_code import LIBRARY as COMMON_LIBRARY, verify_group
 
 ROOT = Path(__file__).resolve().parents[1]
-GAMES = ('libstronghold.so', 'libstronghold_classic.so', 'libstronghold_sh.so')
+
+GAMES = ('libstronghold.so', 'libstronghold_classic.so', 'libstronghold_sh.so', COMMON_LIBRARY)
 UNPACKER = 'libstronghold_xz.so'
 CHUNK = 16 << 20
 
@@ -124,7 +126,9 @@ def prepare(libraries, llvm, work):
     work.mkdir(parents=True, exist_ok=True)
     expected = set(GAMES) | {'libinnoextract.so', UNPACKER}
     if {source.name for source in libraries} != expected or len(libraries) != len(expected):
-        raise ValueError('Game APK requires three games, GOG reader and XZ decoder')
+        raise ValueError('Game APK requires three editions, their common library, GOG reader and XZ decoder')
+    by_name = {source.name: source for source in libraries}
+    verify_group(llvm, by_name[COMMON_LIBRARY], [by_name[name] for name in GAMES if name != COMMON_LIBRARY])
     entries, report, index = {}, {}, []
     for source in libraries:
         target = work / source.name

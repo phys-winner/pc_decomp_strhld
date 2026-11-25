@@ -57,7 +57,7 @@ def main():
     output = ROOT / 'build/gog-android'
     subprocess.run([str(cmake), '-S', str(ROOT / 'android/gog'), '-B', str(output), '-G', 'Ninja',
                     f'-DCMAKE_MAKE_PROGRAM={ninja}', f'-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake',
-                    '-DANDROID_ABI=arm64-v8a', '-DANDROID_PLATFORM=android-28', '-DANDROID_STL=c++_static',
+                    '-DANDROID_ABI=arm64-v8a', '-DANDROID_PLATFORM=android-26', '-DANDROID_STL=c++_static',
                     '-DCMAKE_BUILD_TYPE=Release'], check=True)
     subprocess.run([str(cmake), '--build', str(output), '--target', 'innoextract', 'stronghold_xz', '-j', str(args.jobs)], check=True)
     strip = ndk / 'toolchains/llvm/prebuilt/windows-x86_64/bin/llvm-strip.exe'

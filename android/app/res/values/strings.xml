@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"Could not copy the report"</string>
     <string name="text_c2e44cfd" formatted="false">"Not enough space: %1$s needed, %2$s free."</string>
     <string name="text_4186bcd5">Game memory limit up to 4 GB</string>
+    <string name="text_e097d8ca">Crash monitoring</string>
+    <string name="text_2ee78c65">Game exit report saved</string>
+  <string name="text_8184621e" formatted="false">"Game mode tip at start"</string>
+  <string name="text_861f5302" formatted="false">"Renderer"</string>
+  <string name="text_db3b7c4c" formatted="false">"Detecting the OpenGL ES version…"</string>
+  <string name="text_ccc3385e" formatted="false">"The game produces a finished 2D frame; the port scales it and the interface layers with OpenGL ES 3.0 or newer. Vulkan is not used: the game has no 3D scene or shaders that would gain from it."</string>
+  <string name="text_518049e6" formatted="false">"Textures"</string>
+  <string name="text_75337a21" formatted="false">"The game\'s graphics are 2D sprites (GM1 and TGX) in 16-bit colour, used as they are. The game has no compressed DXT or BC textures, so no conversion to ETC2 or ASTC is needed."</string>
+  <string name="text_a5e560fb" formatted="false">"FPS counter"</string>
+  <string name="text_a8e5364d" formatted="false">"FPS display settings"</string>
+  <string name="text_346bb78e" formatted="false">"The OpenGL ES version could not be detected."</string>
+  <string name="text_1b01c092" formatted="false">"The last session ended with a failure"</string>
+  <string name="text_4e37245a" formatted="false">"Report: "</string>
+  <string name="text_6d7cabc3" formatted="false">"Native crash in the game code (signal %s)."</string>
+  <string name="text_c4d6a5d" formatted="false">"Native crash before the first frame (signal %s). The renderer or the graphics driver may have failed to start."</string>
+  <string name="text_abfff564" formatted="false">"An error in the port\'s Java code."</string>
+  <string name="text_f30ce3e6" formatted="false">"The game stopped responding and the system closed it (ANR)."</string>
+  <string name="text_8820b256" formatted="false">"The system closed the game because it ran out of memory."</string>
+  <string name="text_e16625a3" formatted="false">"The system probably closed the game because it ran out of memory: shortly before the end it reported critically low free memory."</string>
+  <string name="text_f8cd0c0e" formatted="false">"The game exited with code %s."</string>
+  <string name="text_c27abf3b" formatted="false">"The system ended the game process (%s)."</string>
+  <string name="text_f7813102" formatted="false">"The reason for the end is unknown: on this Android version a stop by the user, a kill by the system and a crash cannot be told apart."</string>
+  <string name="text_ef27e466" formatted="false">"The game had not shown its first frame yet."</string>
+  <string name="text_8e7b6e79" formatted="false">"Checking the archive\'s MD5…"</string>
+  <string name="text_c0bf627c" formatted="false">"The archive could not be checked: "</string>
+  <string name="text_595127df" formatted="false">"The archive\'s MD5 checksum does not match the checksum in its file name (%s)."</string>
+  <string name="text_813d89d4" formatted="false">"%1$s keeps the processor and the graphics chip of an app that is not on its list of games at power-saving speeds, so even a flagship chip works at half its strength. This causes stutter and long frames at any graphics settings.\n\nFor full performance, %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"Game log: %s\nLogs of earlier sessions are in the same folder; attach them to a bug report."</string>
+  <string name="text_58553268" formatted="false">"Smoother play on %s"</string>
+  <string name="text_a92e0da4" formatted="false">"Don\'t show again"</string>
+  <string name="text_834665c3" formatted="false">"Open %s"</string>
+  <string name="text_16ec763f" formatted="false">"%s could not be opened. Find it among the apps or in the system settings."</string>
+  <string name="text_8c538888" formatted="false">"add it to Game Turbo (Security app → Game Turbo → add game) and restart the game."</string>
+  <string name="text_f34577ac" formatted="false">"add it to Gaming Hub (Gaming Hub → ⋮ → add games), select the performance profile in Game Booster and restart the game."</string>
+  <string name="text_33e055ee" formatted="false">"add it to Game Assistant (Game Assistant → Add games), turn on GT mode or Pro Gamer mode there and restart the game."</string>
+  <string name="text_d35987c5" formatted="false">"add it to Ultra Game Mode (Settings → Ultra Game Mode → add game) and restart the game."</string>
+  <string name="text_bbc3a61a" formatted="false">"add it to Game Manager (Settings → Apps → Game Manager → Add games) and restart the game."</string>
+  <string name="text_f4c52b99" formatted="false">"The renderer failed"</string>
+  <string name="text_fe2fd2de" formatted="false">"%s could not start on this device, so the game was stopped. No other renderer was started in its place."</string>
+  <string name="text_59845252" formatted="false">"With %s the graphics driver stopped responding (the GPU device was lost), so the game was stopped. No other renderer was started in its place."</string>
+  <string name="text_d009068c" formatted="false">"Details: %s"</string>
+  <string name="text_5efaac46" formatted="false">"No other renderer is available on this device."</string>
+  <string name="text_2c831f2e" formatted="false">"The last start stopped because %1$s failed: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"OpenGL ES could not start: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"The archive “%1$s”%2$s will be unpacked into\n%3$s\n\nFree: %4$s. The unpacked game takes about 1 GB."</string>
+  <string name="text_f375a690" formatted="false">"The folder “%1$s” cannot be reached by a file path. Copy it to\n%2$s?"</string>
+    <string name="text_4a88b5ae">"Compatible audio output"</string>
+    <string name="text_b04108f4">"For BOOX and devices with interrupted audio. May increase latency. Restart the game to apply."</string>
 </resources>

@@ -86,8 +86,8 @@ int main(void){
   unsigned counter=g_backedges,yields=yield_count,old_positions[32];
   memcpy(old_positions,positions,sizeof(positions));
   assert(pixel==n*2);observed_pixels+=pixel;
-  void (*variants[])(void)={rle_batched,rle_collapsed};
-  for(unsigned variant=0;variant<2;variant++){
+  void (*variants[])(void)={rle_batched,rle_collapsed,rle_commands};
+  for(unsigned variant=0;variant<sizeof(variants)/sizeof(*variants);variant++){
    setup(n,kind,seed,yielding,phase);variants[variant]();snapshot(state);
    assert(!memcmp(reference,PTR(0x12000000),8112*4+128));
    assert(!memcmp(expected_coverage,coverage,sizeof(coverage)));
@@ -102,7 +102,7 @@ int main(void){
   cases++;
  }
  assert(maximum_delay==31);
- printf("RLE actual ARM64: %u cases, %u pixel iterations, exact pixels/coverage/registers/raw-budget/yields PASS for batched+collapsed; maximum delayed pixels %u\n",cases,observed_pixels,maximum_delay);
+ printf("RLE actual ARM64: %u cases, %u pixel iterations, exact pixels/coverage/registers/raw-budget/yields PASS; maximum delayed pixels %u\n",cases,observed_pixels,maximum_delay);
  return 0;
 }
 '''
@@ -135,13 +135,16 @@ def build(module):
         assert n == 1
         collapsed,n=re.subn(pat,rb'\1++pixel; \2\n\3',collapsed);assert n==1
     collapsed=collapsed.replace(b'uint32_t _display_count=ecx;',b'uint32_t _display_count=ecx;pixel+=_display_count;')
+    commands,count=display_hooks.native_half_commands(collapsed,module);assert count==1
+    commands=commands.replace(b'g_backedges += _edges;',b'if(_kind!=1)pixel+=_length; g_backedges += _edges;')
+    commands=commands.replace(b'sub_%08X' % address,b'rle_commands',1)
     original = original.replace(b'sub_%08X' % address, b'rle_original', 1)
     batched = batched.replace(b'sub_%08X' % address, b'rle_batched', 1)
     collapsed=collapsed.replace(b'sub_%08X' % address,b'rle_collapsed',1)
     defines = f'\n#define RENDERER 0x{renderer:X}u\n#define SCREEN 0x{screen:X}u\n'
     defines+='extern int stronghold_display_capture_active;\nvoid stronghold_display_written(uint32_t,unsigned);\n'
     source = OUT / f'{module}.c'
-    source.write_bytes(HEADER.encode() + defines.encode() + original + b'\n' + batched + b'\n'+collapsed+FOOTER.encode())
+    source.write_bytes(HEADER.encode() + defines.encode() + original + b'\n' + batched + b'\n'+collapsed+b'\n'+commands+FOOTER.encode())
     binary = OUT / module
     subprocess.run([str(build_android.CLANG), f'--target=aarch64-linux-android{build_android.API}', '-O2', '-std=gnu11',
                     '-fno-strict-aliasing', '-fwrapv', f'-I{ROOT / "android/runtime"}', str(source),

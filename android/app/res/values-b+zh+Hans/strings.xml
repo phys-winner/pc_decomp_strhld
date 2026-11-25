@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"无法复制报告"</string>
     <string name="text_c2e44cfd" formatted="false">"空间不足：需要 %1$s，可用 %2$s。"</string>
     <string name="text_4186bcd5">游戏内存上限扩展至 4 GB</string>
+    <string name="text_e097d8ca">崩溃监控</string>
+    <string name="text_2ee78c65">已保存游戏退出报告</string>
+  <string name="text_8184621e" formatted="false">"启动时显示游戏模式提示"</string>
+  <string name="text_861f5302" formatted="false">"渲染器"</string>
+  <string name="text_db3b7c4c" formatted="false">"正在检测 OpenGL ES 版本…"</string>
+  <string name="text_ccc3385e" formatted="false">"游戏输出完整的 2D 画面，移植版通过 OpenGL ES 3.0 或更高版本缩放画面和界面图层。不使用 Vulkan：游戏中没有能从中受益的 3D 场景和着色器。"</string>
+  <string name="text_518049e6" formatted="false">"纹理"</string>
+  <string name="text_75337a21" formatted="false">"游戏画面由 16 位色的 2D 精灵图（GM1 和 TGX）组成，并按原样使用。游戏中没有 DXT 或 BC 压缩纹理，因此无需转换为 ETC2 或 ASTC。"</string>
+  <string name="text_a5e560fb" formatted="false">"FPS 计数器"</string>
+  <string name="text_a8e5364d" formatted="false">"FPS 显示设置"</string>
+  <string name="text_346bb78e" formatted="false">"无法检测 OpenGL ES 版本。"</string>
+  <string name="text_1b01c092" formatted="false">"上次运行异常结束"</string>
+  <string name="text_4e37245a" formatted="false">"报告："</string>
+  <string name="text_6d7cabc3" formatted="false">"游戏代码发生原生崩溃（信号 %s）。"</string>
+  <string name="text_c4d6a5d" formatted="false">"在显示第一帧之前发生原生崩溃（信号 %s）。可能是渲染器或图形驱动启动失败。"</string>
+  <string name="text_abfff564" formatted="false">"移植版的 Java 代码出错。"</string>
+  <string name="text_f30ce3e6" formatted="false">"游戏停止响应，已被系统关闭（ANR）。"</string>
+  <string name="text_8820b256" formatted="false">"由于内存不足，系统关闭了游戏。"</string>
+  <string name="text_e16625a3" formatted="false">"系统很可能因内存不足关闭了游戏：结束前系统曾报告可用内存严重不足。"</string>
+  <string name="text_f8cd0c0e" formatted="false">"游戏以代码 %s 退出。"</string>
+  <string name="text_c27abf3b" formatted="false">"系统结束了游戏进程（%s）。"</string>
+  <string name="text_f7813102" formatted="false">"无法确定结束原因：在此 Android 版本上，无法区分用户停止、系统关闭和崩溃。"</string>
+  <string name="text_ef27e466" formatted="false">"游戏尚未显示第一帧。"</string>
+  <string name="text_8e7b6e79" formatted="false">"正在校验压缩包的 MD5…"</string>
+  <string name="text_c0bf627c" formatted="false">"无法校验压缩包："</string>
+  <string name="text_595127df" formatted="false">"压缩包的 MD5 校验和与文件名中的校验和（%s）不一致。"</string>
+  <string name="text_813d89d4" formatted="false">"%1$s 会把不在其游戏列表中的应用的处理器和图形芯片限制在省电频率，因此即使是旗舰芯片也只能发挥一半性能。无论使用何种画面设置，都可能出现卡顿和长帧。\n\n要获得完整性能：%2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"游戏日志：%s\n以前运行的日志位于同一文件夹中；报告问题时请附上它们。"</string>
+  <string name="text_58553268" formatted="false">"在 %s 上流畅游戏"</string>
+  <string name="text_a92e0da4" formatted="false">"不再显示"</string>
+  <string name="text_834665c3" formatted="false">"打开 %s"</string>
+  <string name="text_16ec763f" formatted="false">"无法打开 %s。请在应用列表或系统设置中查找。"</string>
+  <string name="text_8c538888" formatted="false">"请将其添加到 Game Turbo（“安全”应用 → Game Turbo → 添加游戏），然后重新启动游戏。"</string>
+  <string name="text_f34577ac" formatted="false">"请将其添加到 Gaming Hub（Gaming Hub → ⋮ → 添加游戏），在 Game Booster 中选择性能配置，然后重新启动游戏。"</string>
+  <string name="text_33e055ee" formatted="false">"请将其添加到游戏助手（游戏助手 →“添加游戏”），在其中开启 GT 模式或 Pro Gamer 模式，然后重新启动游戏。"</string>
+  <string name="text_d35987c5" formatted="false">"请将其添加到“超级游戏模式”（设置 →“超级游戏模式”→ 添加游戏），然后重新启动游戏。"</string>
+  <string name="text_bbc3a61a" formatted="false">"请将其添加到 Game Manager（设置 → 应用 → Game Manager → 添加游戏），然后重新启动游戏。"</string>
+  <string name="text_f4c52b99" formatted="false">"渲染器出错"</string>
+  <string name="text_fe2fd2de" formatted="false">"%s 无法在此设备上启动，因此游戏已停止。没有改用其他渲染器。"</string>
+  <string name="text_59845252" formatted="false">"使用 %s 时显卡驱动停止响应（GPU 设备丢失），因此游戏已停止。没有改用其他渲染器。"</string>
+  <string name="text_d009068c" formatted="false">"详情：%s"</string>
+  <string name="text_5efaac46" formatted="false">"此设备上没有其他可用的渲染器。"</string>
+  <string name="text_2c831f2e" formatted="false">"上次启动因 %1$s 出错而停止：%2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"OpenGL ES 无法启动：%s"</string>
+  <string name="text_e4d8c355" formatted="false">"压缩包“%1$s”%2$s将解压到\n%3$s\n\n可用空间：%4$s。解压后的游戏约占 1 GB。"</string>
+  <string name="text_f375a690" formatted="false">"无法通过路径直接访问文件夹“%1$s”。是否复制到\n%2$s？"</string>
+    <string name="text_4a88b5ae">"兼容音频输出"</string>
+    <string name="text_b04108f4">"适用于 BOOX 和声音断续的设备。可能增加延迟。重启游戏后生效。"</string>
 </resources>

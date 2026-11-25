@@ -515,4 +515,52 @@
     <string name="text_6d2c4c1d" formatted="false">"Nie udało się skopiować raportu"</string>
     <string name="text_c2e44cfd" formatted="false">"Za mało miejsca: potrzeba %1$s, wolne %2$s."</string>
     <string name="text_4186bcd5">Limit pamięci gry do 4 GB</string>
+    <string name="text_e097d8ca">Monitorowanie awarii</string>
+    <string name="text_2ee78c65">Zapisano raport zakończenia gry</string>
+  <string name="text_8184621e" formatted="false">"Wskazówka o trybie gry przy starcie"</string>
+  <string name="text_861f5302" formatted="false">"Renderer"</string>
+  <string name="text_db3b7c4c" formatted="false">"Wykrywanie wersji OpenGL ES…"</string>
+  <string name="text_ccc3385e" formatted="false">"Gra tworzy gotową klatkę 2D; port skaluje ją i warstwy interfejsu przez OpenGL ES 3.0 lub nowszy. Vulkan nie jest używany: gra nie ma sceny 3D ani shaderów, które by na nim zyskały."</string>
+  <string name="text_518049e6" formatted="false">"Tekstury"</string>
+  <string name="text_75337a21" formatted="false">"Grafika gry to sprite\'y 2D (GM1 i TGX) w 16-bitowym kolorze, używane bez zmian. Gra nie ma skompresowanych tekstur DXT ani BC, więc konwersja do ETC2 lub ASTC nie jest potrzebna."</string>
+  <string name="text_a5e560fb" formatted="false">"Licznik FPS"</string>
+  <string name="text_a8e5364d" formatted="false">"Ustawienia licznika FPS"</string>
+  <string name="text_346bb78e" formatted="false">"Nie udało się wykryć wersji OpenGL ES."</string>
+  <string name="text_1b01c092" formatted="false">"Poprzednie uruchomienie zakończyło się awarią"</string>
+  <string name="text_4e37245a" formatted="false">"Raport: "</string>
+  <string name="text_6d7cabc3" formatted="false">"Natywna awaria w kodzie gry (sygnał %s)."</string>
+  <string name="text_c4d6a5d" formatted="false">"Natywna awaria przed pierwszą klatką (sygnał %s). Możliwy błąd uruchamiania renderera lub sterownika graficznego."</string>
+  <string name="text_abfff564" formatted="false">"Błąd w kodzie Java portu."</string>
+  <string name="text_f30ce3e6" formatted="false">"Gra przestała odpowiadać i system ją zamknął (ANR)."</string>
+  <string name="text_8820b256" formatted="false">"System zamknął grę z powodu braku pamięci."</string>
+  <string name="text_e16625a3" formatted="false">"Prawdopodobnie system zamknął grę z powodu braku pamięci: tuż przed zakończeniem zgłosił krytycznie małą ilość wolnej pamięci."</string>
+  <string name="text_f8cd0c0e" formatted="false">"Gra zakończyła się z kodem %s."</string>
+  <string name="text_c27abf3b" formatted="false">"System zakończył proces gry (%s)."</string>
+  <string name="text_f7813102" formatted="false">"Przyczyna zakończenia jest nieznana: w tej wersji Androida nie da się odróżnić zatrzymania przez użytkownika, zamknięcia przez system i awarii."</string>
+  <string name="text_ef27e466" formatted="false">"Gra nie zdążyła pokazać pierwszej klatki."</string>
+  <string name="text_8e7b6e79" formatted="false">"Sprawdzanie sumy MD5 archiwum…"</string>
+  <string name="text_c0bf627c" formatted="false">"Nie udało się sprawdzić archiwum: "</string>
+  <string name="text_595127df" formatted="false">"Suma kontrolna MD5 archiwum nie zgadza się z sumą podaną w nazwie pliku (%s)."</string>
+  <string name="text_813d89d4" formatted="false">"%1$s utrzymuje procesor i układ graficzny aplikacji, której nie ma na liście gier, na oszczędnych częstotliwościach, więc nawet flagowy układ pracuje na pół mocy. Powoduje to przycięcia i długie klatki przy dowolnych ustawieniach grafiki.\n\nAby uzyskać pełną wydajność, %2$s"</string>
+  <string name="text_c9e656f3" formatted="false">"Dziennik gry: %s\nDzienniki wcześniejszych sesji są w tym samym folderze; dołącz je do zgłoszenia błędu."</string>
+  <string name="text_58553268" formatted="false">"Płynniejsza gra na %s"</string>
+  <string name="text_a92e0da4" formatted="false">"Nie pokazuj ponownie"</string>
+  <string name="text_834665c3" formatted="false">"Otwórz: %s"</string>
+  <string name="text_16ec763f" formatted="false">"Nie udało się otworzyć: %s. Znajdź to narzędzie wśród aplikacji lub w ustawieniach systemu."</string>
+  <string name="text_8c538888" formatted="false">"dodaj ją do Game Turbo (aplikacja „Bezpieczeństwo” → Game Turbo → dodaj grę) i uruchom grę ponownie."</string>
+  <string name="text_f34577ac" formatted="false">"dodaj ją do Gaming Hub (Gaming Hub → ⋮ → dodaj gry), wybierz w Game Booster profil wydajności i uruchom grę ponownie."</string>
+  <string name="text_33e055ee" formatted="false">"dodaj ją do Asystenta gier (Asystent gier → „Dodaj gry”), włącz tam Tryb GT lub Tryb Pro Gamer i uruchom grę ponownie."</string>
+  <string name="text_d35987c5" formatted="false">"dodaj ją do Ultra Game Mode (Ustawienia → Ultra Game Mode → dodaj grę) i uruchom grę ponownie."</string>
+  <string name="text_bbc3a61a" formatted="false">"dodaj ją do Game Manager (Ustawienia → Aplikacje → Game Manager → dodaj gry) i uruchom grę ponownie."</string>
+  <string name="text_f4c52b99" formatted="false">"Awaria renderera"</string>
+  <string name="text_fe2fd2de" formatted="false">"Nie udało się uruchomić %s na tym urządzeniu, więc gra została zatrzymana. Żaden inny renderer nie został uruchomiony w jego miejsce."</string>
+  <string name="text_59845252" formatted="false">"Z %s sterownik grafiki przestał odpowiadać (utracono urządzenie GPU), więc gra została zatrzymana. Żaden inny renderer nie został uruchomiony w jego miejsce."</string>
+  <string name="text_d009068c" formatted="false">"Szczegóły: %s"</string>
+  <string name="text_5efaac46" formatted="false">"Na tym urządzeniu nie ma innego dostępnego renderera."</string>
+  <string name="text_2c831f2e" formatted="false">"Ostatnie uruchomienie zatrzymano z powodu awarii %1$s: %2$s"</string>
+  <string name="text_6565c7bc" formatted="false">"Nie udało się uruchomić OpenGL ES: %s"</string>
+  <string name="text_e4d8c355" formatted="false">"Archiwum „%1$s”%2$s zostanie rozpakowane do\n%3$s\n\nWolne: %4$s. Rozpakowana gra zajmuje około 1 GB."</string>
+  <string name="text_f375a690" formatted="false">"Folder „%1$s” nie jest dostępny przez bezpośrednią ścieżkę. Skopiować go do\n%2$s?"</string>
+    <string name="text_4a88b5ae">"Zgodne wyjście dźwięku"</string>
+    <string name="text_b04108f4">"Dla BOOX i urządzeń z przerywanym dźwiękiem. Może zwiększyć opóźnienie. Wymaga ponownego uruchomienia gry."</string>
 </resources>

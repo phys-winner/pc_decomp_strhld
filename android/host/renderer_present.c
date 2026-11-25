@@ -1,4 +1,4 @@
-/* RGB565 DirectDraw presentation on the GPU. An in-game frame arrives as the
+/* Native RGB565 presentation on the GPU. An in-game frame arrives as the
  * world raster and up to three captured UI layers (display.c); the world and
  * the UI are upsampled with their own filters (bilinear, sharp pixels,
  * bicubic, AMD FSR 1), the UI as premultiplied alpha over the world, then
@@ -9,9 +9,11 @@
  * also the frame dump oracle. */
 #include "host.h"
 #include "display.h"
+#include "renderer.h"
 #include "feedback.h"
 #include "text_overlay.h"
 #include "fsr1.h"
+#include "frame_times.h"
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES3/gl3.h>
@@ -22,10 +24,78 @@
 #include <time.h>
 #include <stdatomic.h>
 
+#ifdef VOID_ANDROID_APP
+void *void_android_window_current(uint32_t *serial,int wait);
+void void_android_window_ack(uint32_t serial);
+#else
 __attribute__((weak)) void *void_android_window_current(uint32_t *serial,int wait)
 { (void)wait;*serial=0;return NULL; }
 __attribute__((weak)) void void_android_window_ack(uint32_t serial){(void)serial;}
+#endif
 __attribute__((weak)) void void_android_frame_presented(void){}
+/* The shared launcher's renderer failure policy (owner's decision of 24 November 2026): OpenGL ES that does not
+ * start or loses its context stops the game with a record the launcher reads (CrashMonitor); there is no other
+ * renderer to switch to. The record is written here, in the library that marks the first presented frame (the
+ * header's state is per library: android_main.c lives in the common library), then the app (android_main.c)
+ * returns to the launcher; the device harness only records and logs. */
+#include "../shared/native/replacements/renderer_failure.h"
+#include <sys/system_properties.h>
+#ifdef VOID_ANDROID_APP
+void stronghold_renderer_end(const char *reason,int device_lost);
+#else
+__attribute__((weak)) void stronghold_renderer_end(const char *reason,int device_lost){(void)reason;(void)device_lost;}
+#endif
+static void stronghold_renderer_failed(const char *reason,int device_lost)
+{
+    int recorded=port_renderer_failed(reason,device_lost);
+    void_log("[renderer] failure record %d (%s)",recorded,device_lost?"lost":"start");
+    stronghold_renderer_end(reason,device_lost);
+}
+/* QA switch debug.stronghold.renderer_fail=start:gles | lost:gles (off unless set): read once at the start of
+ * OpenGL ES; it names the renderer id the game was given (PORT_RENDERER). */
+static int qa_start_due,qa_lost_due;
+static char qa_value[PROP_VALUE_MAX];
+static void stronghold_renderer_qa_start(void)
+{
+    static int read;
+    if(!read){
+        read=1;port_renderer_failure_init();
+        char value[PROP_VALUE_MAX]={0};
+        if(__system_property_get("debug.stronghold.renderer_fail",value)>0&&value[0]){
+            const char *renderer=port_renderer_failure_global.renderer[0]?port_renderer_failure_global.renderer:"gles";
+            const char *colon=strchr(value,':');int named=colon&&!strcmp(colon+1,renderer);
+            qa_start_due=named&&colon-value==5&&!strncmp(value,"start",5);
+            qa_lost_due=named&&colon-value==4&&!strncmp(value,"lost",4);
+            snprintf(qa_value,sizeof qa_value,"%s",value);
+            void_log("[renderer] QA switch debug.stronghold.renderer_fail=%s start=%d lost=%d",value,qa_start_due,qa_lost_due);
+        }
+    }
+    if(!qa_start_due)return;
+    char reason[160];snprintf(reason,sizeof reason,"QA switch debug.stronghold.renderer_fail=%s: simulated eglCreateContext failure",qa_value);
+    stronghold_renderer_failed(reason,0);
+}
+/* After each frame presented on screen: the simulated loss comes 60 frames after the first one. */
+static void stronghold_renderer_qa_frame(void)
+{
+    static unsigned frames;
+    if(!qa_lost_due||++frames<60)return;
+    char reason[160];snprintf(reason,sizeof reason,"QA switch debug.stronghold.renderer_fail=%s: simulated EGL_CONTEXT_LOST (0x300E)",qa_value);
+    stronghold_renderer_failed(reason,1);
+}
+static void gles_start_failed(const char *what,EGLint error)
+{
+    char reason[160];snprintf(reason,sizeof reason,"%s: EGL error 0x%04X",what,(unsigned)error);
+    stronghold_renderer_failed(reason,0);
+}
+/* Intervals between frames the display accepted, for the launcher base FPS overlay (frame_times.h). */
+static PortFrameTimes presented_frames=PORT_FRAME_TIMES_INIT;
+static char renderer_info[192];
+/* Nothing is recorded until the overlay asks for the first time: it is off by default. */
+static atomic_int frames_wanted;
+uint64_t stronghold_frame_times(int32_t *out,size_t length)
+{atomic_store_explicit(&frames_wanted,1,memory_order_relaxed);return port_frame_times(&presented_frames,out,length);}
+/* GL_RENDERER, a newline and GL_VERSION of the context the game draws with; empty before the first present. */
+const char *stronghold_renderer_info(void){return renderer_info;}
 
 static EGLDisplay display=EGL_NO_DISPLAY;
 static EGLContext context=EGL_NO_CONTEXT;
@@ -49,17 +119,21 @@ void d3d_request_trace(void){dump_next=1;}
 
 static GLuint compile_shader(GLenum kind,int count,const char *const *sources,const char *what)
 {
-    GLuint s=glCreateShader(kind);glShaderSource(s,count,sources,NULL);glCompileShader(s);
-    GLint ok=0;glGetShaderiv(s,GL_COMPILE_STATUS,&ok);
-    if(!ok){char log[1024];glGetShaderInfoLog(s,sizeof log,NULL,log);void_log("[ddraw] %s shader: %s",what,log);glDeleteShader(s);return 0;}
+    GLuint s=glCreateShader(kind);glShaderSource(s,count,sources,NULL);
+    /* Driver compilation must not hold up Miles' guest timer. */
+    GLint ok=0;
+    void_blocking_begin();glCompileShader(s);glGetShaderiv(s,GL_COMPILE_STATUS,&ok);void_blocking_end();
+    if(!ok){char log[1024];glGetShaderInfoLog(s,sizeof log,NULL,log);void_log("[renderer] %s shader: %s",what,log);glDeleteShader(s);return 0;}
     return s;
 }
 static GLuint link_program(GLuint v,GLuint f,const char *what)
 {
     if(!v||!f){if(v)glDeleteShader(v);if(f)glDeleteShader(f);return 0;}
-    GLuint p=glCreateProgram();glAttachShader(p,v);glAttachShader(p,f);glBindAttribLocation(p,0,"p");glLinkProgram(p);
-    glDeleteShader(v);glDeleteShader(f);GLint ok=0;glGetProgramiv(p,GL_LINK_STATUS,&ok);
-    if(!ok){char log[1024];glGetProgramInfoLog(p,sizeof log,NULL,log);void_log("[ddraw] %s link: %s",what,log);glDeleteProgram(p);return 0;}
+    GLuint p=glCreateProgram();glAttachShader(p,v);glAttachShader(p,f);glBindAttribLocation(p,0,"p");
+    GLint ok=0;
+    void_blocking_begin();glLinkProgram(p);glGetProgramiv(p,GL_LINK_STATUS,&ok);void_blocking_end();
+    glDeleteShader(v);glDeleteShader(f);
+    if(!ok){char log[1024];glGetProgramInfoLog(p,sizeof log,NULL,log);void_log("[renderer] %s link: %s",what,log);glDeleteProgram(p);return 0;}
     return p;
 }
 
@@ -111,7 +185,7 @@ static int initialize_gles2(void)
     for(int mode=0;mode<3;mode++)if(!(programs[mode]=link_filter(mode))){
         if(!mode)return 0;
         programs[mode]=programs[0];
-        void_log("[ddraw] image filter %d unavailable; bilinear is used",mode);
+        void_log("[renderer] image filter %d unavailable; bilinear is used",mode);
     }
     for(int mode=0;mode<3;mode++){
         glUseProgram(programs[mode]);glUniform1i(glGetUniformLocation(programs[mode],"image"),0);
@@ -145,8 +219,10 @@ static void present_gles2(const uint8_t *px,int w,int h,int pitch,int bpp,int ww
     if(!data)return;
     glPixelStorei(GL_UNPACK_ALIGNMENT,format==GL_RGB?2:4);
     glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,texture);
+    void_blocking_begin();
     if(w!=tex_w||h!=tex_h||bpp!=tex_bpp){glTexImage2D(GL_TEXTURE_2D,0,format,w,h,0,format,type,data);tex_w=w;tex_h=h;tex_bpp=bpp;}
     else glTexSubImage2D(GL_TEXTURE_2D,0,0,0,w,h,format,type,data);
+    void_blocking_end();
     glPixelStorei(GL_UNPACK_ALIGNMENT,4);
     glViewport(0,0,ww,hh);glClearColor(0,0,0,1);glClear(GL_COLOR_BUFFER_BIT);
     double scale=(double)ww/w;if((double)hh/h<scale)scale=(double)hh/h;
@@ -156,7 +232,9 @@ static void present_gles2(const uint8_t *px,int w,int h,int pitch,int bpp,int ww
     glUniform2f(size_uniform[mode],(float)w,(float)h);
     glUniform2f(scale_uniform[mode],(float)vw/(float)w,(float)vh/(float)h);
     glUniform1f(sharp_uniform[mode],sharpness);
-    glBindBuffer(GL_ARRAY_BUFFER,0);glEnableVertexAttribArray(0);glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,positions);glDrawArrays(GL_TRIANGLES,0,3);
+    glBindBuffer(GL_ARRAY_BUFFER,0);glEnableVertexAttribArray(0);glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,positions);
+    /* Some drivers defer the shader's expensive work until its first draw. */
+    void_blocking_begin();glDrawArrays(GL_TRIANGLES,0,3);void_blocking_end();
     glViewport(0,0,ww,hh);
     /* The layers are already one image here: their texts go on top in order. */
     if(layered)for(int p=0;p<SH_UI_LAYERS;p++)stronghold_text_overlay_draw(SH_UI_ORDER[p],ww,hh);
@@ -358,7 +436,7 @@ static void quad(const locations *u,float x0,float y0,float x1,float y1,int tw,i
     if(u->target>=0)glUniform1f(u->target,(float)th);
     glBindBuffer(GL_ARRAY_BUFFER,quad_buffer);glEnableVertexAttribArray(0);glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,0);
     glDisableVertexAttribArray(1); /* the text overlay may leave it on */
-    glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+    void_blocking_begin();glDrawArrays(GL_TRIANGLE_STRIP,0,4);void_blocking_end();
 }
 static void bind(int unit,GLuint texture_name,GLuint sampler)
 {
@@ -374,7 +452,8 @@ static void scissor(float x0,float y0,float x1,float y1,int th,int window)
 
 static GLuint texture2d(GLenum format,int w,int h)
 {
-    GLuint t;glGenTextures(1,&t);glBindTexture(GL_TEXTURE_2D,t);glTexStorage2D(GL_TEXTURE_2D,1,format,w,h);
+    GLuint t;glGenTextures(1,&t);glBindTexture(GL_TEXTURE_2D,t);
+    void_blocking_begin();glTexStorage2D(GL_TEXTURE_2D,1,format,w,h);void_blocking_end();
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     return t;
@@ -471,7 +550,7 @@ static int stage_init(int w,int h)
         if(glGetError()!=GL_NO_ERROR)break;
         if(i==2){stage_w=w;stage_h=h;return 1;}
     }
-    void_log("[ddraw] AHardwareBuffer uploads unavailable; using glTexSubImage2D");
+    void_log("[renderer] AHardwareBuffer uploads unavailable; using glTexSubImage2D");
     stage_free();stage_failed=1;return 0;
 }
 /* The rows go into the next staging buffer; its texture, or 0 to upload otherwise. */
@@ -479,10 +558,13 @@ static GLuint stage_upload(const uint16_t *pixels,int pitch,int w,int h)
 {
     if(!stage_init(g.fw,g.fh))return 0;
     staging *s=&stages[stage_next];
-    if(s->fence){glClientWaitSync(s->fence,GL_SYNC_FLUSH_COMMANDS_BIT,100000000);glDeleteSync(s->fence);s->fence=0;}
+    if(s->fence){void_blocking_begin();glClientWaitSync(s->fence,GL_SYNC_FLUSH_COMMANDS_BIT,100000000);void_blocking_end();glDeleteSync(s->fence);s->fence=0;}
     void *out=NULL;
-    if(AHardwareBuffer_lock(s->buffer,AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN,-1,NULL,&out)||!out){
-        void_log("[ddraw] AHardwareBuffer lock failed; using glTexSubImage2D");stage_free();stage_failed=1;return 0;
+    void_blocking_begin();
+    int lock_result=AHardwareBuffer_lock(s->buffer,AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN,-1,NULL,&out);
+    void_blocking_end();
+    if(lock_result||!out){
+        void_log("[renderer] AHardwareBuffer lock failed; using glTexSubImage2D");stage_free();stage_failed=1;return 0;
     }
     for(int y=0;y<h;y++)memcpy((uint16_t *)out+(size_t)y*s->stride,pixels+(size_t)y*pitch,(size_t)w*2);
     AHardwareBuffer_unlock(s->buffer,NULL);
@@ -528,7 +610,9 @@ static void upload(GLuint t,const void *base,int pitch,int bytes,GLenum format,G
     if(w<=0||h<=0)return;
     glBindTexture(GL_TEXTURE_2D,t);
     glPixelStorei(GL_UNPACK_ROW_LENGTH,pitch);glPixelStorei(GL_UNPACK_ALIGNMENT,bytes==2?2:1);
+    void_blocking_begin();
     glTexSubImage2D(GL_TEXTURE_2D,0,x,y,w,h,format,type,(const uint8_t *)base+((size_t)y*pitch+x)*bytes);
+    void_blocking_end();
     glPixelStorei(GL_UNPACK_ROW_LENGTH,0);glPixelStorei(GL_UNPACK_ALIGNMENT,4);
 }
 
@@ -926,10 +1010,13 @@ static int follow_window(int initial)
     if(window){
         window_surface=eglCreateWindowSurface(display,config,(EGLNativeWindowType)window,NULL);
         if(window_surface==EGL_NO_SURFACE||!eglMakeCurrent(display,window_surface,window_surface,context)){
-            void_log("[ddraw] window EGL surface failed %04X",eglGetError());
+            EGLint error=eglGetError();
+            void_log("[renderer] window EGL surface failed %04X",error);
+            /* Before the first frame the window surface is part of starting OpenGL ES. */
+            if(initial)gles_start_failed(window_surface==EGL_NO_SURFACE?"eglCreateWindowSurface":"eglMakeCurrent",error);
             if(window_surface!=EGL_NO_SURFACE)eglDestroySurface(display,window_surface);
             window_surface=EGL_NO_SURFACE;eglMakeCurrent(display,pbuffer,pbuffer,context);
-        } else {eglSwapInterval(display,1);void_log("[ddraw] window surface ready");}
+        } else {eglSwapInterval(display,1);void_log("[renderer] window surface ready");}
     }
     void_android_window_ack(serial);return 1;
 }
@@ -941,8 +1028,13 @@ static int initialize(void)
 {
     if(failed)return 0;
     if(context!=EGL_NO_CONTEXT)return 1;
+    stronghold_renderer_qa_start();
     failed=1;display=eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if(!eglInitialize(display,NULL,NULL)){void_log("[ddraw] eglInitialize %04X",eglGetError());return 0;}
+    if(display==EGL_NO_DISPLAY){void_log("[renderer] no EGL display");gles_start_failed("eglGetDisplay",eglGetError());return 0;}
+    if(!eglInitialize(display,NULL,NULL)){
+        EGLint error=eglGetError();void_log("[renderer] eglInitialize %04X",error);
+        gles_start_failed("eglInitialize",error);return 0;
+    }
     const EGLint pbuffer_attrs[]={EGL_WIDTH,SH_PBUFFER_WIDTH,EGL_HEIGHT,SH_PBUFFER_HEIGHT,EGL_NONE};
     /* OpenGL ES 3 for the layered pipeline; ES 2 keeps the single filter. */
     for(int version=3;version>=2&&context==EGL_NO_CONTEXT;version--){
@@ -960,7 +1052,7 @@ static int initialize(void)
         }
         gles3=version==3&&initialize_gles3();
         if(version==3&&!gles3){
-            void_log("[ddraw] OpenGL ES 3 pipeline unavailable; trying ES 2");
+            void_log("[renderer] OpenGL ES 3 pipeline unavailable; trying ES 2");
             eglMakeCurrent(display,EGL_NO_SURFACE,EGL_NO_SURFACE,EGL_NO_CONTEXT);
             if(window_surface!=EGL_NO_SURFACE)eglDestroySurface(display,window_surface);
             eglDestroySurface(display,pbuffer);eglDestroyContext(display,context);
@@ -968,19 +1060,27 @@ static int initialize(void)
             memset(gl3_programs,0,sizeof gl3_programs);memset(gl3_failed,0,sizeof gl3_failed);
             continue;
         }
-        if(!gles3&&!initialize_gles2()){void_log("[ddraw] no usable shaders");return 0;}
+        if(!gles3&&!initialize_gles2()){
+            void_log("[renderer] no usable shaders");
+            stronghold_renderer_failed("OpenGL ES shaders of the presentation did not compile or link",0);
+            return 0;
+        }
     }
-    if(context==EGL_NO_CONTEXT){void_log("[ddraw] EGL context/current %04X",eglGetError());return 0;}
+    if(context==EGL_NO_CONTEXT){
+        EGLint error=eglGetError();void_log("[renderer] EGL context/current %04X",error);
+        gles_start_failed("eglChooseConfig/eglCreateContext (OpenGL ES 3 or 2)",error);return 0;
+    }
     const char *dump=getenv("VOID_DUMP_FRAMES");dump_every=dump?atoi(dump):0;report_ns=void_monotonic_ns();failed=0;
-    void_log("[ddraw] %s / %s / %s (%s)",glGetString(GL_VENDOR),glGetString(GL_RENDERER),glGetString(GL_VERSION),
+    void_log("[renderer] %s / %s / %s (%s)",glGetString(GL_VENDOR),glGetString(GL_RENDERER),glGetString(GL_VERSION),
              gles3?"layered GPU composition":"CPU composition");
+    snprintf(renderer_info,sizeof renderer_info,"%s\n%s",(const char *)glGetString(GL_RENDERER),(const char *)glGetString(GL_VERSION));
     return 1;
 }
 static void dump_bmp(const uint8_t *px,int w,int h,int pitch,int bpp)
 {
     char path[1200];snprintf(path,sizeof path,"%s/frames",void_data_dir());mkdir(path,0775);
     snprintf(path,sizeof path,"%s/frames/ddraw_%06llu.bmp",void_data_dir(),(unsigned long long)frame_count);
-    FILE *f=fopen(path,"wb");if(!f){void_log("[ddraw] cannot write %s",path);return;}
+    FILE *f=fopen(path,"wb");if(!f){void_log("[renderer] cannot write %s",path);return;}
     uint32_t stride=((uint32_t)w*3+3)&~3u,size=54+stride*(uint32_t)h;
     uint8_t head[54]={'B','M'};
 #define PUT32(o,v) do {uint32_t x_=(v);memcpy(head+(o),&x_,4);}while(0)
@@ -994,7 +1094,7 @@ static void dump_bmp(const uint8_t *px,int w,int h,int pitch,int bpp)
             else {row[x*3]=src[x*(bpp/8)];row[x*3+1]=src[x*(bpp/8)+1];row[x*3+2]=src[x*(bpp/8)+2];}
         }good=fwrite(row,1,stride,f)==stride;
     }
-    free(row);if(fclose(f))good=0;void_log("[ddraw] frame %llu dump %s (%s)",(unsigned long long)frame_count,path,good?"ok":"write failed");
+    free(row);if(fclose(f))good=0;void_log("[renderer] frame %llu dump %s (%s)",(unsigned long long)frame_count,path,good?"ok":"write failed");
 }
 
 /* Crisp text: once per fresh layered frame (also with the setting off, which
@@ -1021,7 +1121,7 @@ static void hide_layer_text(stronghold_frame *frame)
     }
 }
 
-void void_ddraw_present_pixels(const uint8_t *px,int w,int h,int pitch,int bpp)
+void stronghold_renderer_present_pixels(const uint8_t *px,int w,int h,int pitch,int bpp)
 {
     if(!px||w<=0||h<=0||pitch<w*(bpp/8))return;
     stronghold_frame frame;
@@ -1047,10 +1147,23 @@ void void_ddraw_present_pixels(const uint8_t *px,int w,int h,int pitch,int bpp)
     else present_frame(px,w,h,pitch,bpp,ww,hh);
     if(hidden)stronghold_text_overlay_restore_frame();
     stronghold_perf_frame_end(); /* the swap below may wait for the display */
-    if(!eglSwapBuffers(display,target))void_log("[ddraw] swap %04X",eglGetError());
+    int on_screen=window_surface!=EGL_NO_SURFACE;
+    if(on_screen)void_blocking_begin();
+    EGLBoolean swapped=eglSwapBuffers(display,target);
+    EGLint swap_error=swapped?EGL_SUCCESS:eglGetError();
+    if(on_screen)void_blocking_end();
+    if(!swapped)void_log("[renderer] swap %04X",swap_error);
+    /* A lost context is the renderer's failure; the launcher judges the time since the first frame. */
+    if(swap_error==EGL_CONTEXT_LOST)stronghold_renderer_failed("eglSwapBuffers: EGL_CONTEXT_LOST (0x300E)",1);
+    if(swapped&&on_screen){
+        if(atomic_load_explicit(&frames_wanted,memory_order_relaxed))port_frame_presented(&presented_frames,void_monotonic_ns());
+        void_crash_presented();
+        port_renderer_presented();
+        stronghold_renderer_qa_frame();
+    }
     void_android_frame_presented();
     uint64_t now=void_monotonic_ns();if(now-report_ns>=5000000000ull){
-        double elapsed=(double)(now-report_ns)*1e-9;void_log("[ddraw] frame %llu: %.2f fps (%dx%d RGB%d)",(unsigned long long)frame_count,(double)(frame_count-report_frame)/elapsed,w,h,bpp);
+        double elapsed=(double)(now-report_ns)*1e-9;void_log("[renderer] frame %llu: %.2f fps (%dx%d RGB%d)",(unsigned long long)frame_count,(double)(frame_count-report_frame)/elapsed,w,h,bpp);
         report_frame=frame_count;report_ns=now;void_thunk_stats((uint32_t)frame_count);
     }
 }

@@ -41,7 +41,7 @@ import java.util.HashSet;
 public abstract class GameActivity extends Activity implements SurfaceHolder.Callback, InputManager.InputDeviceListener {
     private static String loadedEdition;
     protected abstract String gameEdition();
-    private static native boolean nativeStart(String game, String data, String images, String marker, int width, int height, boolean verbose, boolean skipMovies);
+    private static native boolean nativeStart(String game, String data, String images, String marker, int width, int height, boolean verbose, boolean skipMovies, boolean compatAudio);
     private static native void nativeSurface(Object surface);
     private static native void nativeKey(int scan, boolean down);
     private static native int nativeUiEvent();
@@ -61,6 +61,10 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private static native void nativeMagnifier(boolean active, float x, float y, int size, int zoom);
     private static native int nativeFeedback();
     private static native float[] nativePerfStats(boolean reset);
+    /** FpsOverlay.Source: intervals between frames the display accepted, in microseconds. */
+    private static native long nativeFrameTimes(int[] intervalsUs);
+    /** GL_RENDERER and GL_VERSION of the game's context, separated by a newline; null before it exists. */
+    private static native String nativeRendererInfo();
     private static native boolean nativeTouchDesktop();
     private static native float nativeWorldZoom();
     private static native float[] nativeHudPoint(float x, float y);
@@ -108,6 +112,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private boolean skipMovies, rememberedSuccess;
     private SharedPreferences preferences;
     private FrameLayout root;
+    /** The shared launcher base's counter; null while the player keeps it off. */
+    private port.launcher.FpsOverlay fpsOverlay;
     private LinearLayout editorBar;
     private final java.util.LinkedHashMap<String, View> commandViews = new java.util.LinkedHashMap<>();
     private final java.util.Map<String, android.graphics.Bitmap> commandIcons = new java.util.HashMap<>();
@@ -254,6 +260,8 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        current = this;
+        LauncherActivity.keepCurrentTask(this);
         I18n.apply(this);
         edition = gameEdition();
         gamePath = getIntent().getStringExtra("game");
@@ -295,13 +303,14 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         readPreferences();
         forgetOtherBuildsPerformance(this, preferences);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        WindowManager.LayoutParams window = getWindow().getAttributes();
-        window.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-        getWindow().setAttributes(window);
+        Theme.edgeCutout(getWindow());
         if (android.os.Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
         root = new FrameLayout(this); root.setBackgroundColor(0xff000000);
         SurfaceView surface = new SurfaceView(this); surface.getHolder().addCallback(this);
         root.addView(surface, new FrameLayout.LayoutParams(-1, -1));
+        /* Between the game's surface and the touch controls; it takes no touches. */
+        fpsOverlay = port.launcher.Shared.overlay(this, GameActivity::nativeFrameTimes, GameActivity::nativeRendererInfo);
+        if (fpsOverlay != null) root.addView(fpsOverlay, 1, new FrameLayout.LayoutParams(-1, -1));
         touch = new PointerView();
         mouseGate = new MouseGate(new MouseGate.Output() {
             public void button(int button, boolean down) { if (started) nativeMouseButton(button, down); }
@@ -470,8 +479,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     private void applyCutout() {
         if (!ready || root == null || root.getWidth() <= 0) return;
         android.view.WindowInsets insets = root.getRootWindowInsets();
-        android.view.DisplayCutout cutout = insets == null ? null : insets.getDisplayCutout();
-        nativeCutout(cutout == null ? 0 : (float)cutout.getSafeInsetLeft()/root.getWidth());
+        nativeCutout((float)Theme.cutoutLeft(insets)/root.getWidth());
     }
     private void startGame(int width, int height) {
         int[] size = resolution(width, height);
@@ -492,9 +500,25 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (modError != null) { launchError(I18n.t("Не удалось применить моды: ") + modError); return; }
         try { android.system.Os.setenv("PORT_OPTION_LARGE_ADDRESS_AWARE", LauncherActivity.largeAddressAware(this) ? "1" : "0", true); }
         catch (android.system.ErrnoException error) { launchError(error.toString()); return; }
+        boolean monitored = getIntent().getBooleanExtra(CrashMonitor.OPTION, true) && CrashMonitor.begin(this, edition);
+        if (monitored) try { android.system.Os.setenv("STRONGHOLD_CRASH_MONITOR", "1", true); }
+        catch (android.system.ErrnoException error) { Log.w(TAG, "Cannot enable native crash journal", error); }
+        /* The renderer failure record (shared launcher base, renderer_failure.h): written by renderer_present.c when
+           OpenGL ES does not start or loses its context; the launcher reads it through CrashMonitor. */
+        try {
+            File record = CrashMonitor.rendererFailureFile(edition);
+            record.delete();
+            android.system.Os.setenv("PORT_RENDERER_FAILURE", record.getAbsolutePath(), true);
+            android.system.Os.setenv("PORT_RENDERER", CrashMonitor.RENDERER_ID, true);
+        } catch (android.system.ErrnoException error) { Log.w(TAG, "Cannot set the renderer failure record", error); }
         if (!nativeStart(gamePath, data.getAbsolutePath(), imagePath == null ? GameFiles.images(new File(gamePath), edition).getAbsolutePath() : imagePath,
                 GameFiles.pending(getFilesDir(), edition).getAbsolutePath(), requestedWidth, requestedHeight,
-                new File(base, "verbose").exists(), skipMovies)) { launchError(I18n.t("Не удалось создать поток игры.")); return; }
+                new File(base, "verbose").exists(), skipMovies, preferences.getBoolean("compatAudio", false))) {
+            String error = I18n.t("Не удалось создать поток игры.");
+            if (monitored) CrashMonitor.recordLaunchFailure(edition, error);
+            launchError(error);
+            return;
+        }
         started = true;
         preferences.edit().putString("activeResolution", preferences.getString("resolution", "auto")).apply();
         nativeTouch(SemanticTouchControls.UI_SCALE, 0, 0, 0, 0, 0, uiScale / 100f);
@@ -747,7 +771,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         markerWheel = placement("markers") == ControlLayout.SCREEN;
         int x = dp(12), y = dp(8), lineHeight = 0;
         android.view.WindowInsets safeInsets = root.getRootWindowInsets();
-        if (safeInsets != null && safeInsets.getDisplayCutout() != null) x += safeInsets.getDisplayCutout().getSafeInsetLeft();
+        x += Theme.cutoutLeft(safeInsets);
         int startX = x;
         for (String id : ControlLayout.IDS) {
             boolean menuSwitch = "switch".equals(id) && (controlState[0] & 8) != 0 && !layoutPreferences().contains("control-switch");
@@ -1140,10 +1164,11 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
                 .setNegativeButton(I18n.t("Остаться"), null).setOnDismissListener(dialog -> immersive()).show();
     }
     private void launchEdition(String other) {
+        CrashMonitor.end(this, edition);
         GameFiles.pending(getFilesDir(), edition).delete();
         startActivity(new Intent(this, LauncherActivity.class).putExtra("edition", other).putExtra("launchGame", true)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        finishAndRemoveTask(); android.os.Process.killProcess(android.os.Process.myPid());
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        finish(); android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private float[] hudPoint(float x,float y) {
@@ -1157,15 +1182,16 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         return new float[]{(touch.getWidth()-w*fit)/2+(w/2+(x+controlState[6]-w/2)*scale)*fit,
                 (touch.getHeight()-h*fit)/2+(h+(y+controlState[7]-h)*scale)*fit};
     }
-    /* The value sits over the radar's top-right corner; its right edge stays there for any width. */
+    /* Leave the castle and terrain tabs above the editor radar exposed. */
     private void positionZoom() {
         if(zoomIndicator==null||touch==null)return;
         if (zoomIndicator.getVisibility() != View.VISIBLE) return;
         if (layoutEdit && layoutEditor != null && layoutEditor.dragged == zoomIndicator) return;
         float[] position = saved("zoom_value");
         boolean pinned = position != null;
+        boolean editor = (controlState[0] & 2) != 0;
         float[] point = pinned ? new float[]{position[0] * root.getWidth(), position[1] * root.getHeight()} :
-                hudPoint((controlState[0]&2)!=0?791:697,465);
+                hudPoint(editor ? 791 : 697, editor ? 402 : 465);
         if (zoomPinned == pinned && zoomAnchorX == point[0] && zoomAnchorY == point[1] && positionedZoom == displayedZoom) return;
         zoomPinned = pinned; zoomAnchorX = point[0]; zoomAnchorY = point[1]; positionedZoom = displayedZoom;
         FrameLayout.LayoutParams bounds=(FrameLayout.LayoutParams)zoomIndicator.getLayoutParams();
@@ -2014,17 +2040,34 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
     }
     private Intent launcherIntent() {
         return new Intent(this, LauncherActivity.class).putExtra("showLauncher", true).putExtra("edition", edition)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
     private void launchError(String message) {
         startActivity(launcherIntent().putExtra("error", message));
-        finishAndRemoveTask(); android.os.Process.killProcess(android.os.Process.myPid());
+        finish(); android.os.Process.killProcess(android.os.Process.myPid());
+    }
+    /** OpenGL ES did not start or lost its context (renderer failure policy of 24 November 2026; native
+     *  stronghold_renderer_failed, any thread, the record already written). The crash session stays open, so the
+     *  launcher reads the record (CrashMonitor) and says that no other renderer is available. Ends the process. */
+    /** The native entry (android_main.c holds this class, not the activity). */
+    static void onNativeRendererFailed(String reason, boolean contextLost) {
+        GameActivity activity = current;
+        if (activity != null) activity.onRendererFailed(reason, contextLost);
+        else android.os.Process.killProcess(android.os.Process.myPid());
+    }
+    private static volatile GameActivity current;
+    void onRendererFailed(String reason, boolean contextLost) {
+        Log.e(TAG, "renderer failure (" + (contextLost ? "context lost" : "did not start") + "): " + reason);
+        GameFiles.pending(getFilesDir(), edition).delete();
+        startActivity(launcherIntent());
+        finish(); android.os.Process.killProcess(android.os.Process.myPid());
     }
     private void returnToLauncher() {
         releaseControls();
+        CrashMonitor.end(this, edition);
         GameFiles.pending(getFilesDir(), edition).delete();
         startActivity(launcherIntent());
-        finishAndRemoveTask(); android.os.Process.killProcess(android.os.Process.myPid());
+        finish(); android.os.Process.killProcess(android.os.Process.myPid());
     }
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -2051,7 +2094,14 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (root != null) root.removeCallbacks(zoomRefresh); releaseControls();
         if (ready && preferences != null) rememberGameSettings();
         if(lanDiscovery!=null){lanDiscovery.release();lanDiscovery=null;}
+        if (fpsOverlay != null) fpsOverlay.stop();
         if (ready) nativePause(true); super.onPause();
+    }
+    /** RUNNING_CRITICAL in the foreground and COMPLETE in the background come last before a kill for memory. */
+    @Override public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (started && edition != null && (level == TRIM_MEMORY_RUNNING_CRITICAL || level == TRIM_MEMORY_COMPLETE)
+                && getIntent().getBooleanExtra(CrashMonitor.OPTION, true)) CrashMonitor.memoryPressure(edition, level);
     }
     @Override protected void onResume() {
         super.onResume();
@@ -2059,6 +2109,7 @@ public abstract class GameActivity extends Activity implements SurfaceHolder.Cal
         if (inputManager != null) { inputManager.registerInputDeviceListener(this, null); refreshGamepads(); }
         if (root != null) discoverEditions();
         if (ready) nativePause(layoutEdit);
+        if (ready && fpsOverlay != null) fpsOverlay.start();
         if (ready && preferences != null) {
             boolean oldWide = wide; String oldResolution = preferences.getString("activeResolution", "auto");
             /* Game options changed in Android settings were applied there, immediately. */
